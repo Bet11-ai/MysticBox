@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Elementos de la solución/">
+    <File Path=".gitignore.txt" />
+  </Folder>
+  <Project Path="../MysticBox.AccesoDatos/MysticBox.AccesoDatos.csproj" Id="e3c7dd36-2238-4315-8227-d730704b6004" />
+  <Project Path="../MysticBox.Dominio/MysticBox.Dominio.csproj" Id="4924641a-007f-47fe-83d5-7e4da59615a3" />
+  <Project Path="../MysticBox.LogicaNegocio/MysticBox.LogicaNegocio.csproj" Id="5eea5f86-84e3-4722-90d4-38422e24b729" />
+  <Project Path="../MysticBox.Utilitarios/MysticBox.Utilitarios.csproj" Id="a782000a-5cfa-41cc-94c5-c1d1815956db" />
+  <Project Path="MysticBox.Api.csproj" />
+</Solution>
