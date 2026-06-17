@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MysticBox.Utilitarios;
 
-namespace MysticBox.Utilitarios
+public class Respuesta<T>
 {
-    internal class Respuesta
-    {
-    }
+    public bool Exitoso { get; set; }
+    public string Mensaje { get; set; } = string.Empty;
+    public T? Datos { get; set; }
 }

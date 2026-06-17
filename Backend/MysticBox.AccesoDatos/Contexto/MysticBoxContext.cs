@@ -33,7 +33,8 @@ public partial class MysticBoxContext : DbContext
 
     public virtual DbSet<MetodosPago> MetodosPagos { get; set; }
 
-    public virtual DbSet<MysticBoxContext> MysticBoxes { get; set; }
+    public virtual DbSet<MysticBox.Dominio.Entidades.MysticBox> MysticBoxes { get; set; }
+
 
     public virtual DbSet<Pedido> Pedidos { get; set; }
 
