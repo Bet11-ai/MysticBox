@@ -7,35 +7,75 @@ namespace MysticBox.LogicaNegocio.Implementaciones;
 
 public class DetallePedidoLN : IDetallePedidoLN
 {
-    private readonly IDetallePedidoAD _detallePedidoAD;
+    private readonly IUnidadTrabajoEF _unidadTrabajo;
 
-    public DetallePedidoLN(IDetallePedidoAD detallePedidoAD)
+    public DetallePedidoLN(IUnidadTrabajoEF unidadTrabajo)
     {
-        _detallePedidoAD = detallePedidoAD;
+        _unidadTrabajo = unidadTrabajo;
     }
 
     public async Task<List<DetallePedido>> ObtenerDetallesPedido()
     {
-        return await _detallePedidoAD.ObtenerDetallesPedido();
+        var respuesta = _unidadTrabajo.TDetallePedido.Listar();
+        return await Task.FromResult(respuesta.ValorRetorno?.ToList() ?? new List<DetallePedido>());
     }
 
     public async Task<DetallePedido?> ObtenerDetallePedidoPorId(int idDetallePedido)
     {
-        return await _detallePedidoAD.ObtenerDetallePedidoPorId(idDetallePedido);
+        var respuesta = _unidadTrabajo.TDetallePedido.ObtenerEntidad(x => x.IdDetallePedido == idDetallePedido);
+        return await Task.FromResult(respuesta.ValorRetorno);
     }
 
     public async Task<DetallePedido> CrearDetallePedido(DetallePedidoDTO detalleDTO)
     {
-        return await _detallePedidoAD.CrearDetallePedido(detalleDTO);
+        var detalle = new DetallePedido
+        {
+            IdPedido = detalleDTO.IdPedido,
+            IdCaja = detalleDTO.IdCaja,
+            IdPersonalizacion = detalleDTO.IdPersonalizacion,
+            Cantidad = detalleDTO.Cantidad,
+            PrecioUnitario = detalleDTO.PrecioUnitario,
+            Subtotal = detalleDTO.Subtotal
+        };
+
+        _unidadTrabajo.TDetallePedido.Insertar(detalle);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(detalle);
     }
 
     public async Task<bool> ActualizarDetallePedido(int idDetallePedido, DetallePedidoDTO detalleDTO)
     {
-        return await _detallePedidoAD.ActualizarDetallePedido(idDetallePedido, detalleDTO);
+        var respuesta = _unidadTrabajo.TDetallePedido.ObtenerEntidad(x => x.IdDetallePedido == idDetallePedido);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        var detalle = respuesta.ValorRetorno;
+
+        detalle.IdPedido = detalleDTO.IdPedido;
+        detalle.IdCaja = detalleDTO.IdCaja;
+        detalle.IdPersonalizacion = detalleDTO.IdPersonalizacion;
+        detalle.Cantidad = detalleDTO.Cantidad;
+        detalle.PrecioUnitario = detalleDTO.PrecioUnitario;
+        detalle.Subtotal = detalleDTO.Subtotal;
+
+        _unidadTrabajo.TDetallePedido.Modificar(detalle);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 
     public async Task<bool> EliminarDetallePedido(int idDetallePedido)
     {
-        return await _detallePedidoAD.EliminarDetallePedido(idDetallePedido);
+        var respuesta = _unidadTrabajo.TDetallePedido.ObtenerEntidad(x => x.IdDetallePedido == idDetallePedido);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        _unidadTrabajo.TDetallePedido.Eliminar(respuesta.ValorRetorno);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 }

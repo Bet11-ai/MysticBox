@@ -7,35 +7,64 @@ namespace MysticBox.LogicaNegocio.Implementaciones;
 
 public class RolLN : IRolLN
 {
-    private readonly IRolAD _rolAD;
+    private readonly IUnidadTrabajoEF _unidadTrabajo;
 
-    public RolLN(IRolAD rolAD)
+    public RolLN(IUnidadTrabajoEF unidadTrabajo)
     {
-        _rolAD = rolAD;
+        _unidadTrabajo = unidadTrabajo;
     }
 
     public async Task<List<Role>> ObtenerRoles()
     {
-        return await _rolAD.ObtenerRoles();
+        var respuesta = _unidadTrabajo.TRol.Listar();
+        return await Task.FromResult(respuesta.ValorRetorno?.ToList() ?? new List<Role>());
     }
 
     public async Task<Role?> ObtenerRolPorId(int idRol)
     {
-        return await _rolAD.ObtenerRolPorId(idRol);
+        var respuesta = _unidadTrabajo.TRol.ObtenerEntidad(x => x.IdRol == idRol);
+        return await Task.FromResult(respuesta.ValorRetorno);
     }
 
     public async Task<Role> CrearRol(RolDTO rolDTO)
     {
-        return await _rolAD.CrearRol(rolDTO);
+        var rol = new Role
+        {
+            NombreRol = rolDTO.NombreRol
+        };
+
+        _unidadTrabajo.TRol.Insertar(rol);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(rol);
     }
 
     public async Task<bool> ActualizarRol(int idRol, RolDTO rolDTO)
     {
-        return await _rolAD.ActualizarRol(idRol, rolDTO);
+        var respuesta = _unidadTrabajo.TRol.ObtenerEntidad(x => x.IdRol == idRol);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        var rol = respuesta.ValorRetorno;
+        rol.NombreRol = rolDTO.NombreRol;
+
+        _unidadTrabajo.TRol.Modificar(rol);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 
     public async Task<bool> EliminarRol(int idRol)
     {
-        return await _rolAD.EliminarRol(idRol);
+        var respuesta = _unidadTrabajo.TRol.ObtenerEntidad(x => x.IdRol == idRol);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        _unidadTrabajo.TRol.Eliminar(respuesta.ValorRetorno);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 }

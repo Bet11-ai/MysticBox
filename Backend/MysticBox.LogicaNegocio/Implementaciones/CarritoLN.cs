@@ -7,35 +7,69 @@ namespace MysticBox.LogicaNegocio.Implementaciones;
 
 public class CarritoLN : ICarritoLN
 {
-    private readonly ICarritoAD _carritoAD;
+    private readonly IUnidadTrabajoEF _unidadTrabajo;
 
-    public CarritoLN(ICarritoAD carritoAD)
+    public CarritoLN(IUnidadTrabajoEF unidadTrabajo)
     {
-        _carritoAD = carritoAD;
+        _unidadTrabajo = unidadTrabajo;
     }
 
     public async Task<List<Carrito>> ObtenerCarritos()
     {
-        return await _carritoAD.ObtenerCarritos();
+        var respuesta = _unidadTrabajo.TCarrito.Listar();
+        return await Task.FromResult(respuesta.ValorRetorno?.ToList() ?? new List<Carrito>());
     }
 
     public async Task<Carrito?> ObtenerCarritoPorId(int idCarrito)
     {
-        return await _carritoAD.ObtenerCarritoPorId(idCarrito);
+        var respuesta = _unidadTrabajo.TCarrito.ObtenerEntidad(x => x.IdCarrito == idCarrito);
+        return await Task.FromResult(respuesta.ValorRetorno);
     }
 
     public async Task<Carrito> CrearCarrito(CarritoDTO carritoDTO)
     {
-        return await _carritoAD.CrearCarrito(carritoDTO);
+        var carrito = new Carrito
+        {
+            IdUsuario = carritoDTO.IdUsuario,
+            FechaCreacion = carritoDTO.FechaCreacion ?? DateTime.Now,
+            Estado = carritoDTO.Estado ?? "Activo"
+        };
+
+        _unidadTrabajo.TCarrito.Insertar(carrito);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(carrito);
     }
 
     public async Task<bool> ActualizarCarrito(int idCarrito, CarritoDTO carritoDTO)
     {
-        return await _carritoAD.ActualizarCarrito(idCarrito, carritoDTO);
+        var respuesta = _unidadTrabajo.TCarrito.ObtenerEntidad(x => x.IdCarrito == idCarrito);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        var carrito = respuesta.ValorRetorno;
+
+        carrito.IdUsuario = carritoDTO.IdUsuario;
+        carrito.FechaCreacion = carritoDTO.FechaCreacion;
+        carrito.Estado = carritoDTO.Estado;
+
+        _unidadTrabajo.TCarrito.Modificar(carrito);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 
     public async Task<bool> EliminarCarrito(int idCarrito)
     {
-        return await _carritoAD.EliminarCarrito(idCarrito);
+        var respuesta = _unidadTrabajo.TCarrito.ObtenerEntidad(x => x.IdCarrito == idCarrito);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        _unidadTrabajo.TCarrito.Eliminar(respuesta.ValorRetorno);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 }

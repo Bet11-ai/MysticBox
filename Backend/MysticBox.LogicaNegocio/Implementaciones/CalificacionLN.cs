@@ -7,35 +7,71 @@ namespace MysticBox.LogicaNegocio.Implementaciones;
 
 public class CalificacionLN : ICalificacionLN
 {
-    private readonly ICalificacionAD _calificacionAD;
+    private readonly IUnidadTrabajoEF _unidadTrabajo;
 
-    public CalificacionLN(ICalificacionAD calificacionAD)
+    public CalificacionLN(IUnidadTrabajoEF unidadTrabajo)
     {
-        _calificacionAD = calificacionAD;
+        _unidadTrabajo = unidadTrabajo;
     }
 
     public async Task<List<Calificacione>> ObtenerCalificaciones()
     {
-        return await _calificacionAD.ObtenerCalificaciones();
+        var respuesta = _unidadTrabajo.TCalificacion.Listar();
+        return await Task.FromResult(respuesta.ValorRetorno?.ToList() ?? new List<Calificacione>());
     }
 
     public async Task<Calificacione?> ObtenerCalificacionPorId(int idCalificacion)
     {
-        return await _calificacionAD.ObtenerCalificacionPorId(idCalificacion);
+        var respuesta = _unidadTrabajo.TCalificacion.ObtenerEntidad(x => x.IdCalificacion == idCalificacion);
+        return await Task.FromResult(respuesta.ValorRetorno);
     }
 
     public async Task<Calificacione> CrearCalificacion(CalificacionDTO calificacionDTO)
     {
-        return await _calificacionAD.CrearCalificacion(calificacionDTO);
+        var calificacion = new Calificacione
+        {
+            IdPedido = calificacionDTO.IdPedido,
+            Estrellas = calificacionDTO.Estrellas,
+            Comentario = calificacionDTO.Comentario,
+            FechaCalificacion = calificacionDTO.FechaCalificacion ?? DateTime.Now
+        };
+
+        _unidadTrabajo.TCalificacion.Insertar(calificacion);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(calificacion);
     }
 
     public async Task<bool> ActualizarCalificacion(int idCalificacion, CalificacionDTO calificacionDTO)
     {
-        return await _calificacionAD.ActualizarCalificacion(idCalificacion, calificacionDTO);
+        var respuesta = _unidadTrabajo.TCalificacion.ObtenerEntidad(x => x.IdCalificacion == idCalificacion);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        var calificacion = respuesta.ValorRetorno;
+
+        calificacion.IdPedido = calificacionDTO.IdPedido;
+        calificacion.Estrellas = calificacionDTO.Estrellas;
+        calificacion.Comentario = calificacionDTO.Comentario;
+        calificacion.FechaCalificacion = calificacionDTO.FechaCalificacion;
+
+        _unidadTrabajo.TCalificacion.Modificar(calificacion);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 
     public async Task<bool> EliminarCalificacion(int idCalificacion)
     {
-        return await _calificacionAD.EliminarCalificacion(idCalificacion);
+        var respuesta = _unidadTrabajo.TCalificacion.ObtenerEntidad(x => x.IdCalificacion == idCalificacion);
+
+        if (respuesta.ValorRetorno == null)
+            return await Task.FromResult(false);
+
+        _unidadTrabajo.TCalificacion.Eliminar(respuesta.ValorRetorno);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 }

@@ -1,26 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
-using MysticBox.AccesoDatos.Contexto;
-using MysticBox.Dominio.DTO;
+﻿using MysticBox.Dominio.DTO;
 using MysticBox.Dominio.Entidades;
+using MysticBox.Dominio.InterfacesAD;
 using MysticBox.Dominio.InterfacesLN;
 
 namespace MysticBox.LogicaNegocio.Implementaciones;
 
 public class AuthLN : IAuthLN
 {
-    private readonly MysticBoxContext _context;
+    private readonly IUnidadTrabajoEF _unidadTrabajo;
 
-    public AuthLN(MysticBoxContext context)
+    public AuthLN(IUnidadTrabajoEF unidadTrabajo)
     {
-        _context = context;
+        _unidadTrabajo = unidadTrabajo;
     }
 
     public async Task<Usuario?> Login(LoginDTO loginDTO)
     {
-        return await _context.Usuarios
-            .FirstOrDefaultAsync(x =>
-                x.Correo == loginDTO.Correo &&
-                x.Contrasena == loginDTO.Contrasena);
+        var respuesta = _unidadTrabajo.TUsuario.ObtenerEntidad(x =>
+            x.Correo == loginDTO.Correo &&
+            x.Contrasena == loginDTO.Contrasena &&
+            x.Estado == true);
+
+        return await Task.FromResult(respuesta.ValorRetorno);
     }
 
     public async Task<Usuario> Registro(RegistroDTO registroDTO)
@@ -37,10 +38,9 @@ public class AuthLN : IAuthLN
             Estado = true
         };
 
-        _context.Usuarios.Add(usuario);
+        _unidadTrabajo.TUsuario.Insertar(usuario);
+        _unidadTrabajo.Completar();
 
-        await _context.SaveChangesAsync();
-
-        return usuario;
+        return await Task.FromResult(usuario);
     }
 }
