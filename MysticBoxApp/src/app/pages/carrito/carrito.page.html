@@ -1,0 +1,85 @@
+<ion-content class="cart-content">
+
+  <button class="back-btn" routerLink="/home">
+  <ion-icon name="arrow-back-outline"></ion-icon>
+  Volver al Home
+</button>
+
+  <div class="cart-header">
+    <div>
+      <p>HU05</p>
+      <h1>Carrito de compras</h1>
+      <span>Productos seleccionados para tu compra.</span>
+    </div>
+
+    <div class="cart-icon">
+      <ion-icon name="cart-outline"></ion-icon>
+    </div>
+  </div>
+
+  <div class="backend-status">
+    <ion-icon name="bag-check-outline"></ion-icon>
+    <div>
+      <strong>Backend conectado ✔</strong>
+      <p>Carritos registrados: {{ carritos.length }}</p>
+    </div>
+  </div>
+
+  <section class="products-section">
+
+    <div class="product-card" *ngFor="let producto of productosCarrito; let i = index">
+
+      <div class="product-image">
+        <ion-icon name="cart-outline"></ion-icon>
+      </div>
+
+      <div class="product-info">
+        <h3>{{ producto.nombre }}</h3>
+        <p>{{ producto.descripcion }}</p>
+        <strong>₡{{ producto.precio | number }}</strong>
+
+        <div class="quantity-control">
+          <button (click)="disminuirCantidad(producto)">
+            <ion-icon name="remove-outline"></ion-icon>
+          </button>
+
+          <span>{{ producto.cantidad }}</span>
+
+          <button (click)="aumentarCantidad(producto)">
+            <ion-icon name="add-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <button class="delete-btn" (click)="eliminarProducto(i)">
+        <ion-icon name="trash-outline"></ion-icon>
+      </button>
+
+    </div>
+
+  </section>
+
+  <section class="summary-card">
+    <h2>Resumen de compra</h2>
+
+    <div class="summary-row">
+      <span>Subtotal</span>
+      <strong>₡{{ calcularSubtotal() | number }}</strong>
+    </div>
+
+    <div class="summary-row">
+      <span>Descuento</span>
+      <strong>₡0</strong>
+    </div>
+
+    <div class="summary-total">
+      <span>Total</span>
+      <strong>₡{{ calcularTotal() | number }}</strong>
+    </div>
+
+    <button class="checkout-btn">
+      Continuar compra
+    </button>
+  </section>
+
+</ion-content>

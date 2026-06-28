@@ -1,0 +1,7 @@
+{
+  "name": "MysticBoxApp",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
