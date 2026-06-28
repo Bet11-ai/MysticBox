@@ -1,5 +1,5 @@
 ﻿using MysticBox.Dominio.Entidades;
-using CajaMysticBox = MysticBox.Dominio.Entidades.MysticBox;
+
 
 namespace MysticBox.Dominio.InterfacesAD;
 
@@ -21,7 +21,17 @@ public interface IUnidadTrabajoEF
 
     IRepositorioAD<Calificacione> TCalificacion { get; }
 
-    IRepositorioAD<CajaMysticBox> TMysticBox { get; }
+    //IRepositorioAD<Dominio.Entidades.MysticBox> TMysticBox { get; }//
+
+    IRepositorioAD<MysticBox.Dominio.Entidades.MysticBox> TMysticBox { get; }
+
+
+
+    IRepositorioAD<Cupon> TCupon { get; }
+
+    IRepositorioAD <Factura> TFactura { get; }
+    
+    IRepositorioAD <WhiteList> TWhiteList { get; }
 
     int Completar();
 

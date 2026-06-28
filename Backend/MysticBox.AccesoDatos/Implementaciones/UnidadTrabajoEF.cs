@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 using MysticBox.AccesoDatos.Contexto;
 using MysticBox.Dominio.Entidades;
 using MysticBox.Dominio.InterfacesAD;
-using CajaMysticBox = MysticBox.Dominio.Entidades.MysticBox;
+
+
 
 namespace MysticBox.AccesoDatos.Implementaciones;
 
@@ -21,7 +22,14 @@ public class UnidadTrabajoEF : IUnidadTrabajoEF, IDisposable
     private RepositorioAD<DetallePedido>? _TDetallePedido;
     private RepositorioAD<Entrega>? _TEntrega;
     private RepositorioAD<Calificacione>? _TCalificacion;
-    private RepositorioAD<CajaMysticBox>? _TMysticBox;
+
+    //private RepositorioAD<CajaMysticBox>? _TMysticBox;
+
+    private RepositorioAD<MysticBox.Dominio.Entidades.MysticBox>? _TMysticBox;
+
+    private RepositorioAD<Cupon>? _TCupon;
+    private RepositorioAD<Factura>? _TFactura;
+    private RepositorioAD<WhiteList>? _TWhiteList;
 
     public UnidadTrabajoEF(MysticBoxContext contexto)
     {
@@ -100,12 +108,40 @@ public class UnidadTrabajoEF : IUnidadTrabajoEF, IDisposable
         }
     }
 
-    public IRepositorioAD<CajaMysticBox> TMysticBox
+    public IRepositorioAD<MysticBox.Dominio.Entidades.MysticBox> TMysticBox
     {
         get
         {
-            _TMysticBox ??= new RepositorioAD<CajaMysticBox>(_contexto);
+            _TMysticBox ??= new RepositorioAD<MysticBox.Dominio.Entidades.MysticBox>(_contexto);
             return _TMysticBox;
+        }
+    }
+
+    public IRepositorioAD<Cupon> TCupon
+    {
+        get
+        {
+            _TCupon ??= new RepositorioAD<Cupon>(_contexto);
+        return _TCupon;
+        }
+    }
+
+    public IRepositorioAD<Factura> TFactura
+    {
+
+        get
+        {
+            _TFactura ??= new RepositorioAD<Factura>(_contexto);
+            return _TFactura;
+        }
+    }
+    public IRepositorioAD<WhiteList> TWhiteList
+    {
+
+        get
+        {
+            _TWhiteList ??= new RepositorioAD<WhiteList>(_contexto);
+            return _TWhiteList;
         }
     }
 

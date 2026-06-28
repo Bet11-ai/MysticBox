@@ -21,6 +21,7 @@ public partial class MysticBox
 
     public int Stock { get; set; }
 
+
     public bool? Estado { get; set; }
 
     public virtual ICollection<DetalleCarrito> DetalleCarritos { get; set; } = new List<DetalleCarrito>();

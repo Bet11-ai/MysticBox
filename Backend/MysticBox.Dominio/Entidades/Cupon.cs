@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MysticBox.Dominio.Entidades;
 
-public partial class Cupone
+public partial class Cupon
 {
     public int IdCupon { get; set; }
 

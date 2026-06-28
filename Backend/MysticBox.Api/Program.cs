@@ -35,10 +35,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-//builder.Services.AddScoped<UNIDAD>
+builder.Services.AddScoped<IUnidadTrabajoEF, UnidadTrabajoEF>();
 builder.Services.AddScoped<ICategoriaLN, CategoriaLN>();
 builder.Services.AddScoped<ICategoriaAD, CategoriaAD>();
-
+builder.Services.AddScoped<ICuponLN, CuponLN>();
+builder.Services.AddScoped<IFacturaLN, FacturaLN>();
+builder.Services.AddScoped<IWhiteListLN, WhiteListLN>();
+//builder.Services.AddScoped<IMysticBoxLN, MysticBoxLN>();
 
 
 var app = builder.Build();

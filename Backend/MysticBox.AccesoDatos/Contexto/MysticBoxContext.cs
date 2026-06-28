@@ -21,7 +21,7 @@ public partial class MysticBoxContext : DbContext
 
     public virtual DbSet<Categoria> Categorias { get; set; }
 
-    public virtual DbSet<Cupone> Cupones { get; set; }
+    public virtual DbSet<Cupon> Cupones { get; set; }
 
     public virtual DbSet<DetalleCarrito> DetalleCarritos { get; set; }
 
@@ -33,8 +33,8 @@ public partial class MysticBoxContext : DbContext
 
     public virtual DbSet<MetodosPago> MetodosPagos { get; set; }
 
+   
     public virtual DbSet<MysticBox.Dominio.Entidades.MysticBox> MysticBoxes { get; set; }
-
 
     public virtual DbSet<Pedido> Pedidos { get; set; }
 
@@ -100,7 +100,7 @@ public partial class MysticBoxContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Cupone>(entity =>
+        modelBuilder.Entity<Cupon>(entity =>
         {
             entity.HasKey(e => e.IdCupon).HasName("PK__Cupones__08DFC342070D0D58");
 

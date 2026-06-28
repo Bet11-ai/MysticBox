@@ -32,7 +32,7 @@ public partial class Pedido
 
     public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
 
-    public virtual Cupone? IdCuponNavigation { get; set; }
+    public virtual Cupon? IdCuponNavigation { get; set; }
 
     public virtual MetodosPago IdMetodoPagoNavigation { get; set; } = null!;
 
