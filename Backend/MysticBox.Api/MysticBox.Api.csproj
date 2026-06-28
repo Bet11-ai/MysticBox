@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MysticBox.AccesoDatos\MysticBox.AccesoDatos.csproj" />
     <ProjectReference Include="..\MysticBox.Dominio\MysticBox.Dominio.csproj" />
     <ProjectReference Include="..\MysticBox.LogicaNegocio\MysticBox.LogicaNegocio.csproj" />
     <ProjectReference Include="..\MysticBox.Utilitarios\MysticBox.Utilitarios.csproj" />

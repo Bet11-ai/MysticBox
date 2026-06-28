@@ -7,9 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTO\" />
-    <Folder Include="InterfacesAD\" />
-    <Folder Include="InterfacesLN\" />
     <Folder Include="Clases\" />
     <Folder Include="EntidadesTipadas\" />
   </ItemGroup>
