@@ -21,7 +21,7 @@ public interface IUnidadTrabajoEF
 
     IRepositorioAD<Calificacione> TCalificacion { get; }
 
-    //IRepositorioAD<Dominio.Entidades.MysticBox> TMysticBox { get; }//
+
 
     IRepositorioAD<MysticBox.Dominio.Entidades.MysticBox> TMysticBox { get; }
 

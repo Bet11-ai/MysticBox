@@ -23,7 +23,7 @@ public class UnidadTrabajoEF : IUnidadTrabajoEF, IDisposable
     private RepositorioAD<Entrega>? _TEntrega;
     private RepositorioAD<Calificacione>? _TCalificacion;
 
-    //private RepositorioAD<CajaMysticBox>? _TMysticBox;
+   
 
     private RepositorioAD<MysticBox.Dominio.Entidades.MysticBox>? _TMysticBox;
 
