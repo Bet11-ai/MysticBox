@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Categorías</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <!-- HEADER HERO -->
+  <div class="hero">
+
+    <div class="hero-text">
+      <div class="small"></div>
+
+      <h1>Categorías</h1>
+
+      <p>Descubre cual puede ser tu proxima sorpresa</p>
+
+
+      <span>
+        Explora nuestras cajas sorpresa y encuentra la perfecta para ti.
+      </span>
+    </div>
+
+    <div class="hero-image">
+      <img src="assets/img/MysteryBoxCategorias.png"/>
+    </div>
+
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-box">
+    <input placeholder="Buscar categorías..." />
+  </div>
+
+  <!-- GRID -->
+  <div class="category-grid">
+
+    <div class="category-card" *ngFor="let categoria of categorias">
+
+      <img class="category-img" [src]="categoria.imagen" />
+
+      <h3>{{ categoria.nombreCategoria }}</h3>
+
+      <p>{{ categoria.descripcion }}</p>
+
+    </div>
+
+  </div>
+
+</ion-content>
