@@ -1,41 +1,60 @@
+using Microsoft.EntityFrameworkCore;
+using MysticBox.AccesoDatos.Contexto;
 using MysticBox.AccesoDatos.Implementaciones;
 using MysticBox.Dominio.InterfacesAD;
 using MysticBox.Dominio.InterfacesLN;
 using MysticBox.LogicaNegocio.Implementaciones;
-using Microsoft.EntityFrameworkCore;
-using MysticBox.AccesoDatos.Contexto;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
-
 builder.Services.AddControllers();
+
 builder.Services.AddDbContext<MysticBoxContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-//builder.Services.AddScoped<IUsuarioAD, UsuarioAD>();
-builder.Services.AddScoped<IUsuarioLN, UsuarioLN>();
-//builder.Services.AddScoped<ICarritoAD, CarritoAD>();
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    )
+);
+
+// =========================
+// CORS
+// =========================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirIonic", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://localhost:8100",
+                "http://localhost:8101",
+                "http://localhost:8102"
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+// =========================
+// Inyección de dependencias
+// =========================
 builder.Services.AddScoped<ICarritoLN, CarritoLN>();
-//builder.Services.AddScoped<IDetalleCarritoAD, DetalleCarritoAD>();
 builder.Services.AddScoped<IDetalleCarritoLN, DetalleCarritoLN>();
-//builder.Services.AddScoped<IRolAD, RolAD>();
 builder.Services.AddScoped<IRolLN, RolLN>();
-//builder.Services.AddScoped<IPedidoAD, PedidoAD>();
 builder.Services.AddScoped<IPedidoLN, PedidoLN>();
-//builder.Services.AddScoped<IDetallePedidoAD, DetallePedidoAD>();
 builder.Services.AddScoped<IDetallePedidoLN, DetallePedidoLN>();
-//builder.Services.AddScoped<IEntregaAD, EntregaAD>();
 builder.Services.AddScoped<IEntregaLN, EntregaLN>();
-//builder.Services.AddScoped<ICalificacionAD, CalificacionAD>();
 builder.Services.AddScoped<ICalificacionLN, CalificacionLN>();
 builder.Services.AddScoped<IAuthLN, AuthLN>();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddScoped<IUsuarioLN, UsuarioLN>();
+
+builder.Services.AddScoped<IUnidadTrabajoEF, UnidadTrabajoEF>();
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-builder.Services.AddScoped<IUnidadTrabajoEF, UnidadTrabajoEF>();
+
 builder.Services.AddScoped<ICategoriaLN, CategoriaLN>();
 builder.Services.AddScoped<ICategoriaAD, CategoriaAD>();
 builder.Services.AddScoped<ICuponLN, CuponLN>();
@@ -55,6 +74,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// =========================
+// CORS
+// =========================
+app.UseCors("PermitirIonic");
 
 app.UseAuthorization();
 

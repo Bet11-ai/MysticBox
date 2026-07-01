@@ -1,0 +1,47 @@
+<ion-content fullscreen class="login-content">
+
+  <div class="login-container">
+
+    <img src="assets/img/logo-mysticbox.png" alt="MysticBox" class="logo">
+
+    <h1>Bienvenida</h1>
+
+    <p class="subtitle">Inicia sesión para continuar</p>
+
+    <ion-item class="input-item">
+      <ion-input
+        [(ngModel)]="correo"
+        type="email"
+        placeholder="Correo electrónico">
+      </ion-input>
+    </ion-item>
+
+    <ion-item class="input-item">
+      <ion-input
+        [(ngModel)]="contrasena"
+        type="password"
+        placeholder="Contraseña">
+      </ion-input>
+    </ion-item>
+
+    <ion-button
+      expand="block"
+      class="login-button"
+      [disabled]="cargando"
+      (click)="login()">
+
+      {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
+
+    </ion-button>
+
+    <div class="register-container">
+      <span class="texto">¿No tienes cuenta?</span>
+
+      <button class="btn-registro" (click)="irRegistro()">
+        Regístrate
+      </button>
+    </div>
+
+  </div>
+
+</ion-content>
