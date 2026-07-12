@@ -1,21 +1,21 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Categorías</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content>
 
-  <!-- HEADER HERO -->
-  <div class="hero">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="brand-text">
+      Mystic<span>Box</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
 
     <div class="hero-text">
-      <div class="small"></div>
-
       <h1>Categorías</h1>
 
-      <p>Descubre cual puede ser tu proxima sorpresa</p>
-
+      <p class="hero-subtitle">
+        Descubre cuál puede ser tu próxima sorpresa
+      </p>
 
       <span>
         Explora nuestras cajas sorpresa y encuentra la perfecta para ti.
@@ -23,29 +23,69 @@
     </div>
 
     <div class="hero-image">
-      <img src="assets/img/MysteryBoxCategorias.png"/>
+      <img
+        src="assets/img/Mystic-Box-Categorias.png"
+        alt="Categorías de MysticBox">
     </div>
 
-  </div>
+  </section>
 
-  <!-- SEARCH -->
+  <!-- BUSCADOR -->
   <div class="search-box">
-    <input placeholder="Buscar categorías..." />
+    <input
+      type="text"
+      placeholder="Buscar categoría por nombre..."
+      [(ngModel)]="textoBusqueda"
+      (input)="filtrarCategorias()">
   </div>
 
-  <!-- GRID -->
+  <!-- GRID DE CATEGORÍAS -->
   <div class="category-grid">
 
-    <div class="category-card" *ngFor="let categoria of categorias">
+    <div
+      class="category-card"
+      *ngFor="let categoria of categoriasFiltradas"
+      (click)="seleccionarCategoria(categoria)"
+    >
 
-      <img class="category-img" [src]="categoria.imagen" />
+      <div class="category-img-box">
+        <img
+          class="category-img"
+          [src]="categoria.imagen"
+          [alt]="mostrarNombreCategoria(categoria.nombreCategoria)">
+      </div>
 
-      <h3>{{ categoria.nombreCategoria }}</h3>
+      <div class="category-info">
 
-      <p>{{ categoria.descripcion }}</p>
+        <h3>
+          {{ mostrarNombreCategoria(categoria.nombreCategoria) }}
+        </h3>
+
+        <p>
+          {{ categoria.descripcion }}
+        </p>
+
+        <button
+          type="button"
+          class="explore-btn"
+          (click)="seleccionarCategoria(categoria); $event.stopPropagation()"
+        >
+          Ver {{ mostrarNombreCategoria(categoria.nombreCategoria) }}
+          <span>›</span>
+        </button>
+
+      </div>
 
     </div>
 
+  </div>
+
+  <!-- MENSAJE CUANDO NO HAY RESULTADOS -->
+  <div
+    class="sin-resultados"
+    *ngIf="categoriasFiltradas.length === 0"
+  >
+    No se encontraron categorías.
   </div>
 
 </ion-content>

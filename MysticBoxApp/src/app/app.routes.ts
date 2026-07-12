@@ -61,7 +61,13 @@ export const routes: Routes = [
     path: 'categorias',
     loadComponent: () => import('./pages/categorias/categorias.page').then( m => m.CategoriasPage)
   },
-   {
+  
+  {
+    path: 'mysticbox',
+    loadComponent: () => import('./pages/mysticbox/mysticbox.page').then( m => m.MysticboxPage)
+  },
+
+ {
     path: '**',
     redirectTo: 'login',
   },
