@@ -34,7 +34,7 @@ namespace MysticBox.LogicaNegocio.Implementaciones
             var caja = new MysticBox.Dominio.Entidades.MysticBox
             {
                 IdCategoria = mysticBoxDTO.IdCategoria,
-                NombreCaja = mysticBoxDTO.NombreCategoria,
+                NombreCaja = mysticBoxDTO.NombreCaja,
                 Descripcion = mysticBoxDTO.Descripcion,
                 Precio = mysticBoxDTO.Precio,
                 Imagen = mysticBoxDTO.Imagen,
@@ -58,7 +58,7 @@ namespace MysticBox.LogicaNegocio.Implementaciones
             var caja = respuesta.ValorRetorno;
 
             caja.IdCategoria = mysticBoxDTO.IdCategoria;
-            caja.NombreCaja = mysticBoxDTO.NombreCategoria;
+            caja.NombreCaja = mysticBoxDTO.NombreCaja;
             caja.Descripcion = mysticBoxDTO.Descripcion;
             caja.Precio = mysticBoxDTO.Precio;
             caja.Imagen = mysticBoxDTO.Imagen;

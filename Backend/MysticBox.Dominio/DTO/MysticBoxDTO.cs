@@ -10,7 +10,7 @@ namespace MysticBox.Dominio.DTO
     {
         public int IdCategoria { get; set; }
 
-        public string NombreCategoria { get; set; } = null!;
+        public string NombreCaja { get; set; } = null!;
 
         public string? Descripcion { get; set; }
 
