@@ -1,0 +1,153 @@
+<ion-content class="admin-content">
+
+  <main class="admin-container">
+
+    <header class="admin-topbar">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="volverAlInicio()"
+      >
+        <ion-icon
+          name="arrow-back-outline"
+        ></ion-icon>
+
+        Volver al inicio
+      </button>
+
+      <button
+        type="button"
+        class="logout-button"
+        (click)="cerrarSesion()"
+      >
+        <ion-icon
+          name="log-out-outline"
+        ></ion-icon>
+
+        Cerrar sesión
+      </button>
+
+    </header>
+
+    <section class="admin-header">
+
+      <div class="header-information">
+
+        <p>EPIC 6 · MB-72</p>
+
+        <h1>Panel administrativo</h1>
+
+        <span>
+          Gestiona la información principal de Mystic Box.
+        </span>
+
+      </div>
+
+      <div class="header-icon">
+
+        <ion-icon
+          name="settings-outline"
+        ></ion-icon>
+
+      </div>
+
+    </section>
+
+    <section class="welcome-card">
+
+      <div class="welcome-icon">
+
+        <ion-icon
+          name="storefront-outline"
+        ></ion-icon>
+
+      </div>
+
+      <div>
+
+        <span>Administración Mystic Box</span>
+
+        <h2>
+          Bienvenida al centro de gestión
+        </h2>
+
+        <p>
+          Desde aquí podrás administrar cajas,
+          promociones, pedidos, clientes, reportes
+          y accesos autorizados.
+        </p>
+
+      </div>
+
+    </section>
+
+    <section class="modules-section">
+
+      <div class="section-heading">
+
+        <div>
+          <p>Módulos disponibles</p>
+          <h2>Administración de la tienda</h2>
+        </div>
+
+        <span>
+          {{ modulos.length }} módulos
+        </span>
+
+      </div>
+
+      <div class="modules-grid">
+
+        <article
+          class="module-card"
+          *ngFor="let modulo of modulos"
+          (click)="abrirModulo(modulo)"
+        >
+
+          <div class="module-top">
+
+            <div class="module-icon">
+
+              <ion-icon
+                [name]="modulo.icono"
+              ></ion-icon>
+
+            </div>
+
+            <span class="task-badge">
+              {{ modulo.tarea }}
+            </span>
+
+          </div>
+
+          <h3>{{ modulo.titulo }}</h3>
+
+          <p>
+            {{ modulo.descripcion }}
+          </p>
+
+          <button
+            type="button"
+            class="module-button"
+            (click)="
+              abrirModulo(modulo);
+              $event.stopPropagation()
+            "
+          >
+            Abrir módulo
+
+            <ion-icon
+              name="chevron-forward-outline"
+            ></ion-icon>
+          </button>
+
+        </article>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</ion-content>

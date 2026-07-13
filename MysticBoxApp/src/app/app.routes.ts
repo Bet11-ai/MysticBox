@@ -86,8 +86,22 @@ export const routes: Routes = [
       import('./pages/mysticbox/mysticbox.page')
         .then((m) => m.MysticboxPage)
   },
+{
+  path: 'admin',
+  loadComponent: () =>
+    import('./pages/admin/admin.page')
+      .then((m) => m.AdminPage)
+},
+
+
+
   {
     path: '**',
     redirectTo: 'login'
+  },
+  {
+    path: 'admin',
+    loadComponent: () => import('./pages/admin/admin.page').then( m => m.AdminPage)
   }
+
 ];
