@@ -2,61 +2,201 @@
 using MysticBox.Dominio.DTO;
 using MysticBox.Dominio.InterfacesLN;
 
-namespace MysticBox.Api.Controllers;
-
-[Route("api/[controller]")]
-[ApiController]
-public class CalificacionController : ControllerBase
+namespace MysticBox.Api.Controllers
 {
-    private readonly ICalificacionLN _calificacionLN;
-
-    public CalificacionController(ICalificacionLN calificacionLN)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CalificacionController : ControllerBase
     {
-        _calificacionLN = calificacionLN;
-    }
+        private readonly ICalificacionLN _calificacionLN;
 
-    [HttpGet]
-    public async Task<IActionResult> ObtenerCalificaciones()
-    {
-        return Ok(await _calificacionLN.ObtenerCalificaciones());
-    }
+        public CalificacionController(
+            ICalificacionLN calificacionLN
+        )
+        {
+            _calificacionLN = calificacionLN;
+        }
 
-    [HttpGet("{idCalificacion}")]
-    public async Task<IActionResult> ObtenerCalificacionPorId(int idCalificacion)
-    {
-        var calificacion = await _calificacionLN.ObtenerCalificacionPorId(idCalificacion);
+        [HttpGet]
+        public async Task<IActionResult> ObtenerCalificaciones()
+        {
+            var calificaciones =
+                await _calificacionLN.ObtenerCalificaciones();
 
-        if (calificacion == null)
-            return NotFound();
+            return Ok(calificaciones);
+        }
 
-        return Ok(calificacion);
-    }
+        [HttpGet("{idCalificacion:int}")]
+        public async Task<IActionResult> ObtenerCalificacionPorId(
+            int idCalificacion
+        )
+        {
+            var calificacion =
+                await _calificacionLN
+                    .ObtenerCalificacionPorId(idCalificacion);
 
-    [HttpPost]
-    public async Task<IActionResult> CrearCalificacion(CalificacionDTO calificacionDTO)
-    {
-        return Ok(await _calificacionLN.CrearCalificacion(calificacionDTO));
-    }
+            if (calificacion == null)
+            {
+                return NotFound(new
+                {
+                    mensaje =
+                        "La calificación no fue encontrada."
+                });
+            }
 
-    [HttpPut("{idCalificacion}")]
-    public async Task<IActionResult> ActualizarCalificacion(int idCalificacion, CalificacionDTO calificacionDTO)
-    {
-        var resultado = await _calificacionLN.ActualizarCalificacion(idCalificacion, calificacionDTO);
+            return Ok(calificacion);
+        }
 
-        if (!resultado)
-            return NotFound();
+        [HttpPost]
+        public async Task<IActionResult> CrearCalificacion(
+            [FromBody] CalificacionDTO calificacionDTO
+        )
+        {
+            if (calificacionDTO.IdPedido <= 0)
+            {
+                return BadRequest(new
+                {
+                    mensaje =
+                        "Debe seleccionar un pedido válido."
+                });
+            }
 
-        return Ok();
-    }
+            if (
+                calificacionDTO.Estrellas < 1 ||
+                calificacionDTO.Estrellas > 5
+            )
+            {
+                return BadRequest(new
+                {
+                    mensaje =
+                        "La calificación debe estar entre 1 y 5 estrellas."
+                });
+            }
 
-    [HttpDelete("{idCalificacion}")]
-    public async Task<IActionResult> EliminarCalificacion(int idCalificacion)
-    {
-        var resultado = await _calificacionLN.EliminarCalificacion(idCalificacion);
+            if (
+                !string.IsNullOrWhiteSpace(
+                    calificacionDTO.Comentario
+                ) &&
+                calificacionDTO.Comentario.Length > 500
+            )
+            {
+                return BadRequest(new
+                {
+                    mensaje =
+                        "El comentario no puede superar los 500 caracteres."
+                });
+            }
 
-        if (!resultado)
-            return NotFound();
+            calificacionDTO.FechaCalificacion ??=
+                DateTime.Now;
 
-        return Ok();
+            var calificacion =
+                await _calificacionLN
+                    .CrearCalificacion(calificacionDTO);
+
+            return CreatedAtAction(
+                nameof(ObtenerCalificacionPorId),
+                new
+                {
+                    idCalificacion =
+                        calificacion.IdCalificacion
+                },
+                new
+                {
+                    mensaje =
+                        "Calificación registrada correctamente.",
+                    idCalificacion =
+                        calificacion.IdCalificacion,
+                    idPedido =
+                        calificacion.IdPedido,
+                    estrellas =
+                        calificacion.Estrellas,
+                    comentario =
+                        calificacion.Comentario,
+                    fechaCalificacion =
+                        calificacion.FechaCalificacion
+                }
+            );
+        }
+
+        [HttpPut("{idCalificacion:int}")]
+        public async Task<IActionResult> ActualizarCalificacion(
+            int idCalificacion,
+            [FromBody] CalificacionDTO calificacionDTO
+        )
+        {
+            if (
+                calificacionDTO.Estrellas < 1 ||
+                calificacionDTO.Estrellas > 5
+            )
+            {
+                return BadRequest(new
+                {
+                    mensaje =
+                        "La calificación debe estar entre 1 y 5 estrellas."
+                });
+            }
+
+            if (
+                !string.IsNullOrWhiteSpace(
+                    calificacionDTO.Comentario
+                ) &&
+                calificacionDTO.Comentario.Length > 500
+            )
+            {
+                return BadRequest(new
+                {
+                    mensaje =
+                        "El comentario no puede superar los 500 caracteres."
+                });
+            }
+
+            var resultado =
+                await _calificacionLN
+                    .ActualizarCalificacion(
+                        idCalificacion,
+                        calificacionDTO
+                    );
+
+            if (!resultado)
+            {
+                return NotFound(new
+                {
+                    mensaje =
+                        "La calificación no fue encontrada."
+                });
+            }
+
+            return Ok(new
+            {
+                mensaje =
+                    "Calificación actualizada correctamente."
+            });
+        }
+
+        [HttpDelete("{idCalificacion:int}")]
+        public async Task<IActionResult> EliminarCalificacion(
+            int idCalificacion
+        )
+        {
+            var resultado =
+                await _calificacionLN
+                    .EliminarCalificacion(idCalificacion);
+
+            if (!resultado)
+            {
+                return NotFound(new
+                {
+                    mensaje =
+                        "La calificación no fue encontrada."
+                });
+            }
+
+            return Ok(new
+            {
+                mensaje =
+                    "Calificación eliminada correctamente."
+            });
+        }
     }
 }
