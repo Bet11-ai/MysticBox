@@ -1,168 +1,287 @@
 <ion-content class="home-content">
 
-  <div class="top-header">
-    <div>
-      <p class="welcome">Bienvenida a</p>
-      <h1>Mystic Box</h1>
-    </div>
-<p style="color:#4ea2ff;">
-    Backend conectado ✔
-</p>
+  <main class="home-container">
 
-<p style="color:white;">
-    Carritos encontrados: {{ cantidadCarritos }}
-</p>
+    <header class="top-header">
 
-
-    <div class="cart-button">
-      <ion-icon name="cart-outline"></ion-icon>
-      <span>2</span>
-    </div>
-  </div>
-
-  <div class="search-box">
-    <ion-icon name="search-outline"></ion-icon>
-    <input type="text" placeholder="Buscar cajas, regalos o categorías..." />
-  </div>
-
-  <section class="hero-card">
-    <div class="hero-info">
-      <p>Nueva colección</p>
-      <h2>Cajas sorpresa para cada estilo</h2>
-      <span>Explora productos únicos y personalizados.</span>
-
-      <button>Comprar ahora</button>
-    </div>
-
-    <div class="hero-icon">
-      <ion-icon name="gift-outline"></ion-icon>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-header">
-      <h2>Categorías</h2>
-      <span>Ver todo</span>
-    </div>
-
-    <div class="category-grid">
-
-      <div class="category-card gamer">
-        <ion-icon name="game-controller-outline"></ion-icon>
-        <h3>Gamer Box</h3>
-        <p>Para amantes de videojuegos.</p>
+      <div class="brand-area">
+        <p>Bienvenida a</p>
+        <h1>Mystic Box</h1>
       </div>
 
-      <div class="category-card beauty">
-        <ion-icon name="sparkles-outline"></ion-icon>
-        <h3>Beauty Box</h3>
-        <p>Maquillaje y belleza.</p>
+      <div class="backend-message">
+        Backend conectado ✓
       </div>
 
-      <div class="category-card anime">
-        <ion-icon name="color-palette-outline"></ion-icon>
-        <h3>Anime Box</h3>
-        <p>Detalles estilo anime.</p>
+      <div class="backend-count">
+        Carritos encontrados:
+        {{ cantidadCarritos }}
       </div>
 
-      <div class="category-card care">
-        <ion-icon name="heart-outline"></ion-icon>
-        <h3>Self Care Box</h3>
-        <p>Relajación y cuidado.</p>
-      </div>
+      <button
+        type="button"
+        class="cart-button"
+        (click)="irAlCarrito()"
+        aria-label="Abrir carrito"
+      >
+        <ion-icon name="cart-outline"></ion-icon>
 
-      <div class="category-card office">
-        <ion-icon name="briefcase-outline"></ion-icon>
-        <h3>Office Boost Box</h3>
-        <p>Regalos corporativos.</p>
-      </div>
+        <span
+          class="cart-badge"
+          *ngIf="cantidadProductosCarrito > 0"
+        >
+          {{ cantidadProductosCarrito }}
+        </span>
+      </button>
 
-      <div class="category-card kids">
-        <ion-icon name="rocket-outline"></ion-icon>
-        <h3>Kids Fun Box</h3>
-        <p>Diversión para niños.</p>
-      </div>
+    </header>
 
-    </div>
-  </section>
+    <section class="search-section">
 
-  <section class="section">
-    <div class="section-header">
-      <h2>Destacados</h2>
-      <span>Ver más</span>
-    </div>
+      <div class="search-box">
 
-    <div class="product-list">
+        <ion-icon name="search-outline"></ion-icon>
 
-      <div class="product-card">
-        <div class="product-img">
-          <ion-icon name="cube-outline"></ion-icon>
-        </div>
+        <input
+          type="text"
+          [(ngModel)]="textoBusqueda"
+          placeholder="Buscar cajas, regalos o categorías..."
+          (keyup.enter)="buscar()"
+        />
 
-        <div class="product-info">
-          <h3>Mystic Deluxe Box</h3>
-          <p>Caja premium con productos seleccionados.</p>
-          <strong>₡15,000</strong>
-        </div>
-
-        <button class="add-btn">
-          <ion-icon name="add-outline"></ion-icon>
+        <button
+          type="button"
+          class="search-button"
+          (click)="buscar()"
+          aria-label="Buscar"
+        >
+          Buscar
         </button>
+
       </div>
 
-      <div class="product-card">
-        <div class="product-img">
-          <ion-icon name="bag-handle-outline"></ion-icon>
-        </div>
+    </section>
 
-        <div class="product-info">
-          <h3>Office Boost Box</h3>
-          <p>Ideal para regalos empresariales.</p>
-          <strong>₡12,500</strong>
-        </div>
+    <section class="hero-card">
 
-        <button class="add-btn">
-          <ion-icon name="add-outline"></ion-icon>
+      <div class="hero-information">
+
+        <p>Nueva colección</p>
+
+        <h2>
+          Cajas sorpresa para cada estilo
+        </h2>
+
+        <span>
+          Explora productos únicos y personalizados.
+        </span>
+
+        <button
+          type="button"
+          (click)="irAlCatalogo()"
+        >
+          Comprar ahora
         </button>
+
       </div>
 
-    </div>
-  </section>
+      <div class="hero-decoration">
+        <ion-icon name="gift-outline"></ion-icon>
+      </div>
 
-  <section class="promo-card">
-    <div>
-      <p>Promoción especial</p>
-      <h2>10% de descuento en tu primera compra</h2>
-    </div>
+    </section>
 
-    <ion-icon name="pricetag-outline"></ion-icon>
-  </section>
+    <section class="home-section categories-section">
+
+      <div class="section-heading">
+
+        <div>
+          <span class="section-label">
+            Descubre tu próxima sorpresa
+          </span>
+
+          <h2>Categorías</h2>
+        </div>
+
+        <button
+          type="button"
+          class="view-link"
+          (click)="irACategorias()"
+        >
+          Ver todas
+        </button>
+
+      </div>
+
+      <div class="category-image-grid">
+
+        <article
+          class="category-image-card"
+          *ngFor="let categoria of categorias"
+          (click)="seleccionarCategoria(categoria)"
+        >
+
+          <div class="category-image-wrapper">
+
+            <img
+              [src]="categoria.imagen"
+              [alt]="categoria.nombre"
+            />
+
+            <div class="category-image-overlay"></div>
+
+            <div class="category-badge">
+              <ion-icon
+                [name]="categoria.icono"
+              ></ion-icon>
+            </div>
+
+          </div>
+
+          <div class="category-image-info">
+
+            <h3>{{ categoria.nombre }}</h3>
+
+            <p>
+              {{ categoria.descripcion }}
+            </p>
+
+            <button
+              type="button"
+              (click)="
+                seleccionarCategoria(categoria);
+                $event.stopPropagation()
+              "
+            >
+              Ver {{ categoria.nombre }}
+              <span>›</span>
+            </button>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+    <section class="home-section">
+
+      <div class="section-heading">
+
+        <h2>Destacados</h2>
+
+        <button
+          type="button"
+          class="view-link"
+          (click)="irAlCatalogo()"
+        >
+          Ver más
+        </button>
+
+      </div>
+
+      <div class="products-list">
+
+        <article
+          class="featured-product"
+          *ngFor="let producto of productosDestacados"
+          (click)="abrirProducto(producto)"
+        >
+
+          <div class="product-icon">
+
+            <ion-icon
+              [name]="producto.icono"
+            ></ion-icon>
+
+          </div>
+
+          <div class="product-description">
+
+            <h3>{{ producto.nombre }}</h3>
+
+            <p>{{ producto.descripcion }}</p>
+
+            <strong>
+              ₡{{ producto.precio | number }}
+            </strong>
+
+          </div>
+
+          <button
+            type="button"
+            class="add-product-button"
+            (click)="agregarAlCarrito(producto, $event)"
+            aria-label="Agregar producto al carrito"
+          >
+            <ion-icon name="add-outline"></ion-icon>
+          </button>
+
+        </article>
+
+      </div>
+
+    </section>
+
+  </main>
 
 </ion-content>
 
-<ion-footer class="bottom-nav">
-  <div class="nav-item active">
+<nav class="bottom-navigation">
+
+  <button
+    type="button"
+    class="nav-option active"
+    routerLink="/home"
+  >
     <ion-icon name="home-outline"></ion-icon>
     <span>Home</span>
-  </div>
+  </button>
 
-  <div class="nav-item">
+  <button
+    type="button"
+    class="nav-option"
+    routerLink="/categorias"
+  >
     <ion-icon name="grid-outline"></ion-icon>
     <span>Categorías</span>
-  </div>
+  </button>
 
-  <div class="nav-item">
+  <button
+    type="button"
+    class="nav-option"
+    routerLink="/carrito"
+  >
     <ion-icon name="cart-outline"></ion-icon>
     <span>Carrito</span>
-  </div>
+  </button>
 
-  <div class="nav-item">
+  <button
+    type="button"
+    class="nav-option"
+    routerLink="/pedidos"
+  >
     <ion-icon name="receipt-outline"></ion-icon>
     <span>Pedidos</span>
-  </div>
+  </button>
 
-  <div class="nav-item">
+  <button
+    type="button"
+    class="nav-option"
+    routerLink="/entregas"
+  >
+    <ion-icon name="location-outline"></ion-icon>
+    <span>Entregas</span>
+  </button>
+
+  <button
+    type="button"
+    class="nav-option"
+    routerLink="/perfil"
+  >
     <ion-icon name="person-outline"></ion-icon>
     <span>Perfil</span>
-  </div>
-</ion-footer>
+  </button>
+
+</nav>

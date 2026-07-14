@@ -11,11 +11,11 @@ import { CategoriasService } from '../../services/categorias.service';
   styleUrls: ['./categorias.page.scss'],
   standalone: true,
   imports: [
-    IonContent,
+  IonContent,
   CommonModule,
   FormsModule,
-  NgFor,
-  
+    NgFor
+
   ]
 })
 export class CategoriasPage implements OnInit {
@@ -155,8 +155,10 @@ export class CategoriasPage implements OnInit {
   window.location.href = `/mysticbox?idCategoria=${categoria.idCategoria}`;
 }
 
+
 irAHome(): void {
   window.location.href = '/home';
 }
+
 
 }

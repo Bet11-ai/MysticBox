@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MysticBox.Dominio.DTO;
 using MysticBox.Dominio.Entidades;
-using MysticBox.Dominio.DTO;
 
 namespace MysticBox.Dominio.InterfacesLN
 {
@@ -13,6 +8,8 @@ namespace MysticBox.Dominio.InterfacesLN
         Task<List<Cupon>> ObtenerCupones();
 
         Task<Cupon?> ObtenerCuponPorId(int idCupon);
+
+        Task<Cupon?> ObtenerCuponPorCodigo(string codigo);
 
         Task<Cupon> CrearCupon(CuponDTO cuponDTO);
 

@@ -8,6 +8,7 @@ ion-content {
   padding: 24px 16px 40px;
 }
 
+
 /* NAVEGACIÓN */
 
 .catalogo-navegacion {
@@ -77,12 +78,13 @@ ion-content {
   box-shadow: 0 0 22px rgba(56, 189, 248, 0.35);
 }
 
+
+
 /* ENCABEZADO */
 
 .catalogo-header {
   margin-bottom: 28px;
   padding: 28px;
-
   border-radius: 24px;
   border: 1px solid rgba(56, 189, 248, 0.35);
 
@@ -133,6 +135,7 @@ ion-content {
   background: #0f172a;
 
   text-align: center;
+
 }
 
 .estado-carga.error {
@@ -149,6 +152,7 @@ ion-content {
   gap: 24px;
 }
 
+
 /* TARJETA */
 
 .mysticbox-card {
@@ -158,6 +162,8 @@ ion-content {
   border: 1px solid rgba(56, 189, 248, 0.32);
 
   background: linear-gradient(180deg, #071020, #050914);
+
+
 
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
 
@@ -170,12 +176,15 @@ ion-content {
 .mysticbox-card:hover {
   transform: translateY(-5px);
 
+
   border-color: rgba(56, 189, 248, 0.85);
+
 
   box-shadow: 0 0 28px rgba(56, 189, 248, 0.18);
 }
 
-/* IMAGEN */
+
+
 
 /* IMAGEN */
 
@@ -187,16 +196,20 @@ ion-content {
   margin: 12px auto 0;
   padding: 0;
 
+
   overflow: hidden;
   border-radius: 18px;
 
   background: #020617;
+
   border: 1px solid rgba(56, 189, 248, 0.25);
+
 }
 
 .mysticbox-imagen img {
   width: 100%;
   height: 100%;
+
 
   display: block;
 
@@ -204,6 +217,16 @@ ion-content {
   object-position: center;
 
   border-radius: 17px;
+
+  display: block;
+  border-radius: 17px;
+
+  transition: transform 0.35s ease;
+}
+
+.mysticbox-card:hover .mysticbox-imagen img {
+  transform: scale(1.02);
+
 }
 
 /* INFORMACIÓN */
@@ -253,17 +276,21 @@ ion-content {
 .stock {
   padding: 7px 11px;
 
+
   border-radius: 999px;
   border: 1px solid rgba(96, 165, 250, 0.28);
 
   color: #bfdbfe;
   background: rgba(30, 64, 175, 0.24);
 
+
   font-size: 13px;
   font-weight: 700;
 }
 
+
 /* BOTÓN SELECCIONAR */
+
 
 .seleccionar-btn {
   width: 100%;
@@ -307,9 +334,11 @@ ion-content {
     grid-template-columns: repeat(2, minmax(280px, 330px));
   }
 
+
   .mysticbox-imagen {
     height: 300px;
   }
+
 }
 
 /* CELULAR */
@@ -318,6 +347,7 @@ ion-content {
   .catalogo-page {
     padding: 16px 12px 32px;
   }
+
 
   .catalogo-navegacion {
     align-items: stretch;
@@ -340,9 +370,6 @@ ion-content {
     grid-template-columns: minmax(0, 330px);
   }
 
-  .mysticbox-imagen {
-    height: 300px;
-  }
 
   .mysticbox-datos {
     align-items: flex-start;

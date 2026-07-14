@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+
 import { IonContent } from '@ionic/angular/standalone';
 import { ActivatedRoute } from '@angular/router';
+
+
+
 import { Mysticbox } from '../../services/mysticbox';
 
 @Component({
@@ -11,12 +15,15 @@ import { Mysticbox } from '../../services/mysticbox';
   standalone: true,
   imports: [
     IonContent,
+
     CommonModule
+
   ]
 })
 export class MysticboxPage implements OnInit {
 
   cajas: any[] = [];
+
   idCategoria: number = 0;
   cargando: boolean = true;
   mensajeError: string = '';
@@ -31,6 +38,7 @@ export class MysticboxPage implements OnInit {
       this.idCategoria = Number(params['idCategoria']);
       this.cargarCajas();
     });
+
   }
 
   cargarCajas(): void {
@@ -39,6 +47,7 @@ export class MysticboxPage implements OnInit {
 
     this.mysticboxService.obtenerCajas().subscribe({
       next: (data: any[]) => {
+
         console.log('Todas las cajas recibidas:', data);
         console.log('Categoría seleccionada:', this.idCategoria);
 
@@ -51,13 +60,17 @@ export class MysticboxPage implements OnInit {
 
         this.cargando = false;
       },
+   
       error: (error) => {
-        console.error('Error al cargar cajas:', error);
+        console.error('Error al obtener las cajas:', error);
+
+
         this.mensajeError = 'No se pudieron cargar las cajas.';
         this.cargando = false;
       }
     });
   }
+
 
   obtenerImagen(imagen: string): string {
     if (!imagen) {
@@ -82,4 +95,5 @@ export class MysticboxPage implements OnInit {
   irAHome(): void {
     window.location.href = '/home';
   }
+
 }
