@@ -2,24 +2,62 @@
 
   <div class="catalogo-page">
 
-    <div class="catalogo-header">
-      <p class="catalogo-label">MysticBox</p>
+    <!-- NAVEGACIÓN -->
+    <div class="catalogo-navegacion">
 
-      <h1>Catálogo de cajas</h1>
+      <button
+        type="button"
+        class="nav-btn nav-btn-categorias"
+        (click)="irACategorias()"
+      >
+        <span class="nav-flecha">←</span>
+        Volver a categorías
+      </button>
+
+      <button
+        type="button"
+        class="nav-btn nav-btn-inicio"
+        (click)="irAHome()"
+      >
+        Inicio
+      </button>
+
+    </div>
+
+    <!-- ENCABEZADO -->
+    <div class="catalogo-header">
+
+      <p class="catalogo-label">
+        MysticBox
+      </p>
+
+      <h1>
+        Catálogo de cajas
+      </h1>
 
       <p>
         Explora nuestras cajas sorpresa y elige la que más se adapte a tus gustos.
       </p>
+
     </div>
 
-    <div class="estado-carga" *ngIf="cargando">
+    <!-- CARGANDO -->
+    <div
+      class="estado-carga"
+      *ngIf="cargando"
+    >
       Cargando cajas...
     </div>
 
-    <div class="estado-carga error" *ngIf="!cargando && mensajeError">
+    <!-- ERROR -->
+    <div
+      class="estado-carga error"
+      *ngIf="!cargando && mensajeError"
+    >
       {{ mensajeError }}
     </div>
 
+    <!-- SIN CAJAS -->
     <div
       class="estado-carga"
       *ngIf="!cargando && !mensajeError && cajas.length === 0"
@@ -27,6 +65,7 @@
       No hay cajas disponibles.
     </div>
 
+    <!-- CATÁLOGO -->
     <div
       class="catalogo-grid"
       *ngIf="!cargando && !mensajeError && cajas.length > 0"
@@ -38,17 +77,26 @@
       >
 
         <div class="mysticbox-imagen">
+
           <img
-            [src]="caja.imagen"
-            [alt]="caja.nombreCaja">
+            [src]="obtenerImagen(caja.imagen)"
+            [alt]="caja.nombreCaja"
+          >
+
         </div>
 
         <div class="mysticbox-info">
-          <h2>{{ caja.nombreCaja }}</h2>
 
-          <p>{{ caja.descripcion }}</p>
+          <h2>
+            {{ caja.nombreCaja }}
+          </h2>
+
+          <p>
+            {{ caja.descripcion }}
+          </p>
 
           <div class="mysticbox-datos">
+
             <span class="precio">
               ₡{{ caja.precio | number:'1.0-0' }}
             </span>
@@ -56,6 +104,7 @@
             <span class="stock">
               Stock: {{ caja.stock }}
             </span>
+
           </div>
 
           <button
@@ -65,6 +114,7 @@
           >
             Seleccionar caja
           </button>
+
         </div>
 
       </article>

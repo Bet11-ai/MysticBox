@@ -2,16 +2,30 @@
 
   <!-- TOP BAR -->
   <div class="top-bar">
+
     <div class="brand-text">
       Mystic<span>Box</span>
     </div>
+
+    <button
+      type="button"
+      class="home-btn"
+      (click)="irAHome()"
+    >
+      <span class="home-arrow">←</span>
+      Volver al inicio
+    </button>
+
   </div>
 
   <!-- HERO -->
   <section class="hero">
 
     <div class="hero-text">
-      <h1>Categorías</h1>
+
+      <h1>
+        Categorías
+      </h1>
 
       <p class="hero-subtitle">
         Descubre cuál puede ser tu próxima sorpresa
@@ -20,23 +34,30 @@
       <span>
         Explora nuestras cajas sorpresa y encuentra la perfecta para ti.
       </span>
+
     </div>
 
     <div class="hero-image">
+
       <img
         src="assets/img/Mystic-Box-Categorias.png"
-        alt="Categorías de MysticBox">
+        alt="Categorías de MysticBox"
+      >
+
     </div>
 
   </section>
 
   <!-- BUSCADOR -->
   <div class="search-box">
+
     <input
       type="text"
       placeholder="Buscar categoría por nombre..."
       [(ngModel)]="textoBusqueda"
-      (input)="filtrarCategorias()">
+      (input)="filtrarCategorias()"
+    >
+
   </div>
 
   <!-- GRID DE CATEGORÍAS -->
@@ -49,10 +70,13 @@
     >
 
       <div class="category-img-box">
+
         <img
           class="category-img"
           [src]="categoria.imagen"
-          [alt]="mostrarNombreCategoria(categoria.nombreCategoria)">
+          [alt]="mostrarNombreCategoria(categoria.nombreCategoria)"
+        >
+
       </div>
 
       <div class="category-info">

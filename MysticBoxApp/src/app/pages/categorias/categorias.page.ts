@@ -12,9 +12,10 @@ import { CategoriasService } from '../../services/categorias.service';
   standalone: true,
   imports: [
     IonContent,
-    CommonModule,
-    FormsModule,
-    NgFor
+  CommonModule,
+  FormsModule,
+  NgFor,
+  
   ]
 })
 export class CategoriasPage implements OnInit {
@@ -153,5 +154,9 @@ export class CategoriasPage implements OnInit {
  seleccionarCategoria(categoria: any): void {
   window.location.href = `/mysticbox?idCategoria=${categoria.idCategoria}`;
 }
- 
+
+irAHome(): void {
+  window.location.href = '/home';
+}
+
 }

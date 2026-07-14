@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { IonContent } from '@ionic/angular/standalone';
-
+import { ActivatedRoute } from '@angular/router';
 import { Mysticbox } from '../../services/mysticbox';
 
 @Component({
@@ -12,20 +11,26 @@ import { Mysticbox } from '../../services/mysticbox';
   standalone: true,
   imports: [
     IonContent,
-    CommonModule,
-    FormsModule
+    CommonModule
   ]
 })
 export class MysticboxPage implements OnInit {
 
   cajas: any[] = [];
-  cargando = true;
-  mensajeError = '';
+  idCategoria: number = 0;
+  cargando: boolean = true;
+  mensajeError: string = '';
 
-  constructor(private mysticboxService: Mysticbox) {}
+  constructor(
+    private mysticboxService: Mysticbox,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
-    this.cargarCajas();
+    this.route.queryParams.subscribe(params => {
+      this.idCategoria = Number(params['idCategoria']);
+      this.cargarCajas();
+    });
   }
 
   cargarCajas(): void {
@@ -34,21 +39,47 @@ export class MysticboxPage implements OnInit {
 
     this.mysticboxService.obtenerCajas().subscribe({
       next: (data: any[]) => {
-        this.cajas = data.filter((caja: any) => caja.estado !== false);
-        this.cargando = false;
+        console.log('Todas las cajas recibidas:', data);
+        console.log('Categoría seleccionada:', this.idCategoria);
 
-        console.log('Cajas desde API:', data);
+        this.cajas = data.filter((caja: any) =>
+          Number(caja.idCategoria) === Number(this.idCategoria) &&
+          caja.estado === true
+        );
+
+        console.log('Cajas filtradas:', this.cajas);
+
+        this.cargando = false;
       },
       error: (error) => {
-        console.error('Error al obtener las cajas:', error);
-
+        console.error('Error al cargar cajas:', error);
         this.mensajeError = 'No se pudieron cargar las cajas.';
         this.cargando = false;
       }
     });
   }
 
+  obtenerImagen(imagen: string): string {
+    if (!imagen) {
+      return 'assets/img/Mystic-Box-Categorias.png';
+    }
+
+    if (imagen.startsWith('assets/')) {
+      return imagen;
+    }
+
+    return 'assets/img/' + imagen;
+  }
+
   seleccionarCaja(caja: any): void {
     console.log('Caja seleccionada:', caja);
+  }
+
+  irACategorias(): void {
+    window.location.href = '/categorias';
+  }
+
+  irAHome(): void {
+    window.location.href = '/home';
   }
 }
