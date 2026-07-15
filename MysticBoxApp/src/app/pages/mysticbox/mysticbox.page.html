@@ -2,7 +2,6 @@
 
   <div class="catalogo-page">
 
-
     <!-- NAVEGACIÓN -->
     <div class="catalogo-navegacion">
 
@@ -40,7 +39,6 @@
         Explora nuestras cajas sorpresa y elige la que más se adapte a tus gustos.
       </p>
 
-
     </div>
 
     <!-- CARGANDO -->
@@ -60,7 +58,6 @@
     </div>
 
     <!-- SIN CAJAS -->
-
     <div
       class="estado-carga"
       *ngIf="!cargando && !mensajeError && cajas.length === 0"
@@ -68,9 +65,7 @@
       No hay cajas disponibles.
     </div>
 
-
     <!-- CATÁLOGO -->
-
     <div
       class="catalogo-grid"
       *ngIf="!cargando && !mensajeError && cajas.length > 0"
@@ -81,8 +76,8 @@
         *ngFor="let caja of cajas"
       >
 
+        <!-- IMAGEN DE LA CAJA -->
         <div class="mysticbox-imagen">
-
 
           <img
             [src]="obtenerImagen(caja.imagen)"
@@ -91,6 +86,7 @@
 
         </div>
 
+        <!-- INFORMACIÓN DE LA CAJA -->
         <div class="mysticbox-info">
 
           <h2>
@@ -103,7 +99,6 @@
 
           <div class="mysticbox-datos">
 
-
             <span class="precio">
               ₡{{ caja.precio | number:'1.0-0' }}
             </span>
@@ -114,12 +109,13 @@
 
           </div>
 
+          <!-- BOTÓN PARA PERSONALIZAR LA CAJA -->
           <button
             type="button"
             class="seleccionar-btn"
-            (click)="seleccionarCaja(caja)"
+            (click)="personalizarCaja(caja)"
           >
-            Seleccionar caja
+            Personalizar caja
           </button>
 
         </div>

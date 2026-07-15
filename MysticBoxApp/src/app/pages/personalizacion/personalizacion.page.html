@@ -1,0 +1,117 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Personalizar Mystic Box</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="personalizacion-page">
+
+    <section class="encabezado">
+      <span class="marca">MysticBox</span>
+
+      <h1>Personaliza tu caja</h1>
+
+      <p>
+        Cuéntanos tus gustos, los productos que no deseas recibir
+        y agrega un mensaje especial.
+      </p>
+    </section>
+
+    <section class="resumen-caja">
+      <span>Caja seleccionada</span>
+
+      <h2>{{ nombreCaja }}</h2>
+
+      <p>{{ nombreCategoria }}</p>
+
+      <strong>Nivel: {{ tamanoCaja }}</strong>
+    </section>
+
+    <form
+      class="formulario"
+      (ngSubmit)="guardarPersonalizacion()"
+    >
+
+      <div class="campo">
+        <ion-item lines="none">
+          <ion-textarea
+            label="Preferencias"
+            labelPlacement="stacked"
+            placeholder="Ejemplo: accesorios LED, colores azules o productos para computadora"
+            [(ngModel)]="preferencias"
+            name="preferencias"
+            [autoGrow]="true"
+            maxlength="500"
+          >
+          </ion-textarea>
+        </ion-item>
+
+        <small>
+          Indica qué estilos, colores o productos te gustan.
+        </small>
+      </div>
+
+      <div class="campo">
+        <ion-item lines="none">
+          <ion-textarea
+            label="Productos que no deseas recibir"
+            labelPlacement="stacked"
+            placeholder="Ejemplo: no incluir micrófonos ni audífonos"
+            [(ngModel)]="exclusiones"
+            name="exclusiones"
+            [autoGrow]="true"
+            maxlength="500"
+          >
+          </ion-textarea>
+        </ion-item>
+
+        <small>
+          Escribe los productos que deben quedar fuera de tu caja.
+        </small>
+      </div>
+
+      <div class="campo">
+        <ion-item lines="none">
+          <ion-textarea
+            label="Mensaje personalizado"
+            labelPlacement="stacked"
+            placeholder="Ejemplo: Que disfrutes tu experiencia gamer"
+            [(ngModel)]="mensajePersonalizado"
+            name="mensajePersonalizado"
+            [autoGrow]="true"
+            maxlength="250"
+          >
+          </ion-textarea>
+        </ion-item>
+      </div>
+
+      <p
+        class="mensaje-error"
+        *ngIf="mensajeError"
+      >
+        {{ mensajeError }}
+      </p>
+
+      <div class="acciones">
+        <ion-button
+          type="button"
+          fill="outline"
+          class="boton-secundario"
+          (click)="volverAlCatalogo()"
+        >
+          Volver al catálogo
+        </ion-button>
+
+        <ion-button
+          type="submit"
+          class="boton-principal"
+          [disabled]="guardando"
+        >
+          Guardar personalización
+        </ion-button>
+      </div>
+
+    </form>
+  </div>
+</ion-content>

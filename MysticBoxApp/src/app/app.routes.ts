@@ -87,6 +87,12 @@ export const routes: Routes = [
       .then((m) => m.MysticboxPage)
 },
 {
+  path: 'personalizacion',
+  loadComponent: () =>
+    import('./pages/personalizacion/personalizacion.page')
+      .then(m => m.PersonalizacionPage)
+},
+{
   path: 'admin',
   loadComponent: () =>
     import('./pages/admin/admin.page')
@@ -96,6 +102,11 @@ export const routes: Routes = [
     path: '**',
     redirectTo: 'login'
   },
+  {
+    path: 'personalizacion',
+    loadComponent: () => import('./pages/personalizacion/personalizacion.page').then( m => m.PersonalizacionPage)
+  },
+
 
 
 ];

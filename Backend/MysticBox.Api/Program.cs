@@ -26,6 +26,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:8100",
+                "https://localhost:8100",
                 "http://localhost:8101",
                 "http://localhost:8102"
             )
@@ -60,6 +61,7 @@ builder.Services.AddScoped<ICategoriaAD, CategoriaAD>();
 builder.Services.AddScoped<ICuponLN, CuponLN>();
 builder.Services.AddScoped<IFacturaLN, FacturaLN>();
 builder.Services.AddScoped<IWhiteListLN, WhiteListLN>();
+builder.Services.AddScoped<IPersonalizacionLN, PersonalizacionLN>();
 //builder.Services.AddScoped<IMysticBoxLN, MysticBoxLN>();
 
 builder.Services.AddScoped<IMysticBoxLN, MysticBoxLN>();

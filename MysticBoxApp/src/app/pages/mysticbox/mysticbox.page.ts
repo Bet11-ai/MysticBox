@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { IonContent } from '@ionic/angular/standalone';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 
 
@@ -28,10 +28,11 @@ export class MysticboxPage implements OnInit {
   cargando: boolean = true;
   mensajeError: string = '';
 
-  constructor(
-    private mysticboxService: Mysticbox,
-    private route: ActivatedRoute
-  ) {}
+ constructor(
+  private route: ActivatedRoute,
+  private router: Router,
+  private mysticboxService: Mysticbox
+) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -40,6 +41,7 @@ export class MysticboxPage implements OnInit {
     });
 
   }
+  
 
   cargarCajas(): void {
     this.cargando = true;
@@ -96,4 +98,15 @@ export class MysticboxPage implements OnInit {
     window.location.href = '/home';
   }
 
+ personalizarCaja(caja: any): void {
+  this.router.navigate(['/personalizacion'], {
+    queryParams: {
+      idCaja: caja.idCaja,
+      idCategoria: caja.idCategoria || this.idCategoria,
+      nombreCaja: caja.nombreCaja,
+      nombreCategoria: caja.nombreCategoria || ''
+    }
+  });
 }
+}
+

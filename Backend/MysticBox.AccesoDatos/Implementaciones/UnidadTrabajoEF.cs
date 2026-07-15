@@ -30,6 +30,7 @@ public class UnidadTrabajoEF : IUnidadTrabajoEF, IDisposable
     private RepositorioAD<Cupon>? _TCupon;
     private RepositorioAD<Factura>? _TFactura;
     private RepositorioAD<WhiteList>? _TWhiteList;
+    private RepositorioAD<Personalizacione>? _TPersonalizacion;
 
     public UnidadTrabajoEF(MysticBoxContext contexto)
     {
@@ -142,6 +143,16 @@ public class UnidadTrabajoEF : IUnidadTrabajoEF, IDisposable
         {
             _TWhiteList ??= new RepositorioAD<WhiteList>(_contexto);
             return _TWhiteList;
+        }
+    }
+    public IRepositorioAD<Personalizacione> TPersonalizacion
+    {
+        get
+        {
+            _TPersonalizacion ??=
+                new RepositorioAD<Personalizacione>(_contexto);
+
+            return _TPersonalizacion;
         }
     }
 

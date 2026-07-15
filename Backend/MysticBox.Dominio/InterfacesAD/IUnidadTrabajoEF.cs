@@ -33,6 +33,8 @@ public interface IUnidadTrabajoEF
     
     IRepositorioAD <WhiteList> TWhiteList { get; }
 
+    IRepositorioAD<Personalizacione> TPersonalizacion { get; }
+
     int Completar();
 
     void CompletarTran();
