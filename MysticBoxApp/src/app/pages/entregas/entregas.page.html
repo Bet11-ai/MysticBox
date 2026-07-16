@@ -1,0 +1,355 @@
+<ion-content class="tracking-content">
+
+  <main class="tracking-container">
+
+    <button
+      type="button"
+      class="back-button"
+      (click)="volverAlInicio()"
+    >
+      <ion-icon
+        name="arrow-back-outline"
+      ></ion-icon>
+
+      Volver al inicio
+    </button>
+
+    <section class="tracking-header">
+
+      <div>
+        <p>HU10</p>
+
+        <h1>Seguimiento de entrega</h1>
+
+        <span>
+          Consulta el estado y ubicación aproximada
+          de tu pedido.
+        </span>
+      </div>
+
+      <div class="header-icon">
+        <ion-icon
+          name="location-outline"
+        ></ion-icon>
+      </div>
+
+    </section>
+
+    <div
+      class="loading-card"
+      *ngIf="cargando"
+    >
+      <ion-spinner name="crescent"></ion-spinner>
+
+      <p>
+        {{
+          creandoSeguimiento
+            ? 'Creando seguimiento del pedido...'
+            : 'Consultando seguimiento...'
+        }}
+      </p>
+    </div>
+
+    <div
+      class="error-message"
+      *ngIf="mensajeError && !cargando"
+    >
+      <ion-icon
+        name="alert-circle-outline"
+      ></ion-icon>
+
+      <span>{{ mensajeError }}</span>
+
+      <button
+        type="button"
+        (click)="actualizarSeguimiento()"
+      >
+        Reintentar
+      </button>
+    </div>
+
+    <section
+      class="empty-card"
+      *ngIf="
+        !cargando &&
+        !mensajeError &&
+        !entregaSeleccionada
+      "
+    >
+      <ion-icon
+        name="cube-outline"
+      ></ion-icon>
+
+      <h2>No hay entregas registradas</h2>
+
+      <p>
+        Cuando realices una compra, podrás
+        consultar aquí su seguimiento.
+      </p>
+
+      <button
+        type="button"
+        (click)="volverAlInicio()"
+      >
+        Ir a comprar
+      </button>
+    </section>
+
+    <ng-container
+      *ngIf="
+        !cargando &&
+        entregaSeleccionada
+      "
+    >
+
+      <section class="order-card">
+
+        <div class="order-main">
+
+          <div class="order-icon">
+            <ion-icon
+              name="receipt-outline"
+            ></ion-icon>
+          </div>
+
+          <div>
+            <span>Número de pedido</span>
+
+            <h2>
+              {{ obtenerNumeroPedido() }}
+            </h2>
+          </div>
+
+        </div>
+
+        <div
+          class="status-badge"
+          [class.delivered]="estaEntregado()"
+        >
+          {{ obtenerEstadoActual() }}
+        </div>
+
+      </section>
+
+      <section class="tracking-card">
+
+        <div class="section-title">
+
+          <ion-icon
+            name="cube-outline"
+          ></ion-icon>
+
+          <div>
+            <h2>Estado del pedido</h2>
+
+            <p>
+              Progreso actual de tu Mystic Box.
+            </p>
+          </div>
+
+        </div>
+
+        <div class="timeline">
+
+          <div
+            class="timeline-item"
+            *ngFor="
+              let estado of estadosSeguimiento;
+              let ultimo = last
+            "
+            [class.completed]="estado.completado"
+            [class.current]="estado.actual"
+          >
+
+            <div class="timeline-marker">
+
+              <div class="timeline-circle">
+                <ion-icon
+                  [name]="estado.icono"
+                ></ion-icon>
+              </div>
+
+              <div
+                class="timeline-line"
+                *ngIf="!ultimo"
+              ></div>
+
+            </div>
+
+            <div class="timeline-information">
+
+              <h3>{{ estado.nombre }}</h3>
+
+              <p>{{ estado.descripcion }}</p>
+
+              <span *ngIf="estado.actual">
+                Estado actual
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <section class="information-grid">
+
+        <article class="information-card">
+
+          <ion-icon
+            name="location-outline"
+          ></ion-icon>
+
+          <span>Dirección de entrega</span>
+
+          <strong>
+            {{
+              entregaSeleccionada
+                .direccionEntrega
+            }}
+          </strong>
+
+        </article>
+
+        <article class="information-card">
+
+          <ion-icon
+            name="calendar-outline"
+          ></ion-icon>
+
+          <span>Fecha estimada</span>
+
+          <strong>
+            {{
+              entregaSeleccionada
+                .fechaEstimada
+                | date:'dd/MM/yyyy'
+            }}
+          </strong>
+
+        </article>
+
+        <article
+          class="information-card"
+          *ngIf="
+            entregaSeleccionada
+              .ubicacionReferencia
+          "
+        >
+
+          <ion-icon
+            name="map-outline"
+          ></ion-icon>
+
+          <span>Referencia</span>
+
+          <strong>
+            {{
+              entregaSeleccionada
+                .ubicacionReferencia
+            }}
+          </strong>
+
+        </article>
+
+        <article
+          class="information-card delivered-information"
+          *ngIf="
+            entregaSeleccionada
+              .fechaEntrega
+          "
+        >
+
+          <ion-icon
+            name="checkmark-circle-outline"
+          ></ion-icon>
+
+          <span>Fecha de entrega</span>
+
+          <strong>
+            {{
+              entregaSeleccionada
+                .fechaEntrega
+                | date:'dd/MM/yyyy'
+            }}
+          </strong>
+
+        </article>
+
+      </section>
+
+      <section class="map-card">
+
+        <div class="section-title">
+
+          <ion-icon name="map-outline"></ion-icon>
+
+          <div>
+            <h2>Ubicación aproximada</h2>
+
+            <p>
+              Mapa generado según la dirección
+              registrada.
+            </p>
+          </div>
+
+        </div>
+
+        <div
+          class="map-container"
+          *ngIf="mapaUrl"
+        >
+          <iframe
+            [src]="mapaUrl"
+            title="Ubicación aproximada de la entrega"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+
+        <div
+          class="map-unavailable"
+          *ngIf="!mapaUrl"
+        >
+          <ion-icon
+            name="location-outline"
+          ></ion-icon>
+
+          <p>
+            No hay una ubicación disponible.
+          </p>
+        </div>
+
+      </section>
+
+      <div class="tracking-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="irAPedidos()"
+        >
+          Ver mis pedidos
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="actualizarSeguimiento()"
+        >
+          <ion-icon
+            name="refresh-outline"
+          ></ion-icon>
+
+          Actualizar estado
+        </button>
+
+      </div>
+
+    </ng-container>
+
+  </main>
+
+</ion-content>

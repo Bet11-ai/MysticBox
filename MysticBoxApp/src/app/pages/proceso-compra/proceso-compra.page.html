@@ -1,0 +1,338 @@
+<ion-content class="checkout-content">
+
+  <main class="checkout-container">
+
+    <button
+      type="button"
+      class="back-button"
+      routerLink="/carrito"
+      *ngIf="!compraRealizada"
+    >
+      <ion-icon
+        name="arrow-back-outline"
+      ></ion-icon>
+
+      Volver al carrito
+    </button>
+
+    <section
+      class="checkout-header"
+      *ngIf="!compraRealizada"
+    >
+      <div>
+        <p>HU07</p>
+
+        <h1>Proceso de compra</h1>
+
+        <span>
+          Confirma la información antes de finalizar.
+        </span>
+      </div>
+
+      <div class="header-icon">
+        <ion-icon
+          name="bag-check-outline"
+        ></ion-icon>
+      </div>
+    </section>
+
+    <div
+      class="error-message"
+      *ngIf="mensajeError"
+    >
+      <ion-icon
+        name="alert-circle-outline"
+      ></ion-icon>
+
+      <span>{{ mensajeError }}</span>
+    </div>
+
+    <ng-container *ngIf="!compraRealizada">
+
+      <section class="checkout-card">
+
+        <div class="card-title">
+          <ion-icon name="cube-outline"></ion-icon>
+
+          <div>
+            <h2>Productos seleccionados</h2>
+
+            <p>
+              Revisa las cajas incluidas en tu pedido.
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="product-row"
+          *ngFor="let producto of datosCompra.productos"
+        >
+          <div class="product-data">
+            <strong>{{ producto.nombre }}</strong>
+
+            <span>
+              Cantidad: {{ producto.cantidad }}
+            </span>
+          </div>
+
+          <strong class="product-total">
+            ₡{{
+              calcularSubtotalProducto(producto)
+                | number
+            }}
+          </strong>
+        </div>
+
+      </section>
+
+      <section class="checkout-card">
+
+        <div class="card-title">
+          <ion-icon
+            name="location-outline"
+          ></ion-icon>
+
+          <div>
+            <h2>Dirección de entrega</h2>
+
+            <p>
+              Verifica dónde deseas recibir tu pedido.
+            </p>
+          </div>
+        </div>
+
+        <label class="form-label">
+          Dirección completa
+        </label>
+
+        <textarea
+          [(ngModel)]="direccionEntrega"
+          placeholder="Ejemplo: San José, barrio..., casa..."
+          rows="4"
+        ></textarea>
+
+      </section>
+
+      <section class="checkout-card">
+
+        <div class="card-title">
+          <ion-icon name="card-outline"></ion-icon>
+
+          <div>
+            <h2>Método de pago</h2>
+
+            <p>
+              Selecciona cómo deseas realizar el pago.
+            </p>
+          </div>
+        </div>
+
+        <label
+          class="payment-option"
+          [class.selected]="idMetodoPago === 1"
+        >
+          <input
+            type="radio"
+            name="metodoPago"
+            [value]="1"
+            [(ngModel)]="idMetodoPago"
+          />
+
+          <div class="payment-icon">
+            <ion-icon name="card-outline"></ion-icon>
+          </div>
+
+          <div>
+            <strong>Pago con tarjeta</strong>
+
+            <span>
+              Método de pago registrado en el sistema.
+            </span>
+          </div>
+        </label>
+
+        <p class="payment-note">
+          Por ahora utilizamos el método con ID 1,
+          confirmado durante la prueba de Swagger.
+        </p>
+
+      </section>
+
+      <section
+        class="checkout-card coupon-summary"
+        *ngIf="datosCompra.cupon"
+      >
+
+        <div class="card-title">
+          <ion-icon name="ticket-outline"></ion-icon>
+
+          <div>
+            <h2>Cupón aplicado</h2>
+
+            <p>
+              {{ datosCompra.cupon.codigo }}
+            </p>
+          </div>
+        </div>
+
+        <strong>
+          - ₡{{ datosCompra.descuento | number }}
+        </strong>
+
+      </section>
+
+      <section class="checkout-card order-summary">
+
+        <div class="card-title">
+          <ion-icon
+            name="receipt-outline"
+          ></ion-icon>
+
+          <div>
+            <h2>Resumen del pedido</h2>
+
+            <p>
+              Montos finales de la compra.
+            </p>
+          </div>
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal</span>
+
+          <strong>
+            ₡{{ datosCompra.subtotal | number }}
+          </strong>
+        </div>
+
+        <div class="summary-row discount">
+          <span>Descuento</span>
+
+          <strong>
+            - ₡{{ datosCompra.descuento | number }}
+          </strong>
+        </div>
+
+        <div class="summary-total">
+          <span>Total a pagar</span>
+
+          <strong>
+            ₡{{ datosCompra.totalFinal | number }}
+          </strong>
+        </div>
+
+        <button
+          type="button"
+          class="confirm-button"
+          (click)="confirmarCompra()"
+          [disabled]="
+            procesandoCompra ||
+            datosCompra.productos.length === 0
+          "
+        >
+          {{
+            procesandoCompra
+              ? 'Procesando compra...'
+              : 'Confirmar compra'
+          }}
+        </button>
+
+      </section>
+
+    </ng-container>
+
+    <section
+      class="success-card"
+      *ngIf="compraRealizada && pedidoCreado"
+    >
+
+      <div class="success-icon">
+        <ion-icon
+          name="checkmark-circle-outline"
+        ></ion-icon>
+      </div>
+
+      <p class="success-label">
+        Compra realizada
+      </p>
+
+      <h1>¡Gracias por tu compra!</h1>
+
+      <p class="success-description">
+        Tu pedido fue registrado correctamente.
+      </p>
+
+      <div class="order-number">
+
+        <span>Número de pedido</span>
+
+        <strong>
+          {{ pedidoCreado.numeroPedido }}
+        </strong>
+
+      </div>
+
+      <div class="success-information">
+
+        <div>
+          <ion-icon
+            name="receipt-outline"
+          ></ion-icon>
+
+          <span>Estado</span>
+
+          <strong>
+            {{ pedidoCreado.estadoPedido }}
+          </strong>
+        </div>
+
+        <div>
+          <ion-icon
+            name="calendar-outline"
+          ></ion-icon>
+
+          <span>Entrega estimada</span>
+
+          <strong>
+            {{
+              pedidoCreado.fechaEstimadaEntrega
+                | date:'dd/MM/yyyy'
+            }}
+          </strong>
+        </div>
+
+      </div>
+
+      <div class="success-total">
+        <span>Total pagado</span>
+
+        <strong>
+          ₡{{ pedidoCreado.total | number }}
+        </strong>
+      </div>
+
+      <div class="success-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="volverAlInicio()"
+        >
+          Volver al inicio
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="irAMisPedidos()"
+        >
+          Ver mis pedidos
+        </button>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</ion-content>

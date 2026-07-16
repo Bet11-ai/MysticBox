@@ -1,0 +1,276 @@
+<ion-content class="cart-content">
+
+  <button
+    class="back-btn"
+    routerLink="/home"
+  >
+    <ion-icon
+      name="arrow-back-outline"
+    ></ion-icon>
+
+    Volver al Home
+  </button>
+
+  <div class="cart-container">
+
+    <div class="cart-header">
+      <div>
+        <p>HU05 y HU06</p>
+
+        <h1>Carrito de compras</h1>
+
+        <span>
+          Productos seleccionados para tu compra.
+        </span>
+      </div>
+
+      <div class="cart-icon">
+        <ion-icon
+          name="cart-outline"
+        ></ion-icon>
+      </div>
+    </div>
+
+    <div class="backend-status">
+      <ion-icon
+        name="bag-check-outline"
+      ></ion-icon>
+
+      <div>
+        <strong>Backend conectado ✔</strong>
+
+        <p>
+          Carritos registrados:
+          {{ carritos.length }}
+        </p>
+      </div>
+    </div>
+
+    <section
+      class="products-section"
+      *ngIf="productosCarrito.length > 0"
+    >
+
+      <div
+        class="product-card"
+        *ngFor="
+          let producto of productosCarrito;
+          let i = index
+        "
+      >
+
+        <div class="product-image">
+          <ion-icon
+            name="cart-outline"
+          ></ion-icon>
+        </div>
+
+        <div class="product-info">
+          <h3>{{ producto.nombre }}</h3>
+
+          <p>{{ producto.descripcion }}</p>
+
+          <strong>
+            ₡{{ producto.precio | number }}
+          </strong>
+
+          <div class="quantity-control">
+
+            <button
+              type="button"
+              (click)="disminuirCantidad(producto)"
+            >
+              <ion-icon
+                name="remove-outline"
+              ></ion-icon>
+            </button>
+
+            <span>
+              {{ producto.cantidad }}
+            </span>
+
+            <button
+              type="button"
+              (click)="aumentarCantidad(producto)"
+            >
+              <ion-icon
+                name="add-outline"
+              ></ion-icon>
+            </button>
+
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="delete-btn"
+          (click)="eliminarProducto(i)"
+        >
+          <ion-icon
+            name="trash-outline"
+          ></ion-icon>
+        </button>
+
+      </div>
+
+    </section>
+
+    <section
+      class="empty-cart"
+      *ngIf="productosCarrito.length === 0"
+    >
+      <ion-icon
+        name="cart-outline"
+      ></ion-icon>
+
+      <h2>Tu carrito está vacío</h2>
+
+      <p>
+        Agrega una Mystic Box para continuar.
+      </p>
+    </section>
+
+    <section class="coupon-card">
+
+      <div class="coupon-title">
+        <ion-icon
+          name="ticket-outline"
+        ></ion-icon>
+
+        <div>
+          <h2>Cupón promocional</h2>
+
+          <p>
+            Ingresa el código para obtener tu descuento.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="coupon-form"
+        *ngIf="!cuponAplicado"
+      >
+
+        <input
+          type="text"
+          placeholder="Ejemplo: MYSTIC10"
+          [(ngModel)]="codigoCupon"
+          [disabled]="validandoCupon"
+          (keyup.enter)="aplicarCupon()"
+        />
+
+        <button
+          type="button"
+          (click)="aplicarCupon()"
+          [disabled]="validandoCupon"
+        >
+          {{
+            validandoCupon
+              ? 'Validando...'
+              : 'Aplicar'
+          }}
+        </button>
+
+      </div>
+
+      <div
+        class="applied-coupon"
+        *ngIf="cuponAplicado"
+      >
+        <div>
+          <strong>
+            {{ cuponAplicado.codigo }}
+          </strong>
+
+          <span>
+            {{ cuponAplicado.descripcion }}
+          </span>
+        </div>
+
+        <button
+          type="button"
+          (click)="quitarCupon()"
+        >
+          Quitar
+        </button>
+      </div>
+
+      <div
+        class="coupon-message"
+        [class.success-message]="
+          tipoMensajeCupon === 'exito'
+        "
+        [class.error-message]="
+          tipoMensajeCupon === 'error'
+        "
+        *ngIf="mensajeCupon"
+      >
+        <ion-icon
+          [name]="
+            tipoMensajeCupon === 'exito'
+              ? 'checkmark-circle-outline'
+              : 'close-circle-outline'
+          "
+        ></ion-icon>
+
+        <span>
+          {{ mensajeCupon }}
+        </span>
+      </div>
+
+    </section>
+
+    <section class="summary-card">
+
+      <h2>Resumen de compra</h2>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+
+        <strong>
+          ₡{{ calcularSubtotal() | number }}
+        </strong>
+      </div>
+
+      <div
+        class="summary-row discount-row"
+        *ngIf="calcularDescuento() > 0"
+      >
+        <span>Descuento</span>
+
+        <strong>
+          - ₡{{ calcularDescuento() | number }}
+        </strong>
+      </div>
+
+      <div
+        class="summary-row"
+        *ngIf="calcularDescuento() === 0"
+      >
+        <span>Descuento</span>
+
+        <strong>₡0</strong>
+      </div>
+
+      <div class="summary-total">
+        <span>Total</span>
+
+        <strong>
+          ₡{{ calcularTotal() | number }}
+        </strong>
+      </div>
+
+      <button
+        type="button"
+        class="checkout-btn"
+        [disabled]="productosCarrito.length === 0"
+        (click)="continuarCompra()"
+      >
+        Continuar compra
+      </button>
+
+    </section>
+
+  </div>
+
+</ion-content>

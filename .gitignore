@@ -1,0 +1,45 @@
+## Visual Studio
+.vs/
+.vscode/
+
+## Build
+bin/
+obj/
+
+## User files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## EF Core
+Migrations/
+
+## NuGet
+packages/
+
+## Logs
+*.log
+
+## Cache
+*.cache
+
+## Database local
+*.mdf
+*.ldf
+
+## Debug
+Debug/
+Release/
+
+## DLLs
+*.dll
+*.exe
+*.pdb
+
+## Rider
+.idea/
+
+## OS
+Thumbs.db
+Desktop.ini

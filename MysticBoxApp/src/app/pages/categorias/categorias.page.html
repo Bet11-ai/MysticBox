@@ -1,0 +1,91 @@
+<ion-content>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="brand-text">
+      Mystic<span>Box</span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+
+    <div class="hero-text">
+      <h1>Categorías</h1>
+
+      <p class="hero-subtitle">
+        Descubre cuál puede ser tu próxima sorpresa
+      </p>
+
+      <span>
+        Explora nuestras cajas sorpresa y encuentra la perfecta para ti.
+      </span>
+    </div>
+
+    <div class="hero-image">
+      <img
+        src="assets/img/Mystic-Box-Categorias.png"
+        alt="Categorías de MysticBox">
+    </div>
+
+  </section>
+
+  <!-- BUSCADOR -->
+  <div class="search-box">
+    <input
+      type="text"
+      placeholder="Buscar categoría por nombre..."
+      [(ngModel)]="textoBusqueda"
+      (input)="filtrarCategorias()">
+  </div>
+
+  <!-- GRID DE CATEGORÍAS -->
+  <div class="category-grid">
+
+    <div
+      class="category-card"
+      *ngFor="let categoria of categoriasFiltradas"
+      (click)="seleccionarCategoria(categoria)"
+    >
+
+      <div class="category-img-box">
+        <img
+          class="category-img"
+          [src]="categoria.imagen"
+          [alt]="mostrarNombreCategoria(categoria.nombreCategoria)">
+      </div>
+
+      <div class="category-info">
+
+        <h3>
+          {{ mostrarNombreCategoria(categoria.nombreCategoria) }}
+        </h3>
+
+        <p>
+          {{ categoria.descripcion }}
+        </p>
+
+        <button
+          type="button"
+          class="explore-btn"
+          (click)="seleccionarCategoria(categoria); $event.stopPropagation()"
+        >
+          Ver {{ mostrarNombreCategoria(categoria.nombreCategoria) }}
+          <span>›</span>
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MENSAJE CUANDO NO HAY RESULTADOS -->
+  <div
+    class="sin-resultados"
+    *ngIf="categoriasFiltradas.length === 0"
+  >
+    No se encontraron categorías.
+  </div>
+
+</ion-content>
