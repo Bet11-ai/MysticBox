@@ -98,13 +98,14 @@ export class MysticboxPage implements OnInit {
     window.location.href = '/home';
   }
 
- personalizarCaja(caja: any): void {
+personalizarCaja(caja: any): void {
   this.router.navigate(['/personalizacion'], {
     queryParams: {
       idCaja: caja.idCaja,
       idCategoria: caja.idCategoria || this.idCategoria,
       nombreCaja: caja.nombreCaja,
-      nombreCategoria: caja.nombreCategoria || ''
+      nombreCategoria: caja.nombreCategoria || '',
+      precio: caja.precio
     }
   });
 }

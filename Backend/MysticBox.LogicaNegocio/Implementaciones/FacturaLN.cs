@@ -40,8 +40,11 @@ namespace MysticBox.LogicaNegocio.Implementaciones
             var factura = new Factura
             {
                 IdPedido = facturaDTO.IdPedido,
-                NumeroFactura = facturaDTO.NumeroFactura,
-                FechaFactura = facturaDTO.FechaFactura,
+
+                //Las facturas aparecen en un formato acorde con el numero de pedido ejemplo IdPedido 2 FAC-000002
+                NumeroFactura = $"FAC-{facturaDTO.IdPedido:D6}",
+                
+                FechaFactura = facturaDTO.FechaFactura ?? DateTime.Now,
                 Subtotal = facturaDTO.Subtotal,
                 Descuento = facturaDTO.Descuento,
                 Total = facturaDTO.Total

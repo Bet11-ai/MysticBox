@@ -260,10 +260,41 @@
         </strong>
       </div>
 
+<div class="metodo-pago-section">
+  <label for="metodoPago">
+    método de pago
+  </label>
+
+<select 
+id="metodoPago"
+[disabled]="procesandoCompra"
+(change)="seleccionarMetodoPago($event)"
+>
+<option value=""> Seleccione un método de pago 
+  </option>
+
+  @for (
+    metodo of metodosPago;
+    track metodo.idMetodoPago
+  ){
+    <option [value]="metodo.idMetodoPago">
+      {{metodo.nombre}}
+    </option>
+  }
+</select>
+
+<p> 
+  No se seleccionara información bancaria real, el pagó es una simulación
+</p>
+
+</div>
+
       <button
         type="button"
         class="checkout-btn"
-        [disabled]="productosCarrito.length === 0"
+        [disabled]="productosCarrito.length === 0 || 
+        !idMetodoPagoSeleccionado||
+        procesandoCompra"
         (click)="continuarCompra()"
       >
         Continuar compra

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CarritoService } from 'src/app/services/carrito.service';
 
 import {
   IonButton,
@@ -44,6 +45,7 @@ export class PersonalizacionPage implements OnInit {
   idCaja = 0;
   idUsuario = 0;
   idCategoria = 0;
+  precioCaja = 0;
 
   nombreCaja = 'Mystic Box';
   nombreCategoria = 'Categoría seleccionada';
@@ -61,7 +63,8 @@ export class PersonalizacionPage implements OnInit {
     private router: Router,
     private personalizacionService: PersonalizacionService,
     private loadingController: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private carritoService: CarritoService
   ) {}
 
   ngOnInit(): void {
@@ -76,6 +79,8 @@ export class PersonalizacionPage implements OnInit {
       this.idCategoria =
   Number(params.get('idCategoria')) || 0;
 
+   this.precioCaja = Number(params.get('precio')) || 0;
+
       this.nombreCaja =
         params.get('nombreCaja') || 'Mystic Box';
 
@@ -86,6 +91,8 @@ export class PersonalizacionPage implements OnInit {
       this.tamanoCaja =
         params.get('tamanoCaja') ||
         this.obtenerNivelDesdeNombre(this.nombreCaja);
+
+       
     });
   }
 
@@ -181,25 +188,86 @@ export class PersonalizacionPage implements OnInit {
       .crearPersonalizacion(personalizacion)
       .subscribe({
         next: async respuesta => {
+        const idPersonalizacion =
+        respuesta.personalizacion.idPersonalizacion;
+
+     this.carritoService.obtenerCarritos().subscribe({
+
+  next: carritos => {
+
+    const listaCarritos = Array.isArray(carritos)
+      ? carritos
+      : [];
+
+    const carritoActivo = listaCarritos.find(
+      (carrito: any) =>
+        Number(carrito.idUsuario) === Number(this.idUsuario) &&
+        String(carrito.estado).toLowerCase() === 'activo'
+    );
+
+    if (carritoActivo) {
+
+      this.agregarDetalleAlCarrito(
+        carritoActivo.idCarrito,
+        idPersonalizacion,
+        loading
+      );
+
+      return;
+    }
+
+    const nuevoCarrito = {
+      idCarrito: 0,
+      idUsuario: this.idUsuario,
+      fechaCreacion: null,
+      estado: 'Activo'
+    };
+
+    this.carritoService
+      .crearCarrito(nuevoCarrito)
+      .subscribe({
+
+        next: carritoCreado => {
+
+          this.agregarDetalleAlCarrito(
+            carritoCreado.idCarrito,
+            idPersonalizacion,
+            loading
+          );
+        },
+
+        error: async errorCarrito => {
+
           this.guardando = false;
           await loading.dismiss();
 
-          localStorage.setItem(
-            'idPersonalizacionActual',
-            respuesta.personalizacion.idPersonalizacion.toString()
+          console.error(
+            'Error al crear el carrito:',
+            errorCarrito
           );
 
-          const toast = await this.toastController.create({
-            message:
-              'Tu Mystic Box se personalizó correctamente.',
-            duration: 2500,
-            position: 'bottom'
-          });
+          this.mensajeError =
+            errorCarrito?.error?.mensaje ||
+            'La personalización se guardó, pero no se pudo crear el carrito.';
+        }
+      });
+  },
 
-          await toast.present();
+  error: async errorConsulta => {
 
-          this.router.navigate(['/mysticbox']);
-        },
+    this.guardando = false;
+    await loading.dismiss();
+
+    console.error(
+      'Error al consultar los carritos:',
+      errorConsulta
+    );
+
+    this.mensajeError =
+      'No se pudo revisar si el usuario ya tiene un carrito activo.';
+  }
+});
+    },
         error: async error => {
           this.guardando = false;
           await loading.dismiss();
@@ -224,4 +292,70 @@ volverAlCatalogo(): void {
   });
 
 }
+
+private agregarDetalleAlCarrito(
+  idCarrito: number,
+  idPersonalizacion: number,
+  loading: HTMLIonLoadingElement
+): void {
+
+  const detalleCarrito = {
+    idDetalleCarrito: 0,
+    idCarrito: idCarrito,
+    idCaja: this.idCaja,
+    idPersonalizacion: idPersonalizacion,
+    cantidad: 1,
+    precioUnitario: this.precioCaja,
+    subtotal: this.precioCaja
+  };
+
+  this.carritoService
+    .crearDetalleCarrito(detalleCarrito)
+    .subscribe({
+
+      next: async () => {
+
+        this.guardando = false;
+        await loading.dismiss();
+
+        localStorage.setItem(
+          'idPersonalizacionActual',
+          idPersonalizacion.toString()
+        );
+
+        localStorage.setItem(
+          'idCarritoActual',
+          idCarrito.toString()
+        );
+
+        const toast =
+          await this.toastController.create({
+            message:
+              'La caja personalizada se agregó al carrito.',
+            duration: 2500,
+            position: 'bottom'
+          });
+
+        await toast.present();
+
+        this.router.navigate(['/carrito']);
+      },
+
+      error: async errorDetalle => {
+
+        this.guardando = false;
+        await loading.dismiss();
+
+        console.error(
+          'Error al agregar la caja al carrito:',
+          errorDetalle
+        );
+
+        this.mensajeError =
+          errorDetalle?.error?.mensaje ||
+          'La personalización se guardó, pero no se pudo agregar la caja al carrito.';
+      }
+    });
+}
+
 }

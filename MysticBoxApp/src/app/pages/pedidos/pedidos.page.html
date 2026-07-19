@@ -1,13 +1,166 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>pedidos</ion-title>
+    <ion-title>Mis pedidos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">pedidos</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="pedidos-content">
+
+  <main class="pedidos-container">
+
+    <section class="encabezado-pagina">
+
+      <span class="etiqueta">MysticBox</span>
+
+      <h1>Historial de compras</h1>
+
+      <p>
+        Consulta tus pedidos realizados y vuelve a abrir
+        sus facturas.
+      </p>
+
+    </section>
+
+    <section
+      *ngIf="cargando"
+      class="mensaje-estado"
+    >
+      <p>Cargando tus pedidos...</p>
+    </section>
+
+    <section
+      *ngIf="!cargando && mensajeError"
+      class="mensaje-estado mensaje-error"
+    >
+      <p>{{ mensajeError }}</p>
+    </section>
+
+    <section
+      *ngIf="
+        !cargando &&
+        !mensajeError &&
+        pedidos.length === 0
+      "
+      class="mensaje-estado"
+    >
+      <h2>No tienes pedidos todavía</h2>
+
+      <p>
+        Cuando completes una compra aparecerá en esta sección.
+      </p>
+
+      <button
+        type="button"
+        class="boton-secundario"
+        (click)="volverAlInicio()"
+      >
+        Volver al inicio
+      </button>
+    </section>
+
+    <section
+      *ngIf="!cargando && pedidos.length > 0"
+      class="lista-pedidos"
+    >
+
+      <article
+        *ngFor="let pedido of pedidos"
+        class="pedido-card"
+      >
+
+        <div class="pedido-encabezado">
+
+          <div>
+
+            <span class="pedido-label">
+              Pedido
+            </span>
+
+            <h2>
+              {{ pedido.numeroPedido }}
+            </h2>
+
+          </div>
+
+          <span class="estado-pedido">
+            {{ pedido.estadoPedido || 'Pendiente' }}
+          </span>
+
+        </div>
+
+        <div class="pedido-informacion">
+
+          <div class="dato-pedido">
+
+            <span>Fecha</span>
+
+            <strong>
+              {{
+                pedido.fechaPedido
+                  | date:'dd/MM/yyyy, h:mm a'
+              }}
+            </strong>
+
+          </div>
+
+          <div class="dato-pedido">
+
+            <span>Subtotal</span>
+
+            <strong>
+              {{
+                pedido.subtotal
+                  | currency:'CRC':'symbol-narrow':'1.0-0'
+              }}
+            </strong>
+
+          </div>
+
+          <div class="dato-pedido">
+
+            <span>Descuento</span>
+
+            <strong>
+              {{
+                pedido.descuento
+                  | currency:'CRC':'symbol-narrow':'1.0-0'
+              }}
+            </strong>
+
+          </div>
+
+          <div class="dato-pedido dato-total">
+
+            <span>Total</span>
+
+            <strong>
+              {{
+                pedido.total
+                  | currency:'CRC':'symbol-narrow':'1.0-0'
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="boton-factura"
+          [disabled]="!pedido.factura"
+          (click)="verFactura(pedido)"
+        >
+          {{
+            pedido.factura
+              ? 'Ver factura'
+              : 'Factura no disponible'
+          }}
+        </button>
+
+      </article>
+
+    </section>
+
+  </main>
+
 </ion-content>

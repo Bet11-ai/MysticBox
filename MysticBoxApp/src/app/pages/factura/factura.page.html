@@ -1,0 +1,196 @@
+<ion-header>
+  <ion-toolbar>
+
+    <ion-buttons slot="start">
+      <ion-back-button
+        defaultHref="/carrito"
+        text=""
+      ></ion-back-button>
+    </ion-buttons>
+
+    <ion-title>Factura</ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+  <main class="factura-contenedor">
+
+    <section
+      *ngIf="factura; else facturaNoDisponible"
+      class="factura"
+    >
+
+      <div class="factura-encabezado">
+
+        <div>
+          <p class="marca">MysticBox</p>
+          <h1>Comprobante de compra</h1>
+        </div>
+
+        <div class="numero-factura">
+          <span>Número de factura</span>
+
+          <strong>
+            {{ factura.numeroFactura }}
+          </strong>
+        </div>
+
+      </div>
+
+      <div class="datos-factura">
+
+        <p>
+          <strong>Fecha:</strong>
+
+          {{
+            factura.fechaFactura
+              | date:'dd/MM/yyyy, h:mm a'
+          }}
+        </p>
+
+        <p>
+          <strong>Número de pedido:</strong>
+
+          MB-{{
+            factura.idPedido
+              | number:'6.0-0'
+          }}
+        </p>
+
+      </div>
+
+      <section class="productos">
+
+        <h2>Productos comprados</h2>
+
+        <article
+          *ngFor="let producto of productos"
+          class="producto"
+        >
+
+          <div class="producto-informacion">
+
+            <h3>
+              {{ producto.nombre }}
+            </h3>
+
+            <p *ngIf="producto.descripcion">
+              {{ producto.descripcion }}
+            </p>
+
+            <span>
+              Cantidad:
+              {{ producto.cantidad }}
+            </span>
+
+          </div>
+
+          <div class="producto-precio">
+
+            <span>
+              Precio unitario
+            </span>
+
+            <strong>
+              ₡{{
+                producto.precio
+                  | number:'1.0-0'
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+      </section>
+
+      <section class="resumen">
+
+        <div class="resumen-fila">
+          <span>Subtotal</span>
+
+          <strong>
+            ₡{{
+              factura.subtotal
+                | number:'1.0-0'
+            }}
+          </strong>
+        </div>
+
+        <div class="resumen-fila">
+          <span>Descuento</span>
+
+          <strong>
+            - ₡{{
+              factura.descuento
+                | number:'1.0-0'
+            }}
+          </strong>
+        </div>
+
+        <div class="resumen-fila total">
+          <span>Total final</span>
+
+          <strong>
+            ₡{{
+              factura.total
+                | number:'1.0-0'
+            }}
+          </strong>
+        </div>
+
+      </section>
+
+      <p class="mensaje-final">
+        Gracias por comprar en MysticBox.
+      </p>
+
+      <div class="acciones">
+
+        <button
+          type="button"
+          class="boton-secundario"
+          (click)="irAPedidos()"
+        >
+          Ver mis pedidos
+        </button>
+
+        <button
+          type="button"
+          class="boton-principal"
+          (click)="volverAlInicio()"
+        >
+          Volver al inicio
+        </button>
+
+      </div>
+
+    </section>
+
+    <ng-template #facturaNoDisponible>
+
+      <section class="factura-vacia">
+
+        <h1>Factura no disponible</h1>
+
+        <p>
+          No se encontró una factura generada para mostrar.
+        </p>
+
+        <button
+          type="button"
+          class="boton-principal"
+          (click)="volverAlInicio()"
+        >
+          Volver al inicio
+        </button>
+
+      </section>
+
+    </ng-template>
+
+  </main>
+
+</ion-content>

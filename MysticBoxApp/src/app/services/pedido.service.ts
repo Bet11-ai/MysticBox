@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
 import { environment } from '../../environments/environment';
 
+
+
 export interface CrearPedidoRequest {
-  idPedido: number;
+ 
+ // idPedido: number; //Este no SQL lo genera
   idUsuario: number;
   idCupon: number | null;
   idMetodoPago: number;

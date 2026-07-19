@@ -98,15 +98,19 @@ export const routes: Routes = [
     import('./pages/admin/admin.page')
       .then((m) => m.AdminPage)
 },
-{
-    path: '**',
-    redirectTo: 'login'
-  },
+
   {
     path: 'personalizacion',
     loadComponent: () => import('./pages/personalizacion/personalizacion.page').then( m => m.PersonalizacionPage)
   },
-
-
+  {
+    path: 'factura',
+    loadComponent: () => import('./pages/factura/factura.page').then( m => m.FacturaPage)
+  },
+  
+{
+    path: '**',
+    redirectTo: 'login'
+  },
 
 ];

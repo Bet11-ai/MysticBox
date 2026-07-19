@@ -10,7 +10,7 @@ namespace MysticBox.Dominio.DTO
     {
         public int IdPedido { get; set; }
 
-        public string NumeroFactura { get; set; } = null!;
+        public string? NumeroFactura { get; set; } = null!;
 
         public DateTime? FechaFactura { get; set; }
 

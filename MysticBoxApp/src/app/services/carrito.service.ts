@@ -10,7 +10,16 @@ export class CarritoService {
 
   private apiUrl = `${environment.apiUrl}/Carrito`;
 
+  private apiDetalleUrl =
+  `${environment.apiUrl}/DetalleCarrito`;
+
   constructor(private http: HttpClient) {}
+
+ obtenerDetallesCarrito(): Observable<any[]> {
+  return this.http.get<any[]>(
+    this.apiDetalleUrl
+  );
+}
 
   obtenerCarritos(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
@@ -30,5 +39,14 @@ export class CarritoService {
 
   eliminarCarrito(idCarrito: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${idCarrito}`);
+  }
+
+    crearDetalleCarrito(
+    detalle: any
+  ): Observable<any> {
+    return this.http.post<any>(
+      this.apiDetalleUrl,
+      detalle
+    );
   }
 }

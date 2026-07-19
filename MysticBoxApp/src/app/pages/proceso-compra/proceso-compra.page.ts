@@ -234,7 +234,7 @@ export class ProcesoCompraPage implements OnInit {
     }
 
     const pedido: CrearPedidoRequest = {
-      idPedido: 0,
+      
       idUsuario: this.obtenerIdUsuario(),
       idCupon:
         this.datosCompra.cupon?.idCupon ?? null,
