@@ -1,24 +1,28 @@
-import {
-  Component,
-  OnInit
-} from '@angular/core';
-
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
-import {
-  IonicModule
-} from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 
+import { addIcons } from 'ionicons';
 import {
-  Router,
-  RouterLink
-} from '@angular/router';
-
-import {
-  DomSanitizer,
-  SafeResourceUrl
-} from '@angular/platform-browser';
+  alertCircleOutline,
+  archiveOutline,
+  arrowBackOutline,
+  calendarOutline,
+  carOutline,
+  checkmarkCircleOutline,
+  constructOutline,
+  cubeOutline,
+  homeOutline,
+  locationOutline,
+  mapOutline,
+  receiptOutline,
+  refreshOutline,
+  timeOutline
+} from 'ionicons/icons';
 
 import {
   CrearEntregaRequest,
@@ -26,24 +30,13 @@ import {
   EntregaService
 } from '../../services/entrega.service';
 
-import { addIcons } from 'ionicons';
+import {
+  PedidoService
+} from '../../services/pedido.service';
 
 import {
-  arrowBackOutline,
-  locationOutline,
-  cubeOutline,
-  checkmarkCircleOutline,
-  timeOutline,
-  constructOutline,
-  archiveOutline,
-  carOutline,
-  homeOutline,
-  calendarOutline,
-  receiptOutline,
-  mapOutline,
-  alertCircleOutline,
-  refreshOutline
-} from 'ionicons/icons';
+  AuthService
+} from '../../services/auth.service';
 
 interface UltimoPedido {
   idPedido: number;
@@ -95,6 +88,8 @@ export class EntregasPage implements OnInit {
 
   constructor(
     private entregaService: EntregaService,
+    private pedidoService: PedidoService,
+    private authService: AuthService,
     private sanitizer: DomSanitizer,
     private router: Router
   ) {
@@ -117,105 +112,151 @@ export class EntregasPage implements OnInit {
   }
 
   ngOnInit(): void {
-    this.cargarUltimoPedido();
-    this.obtenerEntregas();
+    this.cargarDatos();
   }
 
   ionViewWillEnter(): void {
-    this.cargarUltimoPedido();
-    this.obtenerEntregas();
+    this.cargarDatos();
   }
 
-  cargarUltimoPedido(): void {
-    const pedidoGuardado =
-    
-  sessionStorage.getItem('ultimoPedido') ??
-  localStorage.getItem('ultimoPedido');
-
-    if (!pedidoGuardado) {
-      this.ultimoPedido = null;
-      return;
-    }
-
-    try {
-      this.ultimoPedido = JSON.parse(
-        pedidoGuardado
-      );
-    } catch (error) {
-      console.error(
-        'No fue posible leer el último pedido:',
-        error
-      );
-
-      this.ultimoPedido = null;
-    }
-  }
-
-  obtenerEntregas(): void {
+  cargarDatos(): void {
     this.cargando = true;
     this.mensajeError = '';
 
+    const usuario =
+      this.authService.obtenerUsuario();
+
+    if (!usuario) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.pedidoService
+      .obtenerPedidos()
+      .subscribe({
+        next: pedidos => {
+          const pedidosPropios =
+            (pedidos ?? [])
+              .filter(
+                pedido =>
+                  Number(pedido.idUsuario) ===
+                  usuario.idUsuario
+              )
+              .sort(
+                (pedidoA, pedidoB) =>
+                  pedidoB.idPedido -
+                  pedidoA.idPedido
+              );
+
+          const pedidoMasReciente =
+            pedidosPropios[0];
+
+          if (!pedidoMasReciente) {
+            this.ultimoPedido = null;
+            this.entregaSeleccionada = null;
+            this.cargando = false;
+
+            this.mensajeError =
+              'Todavía no tienes pedidos para dar seguimiento.';
+
+            return;
+          }
+
+          this.ultimoPedido = {
+            idPedido:
+              pedidoMasReciente.idPedido,
+
+            numeroPedido:
+              pedidoMasReciente.numeroPedido ??
+              `MB-${pedidoMasReciente.idPedido
+                .toString()
+                .padStart(6, '0')}`,
+
+            fechaPedido:
+              pedidoMasReciente.fechaPedido ??
+              '',
+
+            fechaEstimadaEntrega:
+              pedidoMasReciente
+                .fechaEstimadaEntrega ??
+              this.sumarDias(
+                pedidoMasReciente.fechaPedido,
+                5
+              ),
+
+            estadoPedido:
+              pedidoMasReciente.estadoPedido ??
+              'Pendiente',
+
+            total:
+              Number(
+                pedidoMasReciente.total ?? 0
+              ),
+
+            direccionEntrega:
+              usuario.direccion?.trim() ??
+              ''
+          };
+
+          this.obtenerEntregas();
+        },
+
+        error: error => {
+          this.cargando = false;
+
+          this.mensajeError =
+            'No fue posible consultar tus pedidos.';
+
+          console.error(error);
+        }
+      });
+  }
+
+  obtenerEntregas(): void {
     this.entregaService
       .obtenerEntregas()
       .subscribe({
-        next: (respuesta) => {
-          this.entregas = respuesta ?? [];
+        next: respuesta => {
+          this.entregas =
+            respuesta ?? [];
 
-          this.buscarEntregaDelUltimoPedido();
+          this.buscarEntrega();
         },
-        error: (error) => {
+
+        error: error => {
           this.cargando = false;
 
           this.mensajeError =
             'No fue posible consultar las entregas.';
 
-          console.error(
-            'Error al obtener entregas:',
-            error
-          );
+          console.error(error);
         }
       });
   }
 
-  buscarEntregaDelUltimoPedido(): void {
-    if (
-      this.ultimoPedido &&
-      this.ultimoPedido.idPedido
-    ) {
-      const entregaEncontrada =
-        this.entregas.find(
-          entrega =>
-            entrega.idPedido ===
-            this.ultimoPedido?.idPedido
-        );
-
-      if (entregaEncontrada) {
-        this.seleccionarEntrega(
-          entregaEncontrada
-        );
-
-        this.cargando = false;
-        return;
-      }
-
-      this.crearSeguimientoAutomatico();
+  buscarEntrega(): void {
+    if (!this.ultimoPedido) {
+      this.cargando = false;
       return;
     }
 
-    if (this.entregas.length > 0) {
-      const entregasOrdenadas = [
-        ...this.entregas
-      ].sort(
-        (a, b) =>
-          b.idEntrega - a.idEntrega
+    const entregaEncontrada =
+      this.entregas.find(
+        entrega =>
+          Number(entrega.idPedido) ===
+          this.ultimoPedido!.idPedido
       );
 
+    if (entregaEncontrada) {
       this.seleccionarEntrega(
-        entregasOrdenadas[0]
+        entregaEncontrada
       );
+
+      this.cargando = false;
+      return;
     }
 
-    this.cargando = false;
+    this.crearSeguimientoAutomatico();
   }
 
   crearSeguimientoAutomatico(): void {
@@ -223,35 +264,44 @@ export class EntregasPage implements OnInit {
       !this.ultimoPedido ||
       this.creandoSeguimiento
     ) {
-      this.cargando = false;
       return;
     }
 
-    const direccion =
-      this.ultimoPedido.direccionEntrega
-        ?.trim();
+    if (
+      !this.ultimoPedido
+        .direccionEntrega
+    ) {
+      this.cargando = false;
 
-    if (!direccion) {
       this.mensajeError =
-        'El último pedido no contiene una dirección de entrega.';
+        'Agrega una dirección en tu perfil para crear el seguimiento.';
 
-      this.cargando = false;
       return;
     }
 
-    const entregaNueva:
+    const nuevaEntrega:
       CrearEntregaRequest = {
         idEntrega: 0,
+
         idPedido:
           this.ultimoPedido.idPedido,
-        direccionEntrega: direccion,
-        estadoEntrega: 'Pendiente',
+
+        direccionEntrega:
+          this.ultimoPedido
+            .direccionEntrega,
+
+        estadoEntrega:
+          'Pendiente',
+
         fechaEstimada:
           this.convertirFechaDateOnly(
             this.ultimoPedido
               .fechaEstimadaEntrega
           ),
-        fechaEntrega: null,
+
+        fechaEntrega:
+          null,
+
         ubicacionReferencia:
           'Ubicación aproximada según la dirección proporcionada por el cliente.'
       };
@@ -259,11 +309,14 @@ export class EntregasPage implements OnInit {
     this.creandoSeguimiento = true;
 
     this.entregaService
-      .crearEntrega(entregaNueva)
+      .crearEntrega(nuevaEntrega)
       .subscribe({
-        next: (respuesta) => {
-          this.creandoSeguimiento = false;
-          this.cargando = false;
+        next: respuesta => {
+          this.creandoSeguimiento =
+            false;
+
+          this.cargando =
+            false;
 
           this.entregas = [
             ...this.entregas,
@@ -273,37 +326,51 @@ export class EntregasPage implements OnInit {
           this.seleccionarEntrega(
             respuesta
           );
-
-          console.log(
-            'Seguimiento creado:',
-            respuesta
-          );
         },
-        error: (error) => {
-          this.creandoSeguimiento = false;
-          this.cargando = false;
+
+        error: error => {
+          this.creandoSeguimiento =
+            false;
+
+          this.cargando =
+            false;
 
           this.mensajeError =
             error.error?.mensaje ??
-            'El pedido existe, pero no fue posible crear su seguimiento.';
+            'No fue posible crear el seguimiento del pedido.';
 
-          console.error(
-            'Error al crear seguimiento:',
-            error
-          );
+          console.error(error);
         }
       });
+  }
+
+  sumarDias(
+    fecha: string | null,
+    dias: number
+  ): string {
+    const fechaCalculada =
+      fecha
+        ? new Date(fecha)
+        : new Date();
+
+    fechaCalculada.setDate(
+      fechaCalculada.getDate() +
+      dias
+    );
+
+    return fechaCalculada
+      .toISOString();
   }
 
   convertirFechaDateOnly(
     fecha: string | null | undefined
   ): string | null {
-
     if (!fecha) {
       return null;
     }
 
-    const fechaConvertida = new Date(fecha);
+    const fechaConvertida =
+      new Date(fecha);
 
     if (
       Number.isNaN(
@@ -316,13 +383,15 @@ export class EntregasPage implements OnInit {
     const anio =
       fechaConvertida.getFullYear();
 
-    const mes = String(
-      fechaConvertida.getMonth() + 1
-    ).padStart(2, '0');
+    const mes =
+      String(
+        fechaConvertida.getMonth() + 1
+      ).padStart(2, '0');
 
-    const dia = String(
-      fechaConvertida.getDate()
-    ).padStart(2, '0');
+    const dia =
+      String(
+        fechaConvertida.getDate()
+      ).padStart(2, '0');
 
     return `${anio}-${mes}-${dia}`;
   }
@@ -330,8 +399,8 @@ export class EntregasPage implements OnInit {
   seleccionarEntrega(
     entrega: Entrega
   ): void {
-
-    this.entregaSeleccionada = entrega;
+    this.entregaSeleccionada =
+      entrega;
 
     this.construirSeguimiento();
 
@@ -357,25 +426,29 @@ export class EntregasPage implements OnInit {
         nombre: 'Preparando',
         descripcion:
           'Estamos seleccionando los productos de tu Mystic Box.',
-        icono: 'construct-outline'
+        icono:
+          'construct-outline'
       },
       {
         nombre: 'Empacando',
         descripcion:
           'Tu caja está siendo empacada cuidadosamente.',
-        icono: 'archive-outline'
+        icono:
+          'archive-outline'
       },
       {
         nombre: 'En camino',
         descripcion:
           'El pedido salió y se encuentra en ruta.',
-        icono: 'car-outline'
+        icono:
+          'car-outline'
       },
       {
         nombre: 'Entregado',
         descripcion:
           'El pedido fue entregado correctamente.',
-        icono: 'checkmark-circle-outline'
+        icono:
+          'checkmark-circle-outline'
       }
     ];
 
@@ -390,9 +463,18 @@ export class EntregasPage implements OnInit {
     this.estadosSeguimiento =
       estadosBase.map(
         (estado, indice) => ({
-          ...estado,
+          nombre:
+            estado.nombre,
+
+          descripcion:
+            estado.descripcion,
+
+          icono:
+            estado.icono,
+
           completado:
             indice <= indiceActual,
+
           actual:
             indice === indiceActual
         })
@@ -402,7 +484,6 @@ export class EntregasPage implements OnInit {
   normalizarEstado(
     estado: string
   ): string {
-
     return estado
       .trim()
       .toLowerCase()
@@ -424,11 +505,10 @@ export class EntregasPage implements OnInit {
       return;
     }
 
-    const direccionCodificada =
-      encodeURIComponent(direccion);
-
     const url =
-      `https://www.google.com/maps?q=${direccionCodificada}&output=embed`;
+      `https://www.google.com/maps?q=${
+        encodeURIComponent(direccion)
+      }&output=embed`;
 
     this.mapaUrl =
       this.sanitizer
@@ -439,10 +519,8 @@ export class EntregasPage implements OnInit {
 
   obtenerNumeroPedido(): string {
     if (
-      this.ultimoPedido &&
-      this.entregaSeleccionada &&
-      this.ultimoPedido.idPedido ===
-        this.entregaSeleccionada.idPedido
+      this.ultimoPedido
+        ?.numeroPedido
     ) {
       return this.ultimoPedido
         .numeroPedido;
@@ -450,7 +528,8 @@ export class EntregasPage implements OnInit {
 
     const idPedido =
       this.entregaSeleccionada
-        ?.idPedido ?? 0;
+        ?.idPedido ??
+      0;
 
     return `MB-${idPedido
       .toString()
@@ -474,7 +553,7 @@ export class EntregasPage implements OnInit {
   }
 
   actualizarSeguimiento(): void {
-    this.obtenerEntregas();
+    this.cargarDatos();
   }
 
   volverAlInicio(): void {

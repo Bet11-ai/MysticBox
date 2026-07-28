@@ -7,16 +7,13 @@
       <div class="brand-area">
         <p>Bienvenida a</p>
         <h1>Mystic Box</h1>
+        <span class="welcome-user" *ngIf="usuario">Hola, {{ usuario.nombre }}</span>
       </div>
 
-      <div class="backend-message">
-        Backend conectado ✓
-      </div>
-
-      <div class="backend-count">
-        Carritos encontrados:
-        {{ cantidadCarritos }}
-      </div>
+      <button type="button" class="logout-home-button" (click)="cerrarSesion()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Cerrar sesión</span>
+      </button>
 
       <button
         type="button"
@@ -24,11 +21,15 @@
         (click)="irAlCarrito()"
         aria-label="Abrir carrito"
       >
-        <ion-icon name="cart-outline"></ion-icon>
+        <ion-icon
+          name="cart-outline"
+        ></ion-icon>
 
         <span
           class="cart-badge"
-          *ngIf="cantidadProductosCarrito > 0"
+          *ngIf="
+            cantidadProductosCarrito > 0
+          "
         >
           {{ cantidadProductosCarrito }}
         </span>
@@ -40,12 +41,14 @@
 
       <div class="search-box">
 
-        <ion-icon name="search-outline"></ion-icon>
+        <ion-icon
+          name="search-outline"
+        ></ion-icon>
 
         <input
           type="text"
           [(ngModel)]="textoBusqueda"
-          placeholder="Buscar cajas, regalos o categorías..."
+          placeholder="Buscar cajas o regalos..."
           (keyup.enter)="buscar()"
         />
 
@@ -53,7 +56,6 @@
           type="button"
           class="search-button"
           (click)="buscar()"
-          aria-label="Buscar"
         >
           Buscar
         </button>
@@ -69,93 +71,141 @@
         <p>Nueva colección</p>
 
         <h2>
-          Cajas sorpresa para cada estilo
+          Una sorpresa pensada para ti
         </h2>
 
         <span>
-          Explora productos únicos y personalizados.
+          Descubre cajas únicas,
+          personalizadas y llenas de emoción.
         </span>
 
         <button
           type="button"
           (click)="irAlCatalogo()"
         >
-          Comprar ahora
+          Explorar colección
         </button>
 
       </div>
 
       <div class="hero-decoration">
-        <ion-icon name="gift-outline"></ion-icon>
+        <ion-icon
+          name="gift-outline"
+        ></ion-icon>
       </div>
 
     </section>
 
-    <section class="home-section categories-section">
+    <!-- OFERTAS -->
+
+    <section class="home-section">
 
       <div class="section-heading">
 
         <div>
           <span class="section-label">
-            Descubre tu próxima sorpresa
+            Aprovecha antes de que terminen
           </span>
 
-          <h2>Categorías</h2>
+          <h2>
+            <ion-icon
+              name="flame-outline"
+            ></ion-icon>
+
+            Ofertas destacadas
+          </h2>
         </div>
 
         <button
           type="button"
           class="view-link"
-          (click)="irACategorias()"
+          (click)="irAlCatalogo()"
         >
           Ver todas
         </button>
 
       </div>
 
-      <div class="category-image-grid">
+      <div class="offers-grid">
 
         <article
-          class="category-image-card"
-          *ngFor="let categoria of categorias"
-          (click)="seleccionarCategoria(categoria)"
+          class="offer-card"
+          *ngFor="let producto of ofertas"
+          (click)="abrirProducto(producto)"
         >
 
-          <div class="category-image-wrapper">
+          <div class="offer-image">
 
             <img
-              [src]="categoria.imagen"
-              [alt]="categoria.nombre"
+              *ngIf="producto.imagen"
+              [src]="producto.imagen"
+              [alt]="producto.nombre"
+              (error)="manejarErrorImagen($event)"
             />
 
-            <div class="category-image-overlay"></div>
-
-            <div class="category-badge">
+            <div class="image-fallback">
               <ion-icon
-                [name]="categoria.icono"
+                [name]="producto.icono"
               ></ion-icon>
             </div>
 
+            <span class="offer-label">
+              {{ producto.etiqueta }}
+            </span>
+
+            <span
+              class="discount-badge"
+              *ngIf="producto.descuento"
+            >
+              -{{ producto.descuento }}%
+            </span>
+
           </div>
 
-          <div class="category-image-info">
+          <div class="offer-information">
 
-            <h3>{{ categoria.nombre }}</h3>
+            <h3>{{ producto.nombre }}</h3>
 
             <p>
-              {{ categoria.descripcion }}
+              {{ producto.descripcion }}
             </p>
 
-            <button
-              type="button"
-              (click)="
-                seleccionarCategoria(categoria);
-                $event.stopPropagation()
-              "
-            >
-              Ver {{ categoria.nombre }}
-              <span>›</span>
-            </button>
+            <div class="price-container">
+
+              <div>
+                <span
+                  class="previous-price"
+                  *ngIf="
+                    producto.precioAnterior
+                  "
+                >
+                  ₡{{
+                    producto.precioAnterior
+                      | number
+                  }}
+                </span>
+
+                <strong>
+                  ₡{{ producto.precio | number }}
+                </strong>
+              </div>
+
+              <button
+                type="button"
+                class="small-add-button"
+                (click)="
+                  agregarAlCarrito(
+                    producto,
+                    $event
+                  )
+                "
+              >
+                <ion-icon
+                  name="add-outline"
+                ></ion-icon>
+              </button>
+
+            </div>
 
           </div>
 
@@ -165,11 +215,141 @@
 
     </section>
 
+    <!-- RECOMENDACIÓN Y CUPÓN -->
+
+    <section class="home-dashboard-grid">
+
+      <article
+        class="recommendation-card"
+        (click)="
+          abrirProducto(
+            productoRecomendado
+          )
+        "
+      >
+
+        <div class="recommendation-content">
+
+          <span class="recommendation-label">
+            <ion-icon
+              name="star-outline"
+            ></ion-icon>
+
+            Selección Mystic
+          </span>
+
+          <h2>
+            {{ productoRecomendado.nombre }}
+          </h2>
+
+          <p>
+            {{
+              productoRecomendado.descripcion
+            }}
+          </p>
+
+          <strong>
+            ₡{{
+              productoRecomendado.precio
+                | number
+            }}
+          </strong>
+
+          <button
+            type="button"
+            (click)="
+              abrirProducto(
+                productoRecomendado
+              );
+              $event.stopPropagation()
+            "
+          >
+            Ver recomendación
+
+            <ion-icon
+              name="arrow-forward-outline"
+            ></ion-icon>
+          </button>
+
+        </div>
+
+        <div class="recommendation-decoration">
+          <ion-icon
+            name="gift-outline"
+          ></ion-icon>
+        </div>
+
+      </article>
+
+    </section>
+
+    <!-- ÚLTIMO PEDIDO -->
+
+    <section
+      class="last-order-card"
+      *ngIf="ultimoPedido"
+    >
+
+      <div class="last-order-icon">
+        <ion-icon
+          name="location-outline"
+        ></ion-icon>
+      </div>
+
+      <div class="last-order-information">
+
+        <span>Tu pedido más reciente</span>
+
+        <h2>
+          {{ ultimoPedido.numeroPedido }}
+        </h2>
+
+        <p>
+          Estado actual:
+          <strong>
+            {{ ultimoPedido.estadoPedido }}
+          </strong>
+        </p>
+
+      </div>
+
+      <div class="last-order-total">
+        <span>Total</span>
+
+        <strong>
+          ₡{{ ultimoPedido.total | number }}
+        </strong>
+      </div>
+
+      <button
+        type="button"
+        class="track-button"
+        (click)="irAEntregas()"
+      >
+        Ver seguimiento
+
+        <ion-icon
+          name="arrow-forward-outline"
+        ></ion-icon>
+      </button>
+
+    </section>
+
+    <!-- DESTACADOS -->
+
     <section class="home-section">
 
       <div class="section-heading">
 
-        <h2>Destacados</h2>
+        <div>
+          <span class="section-label">
+            Los favoritos de nuestros clientes
+          </span>
+
+          <h2>
+            Productos destacados
+          </h2>
+        </div>
 
         <button
           type="button"
@@ -185,7 +365,9 @@
 
         <article
           class="featured-product"
-          *ngFor="let producto of productosDestacados"
+          *ngFor="
+            let producto of productosDestacados
+          "
           (click)="abrirProducto(producto)"
         >
 
@@ -201,7 +383,9 @@
 
             <h3>{{ producto.nombre }}</h3>
 
-            <p>{{ producto.descripcion }}</p>
+            <p>
+              {{ producto.descripcion }}
+            </p>
 
             <strong>
               ₡{{ producto.precio | number }}
@@ -212,15 +396,51 @@
           <button
             type="button"
             class="add-product-button"
-            (click)="agregarAlCarrito(producto, $event)"
-            aria-label="Agregar producto al carrito"
+            (click)="
+              agregarAlCarrito(
+                producto,
+                $event
+              )
+            "
           >
-            <ion-icon name="add-outline"></ion-icon>
+            <ion-icon
+              name="add-outline"
+            ></ion-icon>
           </button>
 
         </article>
 
       </div>
+
+    </section>
+
+    <section class="rating-invitation">
+
+      <div class="rating-icon">
+        <ion-icon
+          name="star-outline"
+        ></ion-icon>
+      </div>
+
+      <div>
+        <span>¿Ya recibiste tu Mystic Box?</span>
+
+        <h2>
+          Cuéntanos cómo fue tu experiencia
+        </h2>
+
+        <p>
+          Tu opinión nos ayuda a mejorar
+          y crear mejores sorpresas.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        (click)="irACalificaciones()"
+      >
+        Calificar experiencia
+      </button>
 
     </section>
 
@@ -235,7 +455,10 @@
     class="nav-option active"
     routerLink="/home"
   >
-    <ion-icon name="home-outline"></ion-icon>
+    <ion-icon
+      name="home-outline"
+    ></ion-icon>
+
     <span>Home</span>
   </button>
 
@@ -244,7 +467,10 @@
     class="nav-option"
     routerLink="/categorias"
   >
-    <ion-icon name="grid-outline"></ion-icon>
+    <ion-icon
+      name="grid-outline"
+    ></ion-icon>
+
     <span>Categorías</span>
   </button>
 
@@ -253,7 +479,10 @@
     class="nav-option"
     routerLink="/carrito"
   >
-    <ion-icon name="cart-outline"></ion-icon>
+    <ion-icon
+      name="cart-outline"
+    ></ion-icon>
+
     <span>Carrito</span>
   </button>
 
@@ -262,7 +491,10 @@
     class="nav-option"
     routerLink="/pedidos"
   >
-    <ion-icon name="receipt-outline"></ion-icon>
+    <ion-icon
+      name="receipt-outline"
+    ></ion-icon>
+
     <span>Pedidos</span>
   </button>
 
@@ -271,7 +503,10 @@
     class="nav-option"
     routerLink="/entregas"
   >
-    <ion-icon name="location-outline"></ion-icon>
+    <ion-icon
+      name="location-outline"
+    ></ion-icon>
+
     <span>Entregas</span>
   </button>
 
@@ -280,7 +515,10 @@
     class="nav-option"
     routerLink="/perfil"
   >
-    <ion-icon name="person-outline"></ion-icon>
+    <ion-icon
+      name="person-outline"
+    ></ion-icon>
+
     <span>Perfil</span>
   </button>
 

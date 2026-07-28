@@ -1,6 +1,14 @@
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import {
+  Component
+} from '@angular/core';
+
+import {
+  Router
+} from '@angular/router';
+
+import {
+  FormsModule
+} from '@angular/forms';
 
 import {
   IonContent,
@@ -11,9 +19,14 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 
-import { AuthService } from '../../services/auth.service';
+import {
+  AuthService,
+  RegistroRequest
+} from '../../services/auth.service';
 
-import { addIcons } from 'ionicons';
+import {
+  addIcons
+} from 'ionicons';
 
 import {
   personOutline,
@@ -21,13 +34,18 @@ import {
   callOutline,
   locationOutline,
   lockClosedOutline,
-  eyeOffOutline
+  eyeOffOutline,
+  eyeOutline,
+  shieldCheckmarkOutline
 } from 'ionicons/icons';
 
 @Component({
   selector: 'app-registro',
-  templateUrl: './registro.page.html',
-  styleUrls: ['./registro.page.scss'],
+  templateUrl:
+    './registro.page.html',
+  styleUrls: [
+    './registro.page.scss'
+  ],
   standalone: true,
   imports: [
     FormsModule,
@@ -47,12 +65,19 @@ export class RegistroPage {
   contrasena = '';
   confirmarContrasena = '';
 
+  mostrarContrasena = false;
+  mostrarConfirmacion = false;
+
   cargando = false;
 
   constructor(
     private router: Router,
-    private toastController: ToastController,
-    private authService: AuthService
+
+    private toastController:
+      ToastController,
+
+    private authService:
+      AuthService
   ) {
     addIcons({
       personOutline,
@@ -60,11 +85,14 @@ export class RegistroPage {
       callOutline,
       locationOutline,
       lockClosedOutline,
-      eyeOffOutline
+      eyeOffOutline,
+      eyeOutline,
+      shieldCheckmarkOutline
     });
   }
 
-  async registrar() {
+  async registrar():
+    Promise<void> {
 
     if (
       !this.nombre.trim() ||
@@ -72,64 +100,158 @@ export class RegistroPage {
       !this.telefono.trim() ||
       !this.direccion.trim() ||
       !this.contrasena.trim() ||
-      !this.confirmarContrasena.trim()
+      !this.confirmarContrasena
+        .trim()
     ) {
-      return this.mostrarMensaje('Todos los campos son obligatorios.');
+      await this.mostrarMensaje(
+        'Todos los campos son obligatorios.',
+        'warning'
+      );
+
+      return;
     }
 
-    const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const correoValido =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!correoValido.test(this.correo)) {
-      return this.mostrarMensaje('El correo electrónico no es válido.');
+    if (
+      !correoValido.test(
+        this.correo.trim()
+      )
+    ) {
+      await this.mostrarMensaje(
+        'El correo electrónico no es válido.',
+        'warning'
+      );
+
+      return;
     }
 
-    if (this.contrasena.length < 8) {
-      return this.mostrarMensaje('La contraseña debe tener mínimo 8 caracteres.');
+    if (
+      this.contrasena.length < 8
+    ) {
+      await this.mostrarMensaje(
+        'La contraseña debe tener mínimo 8 caracteres.',
+        'warning'
+      );
+
+      return;
     }
 
-    if (this.contrasena !== this.confirmarContrasena) {
-      return this.mostrarMensaje('Las contraseñas no coinciden.');
+    if (
+      this.contrasena !==
+      this.confirmarContrasena
+    ) {
+      await this.mostrarMensaje(
+        'Las contraseñas no coinciden.',
+        'warning'
+      );
+
+      return;
     }
 
-    const usuario = {
-      idRol: 2,
-      nombre: this.nombre,
-      correo: this.correo,
-      telefono: this.telefono,
-      direccion: this.direccion,
-      contrasena: this.contrasena
+    const usuario:
+      RegistroRequest = {
+
+      nombre:
+        this.nombre.trim(),
+
+      correo:
+        this.correo
+          .trim()
+          .toLowerCase(),
+
+      telefono:
+        this.telefono.trim(),
+
+      direccion:
+        this.direccion.trim(),
+
+      contrasena:
+        this.contrasena
     };
 
     this.cargando = true;
 
-    this.authService.registrar(usuario).subscribe({
-      next: async () => {
-        this.cargando = false;
-        await this.mostrarMensaje('Usuario registrado correctamente.');
-        this.router.navigate(['/login']);
-      },
-      error: async (error: any) => {
-        this.cargando = false;
-        console.error('Error al registrar usuario:', error);
-        await this.mostrarMensaje('No se pudo registrar el usuario.');
-      }
-    });
+    this.authService
+      .registrar(usuario)
+      .subscribe({
+        next: async (
+          respuesta
+        ) => {
+          this.cargando = false;
 
+          await this.mostrarMensaje(
+            respuesta.mensaje ??
+            'Cuenta de cliente creada correctamente.',
+            'success'
+          );
+
+          await this.router
+            .navigateByUrl(
+              '/login',
+              {
+                replaceUrl: true
+              }
+            );
+        },
+
+        error: async (
+          error: any
+        ) => {
+          this.cargando = false;
+
+          const mensaje =
+            error.error?.mensaje ??
+            'No se pudo registrar la cuenta.';
+
+          await this.mostrarMensaje(
+            mensaje,
+            'danger'
+          );
+        }
+      });
   }
 
-  async mostrarMensaje(mensaje: string) {
-    const toast = await this.toastController.create({
-      message: mensaje,
-      duration: 2500,
-      position: 'top',
-      color: 'primary'
-    });
+  alternarContrasena():
+    void {
+
+    this.mostrarContrasena =
+      !this.mostrarContrasena;
+  }
+
+  alternarConfirmacion():
+    void {
+
+    this.mostrarConfirmacion =
+      !this.mostrarConfirmacion;
+  }
+
+  irLogin(): void {
+    this.router.navigate(
+      ['/login']
+    );
+  }
+
+  private async mostrarMensaje(
+    mensaje: string,
+
+    color:
+      'primary' |
+      'success' |
+      'warning' |
+      'danger'
+  ): Promise<void> {
+
+    const toast =
+      await this.toastController
+        .create({
+          message: mensaje,
+          duration: 2600,
+          position: 'top',
+          color
+        });
 
     await toast.present();
   }
-
-  irLogin() {
-    this.router.navigate(['/login']);
-  }
-
 }

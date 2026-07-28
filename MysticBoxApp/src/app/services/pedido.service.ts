@@ -1,19 +1,42 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
 import { environment } from '../../environments/environment';
 
-
+export interface Pedido {
+  idPedido: number;
+  numeroPedido?: string;
+  idUsuario: number;
+  idCupon: number | null;
+  idMetodoPago: number;
+  fechaPedido: string | null;
+  fechaEstimadaEntrega?: string | null;
+  subtotal: number;
+  descuento: number | null;
+  total: number;
+  estadoPedido: string | null;
+}
 
 export interface CrearPedidoRequest {
- 
- // idPedido: number; //Este no SQL lo genera
   idUsuario: number;
   idCupon: number | null;
   idMetodoPago: number;
   fechaPedido: string | null;
   subtotal: number;
   descuento: number;
+  total: number;
+  estadoPedido: string;
+}
+
+export interface ActualizarPedidoRequest {
+  idPedido: number;
+  idUsuario: number;
+  idCupon: number | null;
+  idMetodoPago: number;
+  fechaPedido: string | null;
+  subtotal: number;
+  descuento: number | null;
   total: number;
   estadoPedido: string;
 }
@@ -32,29 +55,97 @@ export interface PedidoCreadoResponse {
   idMetodoPago: number;
 }
 
+export interface ClientePedidoDetalle {
+  idUsuario: number;
+  nombre: string;
+  correo: string;
+  telefono: string | null;
+  direccion: string | null;
+}
+
+export interface MetodoPagoPedidoDetalle {
+  idMetodoPago: number;
+  nombreMetodo: string;
+}
+
+export interface CuponPedidoDetalle {
+  idCupon: number;
+  codigo: string;
+  descripcion: string | null;
+  porcentajeDescuento: number | null;
+  montoDescuento: number | null;
+}
+
+export interface ProductoPedidoDetalle {
+  idDetallePedido: number;
+  idCaja: number;
+  nombreCaja: string;
+  descripcion: string | null;
+  imagen: string | null;
+  cantidad: number;
+  precioUnitario: number;
+  subtotal: number;
+  idPersonalizacion: number | null;
+  tamanoCaja: string | null;
+  preferencias: string | null;
+  exclusiones: string | null;
+  mensajePersonalizado: string | null;
+
+  // Se usa únicamente en el frontend para ocultar una imagen que no pudo cargar.
+  errorImagen?: boolean;
+}
+
+export interface PedidoDetalleCompleto {
+  idPedido: number;
+  numeroPedido: string;
+  fechaPedido: string | null;
+  estadoPedido: string;
+  subtotal: number;
+  descuento: number;
+  total: number;
+  cliente: ClientePedidoDetalle;
+  metodoPago: MetodoPagoPedidoDetalle;
+  cupon: CuponPedidoDetalle | null;
+  productos: ProductoPedidoDetalle[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class PedidoService {
 
-  private apiUrl = `${environment.apiUrl}/Pedido`;
+  private readonly apiUrl =
+    `${environment.apiUrl}/Pedido`;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient
+  ) {}
 
-  obtenerPedidos(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  obtenerPedidos(): Observable<Pedido[]> {
+    return this.http.get<Pedido[]>(
+      this.apiUrl
+    );
   }
 
-  obtenerPedidoPorId(idPedido: number): Observable<any> {
-    return this.http.get<any>(
+  obtenerPedidoPorId(
+    idPedido: number
+  ): Observable<Pedido> {
+    return this.http.get<Pedido>(
       `${this.apiUrl}/${idPedido}`
+    );
+  }
+
+  obtenerDetalleCompleto(
+    idPedido: number
+  ): Observable<PedidoDetalleCompleto> {
+    return this.http.get<PedidoDetalleCompleto>(
+      `${this.apiUrl}/${idPedido}/detalle-completo`
     );
   }
 
   crearPedido(
     pedido: CrearPedidoRequest
   ): Observable<PedidoCreadoResponse> {
-
     return this.http.post<PedidoCreadoResponse>(
       this.apiUrl,
       pedido
@@ -63,17 +154,18 @@ export class PedidoService {
 
   actualizarPedido(
     idPedido: number,
-    pedido: CrearPedidoRequest
-  ): Observable<any> {
-
-    return this.http.put<any>(
+    pedido: ActualizarPedidoRequest
+  ): Observable<unknown> {
+    return this.http.put<unknown>(
       `${this.apiUrl}/${idPedido}`,
       pedido
     );
   }
 
-  eliminarPedido(idPedido: number): Observable<any> {
-    return this.http.delete<any>(
+  eliminarPedido(
+    idPedido: number
+  ): Observable<unknown> {
+    return this.http.delete<unknown>(
       `${this.apiUrl}/${idPedido}`
     );
   }

@@ -7,11 +7,25 @@ public interface IPedidoLN
 {
     Task<List<Pedido>> ObtenerPedidos();
 
-    Task<Pedido?> ObtenerPedidoPorId(int idPedido);
+    Task<Pedido?> ObtenerPedidoPorId(
+        int idPedido
+    );
 
-    Task<Pedido> CrearPedido(PedidoDTO pedidoDTO);
+    Task<PedidoDetalleCompletoDTO?>
+        ObtenerDetalleCompleto(
+            int idPedido
+        );
 
-    Task<bool> ActualizarPedido(int idPedido, PedidoDTO pedidoDTO);
+    Task<Pedido> CrearPedido(
+        PedidoDTO pedidoDTO
+    );
 
-    Task<bool> EliminarPedido(int idPedido);
+    Task<bool> ActualizarPedido(
+        int idPedido,
+        PedidoDTO pedidoDTO
+    );
+
+    Task<bool> EliminarPedido(
+        int idPedido
+    );
 }

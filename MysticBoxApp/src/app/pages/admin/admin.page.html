@@ -1,99 +1,207 @@
 <ion-content class="admin-content">
 
-  <main class="admin-container">
+  <main class="admin-shell">
 
-    <header class="admin-topbar">
+    <!-- Barra superior -->
+    <header class="admin-navbar">
 
-      <button
-        type="button"
-        class="back-button"
-        (click)="volverAlInicio()"
-      >
-        <ion-icon
-          name="arrow-back-outline"
-        ></ion-icon>
+      <div class="admin-brand">
 
-        Volver al inicio
-      </button>
+        <div class="brand-logo">
+          <ion-icon name="cube-outline"></ion-icon>
+        </div>
 
-      <button
-        type="button"
-        class="logout-button"
-        (click)="cerrarSesion()"
-      >
-        <ion-icon
-          name="log-out-outline"
-        ></ion-icon>
+        <div class="brand-copy">
+          <strong>Mystic Box</strong>
+          <span>Centro administrativo</span>
+        </div>
 
-        Cerrar sesión
-      </button>
+      </div>
+
+      <div class="admin-user">
+
+        <div class="user-copy">
+          <strong>
+            {{ usuario?.nombre || 'Administradora' }}
+          </strong>
+
+          <span>Administrador</span>
+        </div>
+
+        <div class="user-avatar">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </div>
+
+        <button
+          type="button"
+          class="logout-button"
+          (click)="cerrarSesion()">
+
+          <ion-icon name="log-out-outline"></ion-icon>
+
+          <span>Cerrar sesión</span>
+
+        </button>
+
+      </div>
 
     </header>
 
-    <section class="admin-header">
+    <!-- Banner principal -->
+    <section class="hero-admin">
 
-      <div class="header-information">
+      <div class="hero-content">
 
-        <p>EPIC 6 · MB-72</p>
-
-        <h1>Panel administrativo</h1>
-
-        <span>
-          Gestiona la información principal de Mystic Box.
+        <span class="eyebrow">
+          PANEL DE CONTROL
         </span>
 
-      </div>
+        <h1>
+          Hola,
+          <strong>
+            {{ usuario?.nombre || 'Administradora' }}
+          </strong>
 
-      <div class="header-icon">
-
-        <ion-icon
-          name="settings-outline"
-        ></ion-icon>
-
-      </div>
-
-    </section>
-
-    <section class="welcome-card">
-
-      <div class="welcome-icon">
-
-        <ion-icon
-          name="storefront-outline"
-        ></ion-icon>
-
-      </div>
-
-      <div>
-
-        <span>Administración Mystic Box</span>
-
-        <h2>
-          Bienvenida al centro de gestión
-        </h2>
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </h1>
 
         <p>
-          Desde aquí podrás administrar cajas,
-          promociones, pedidos, clientes, reportes
-          y accesos autorizados.
+          Gestiona tu tienda, los pedidos y la experiencia
+          de tus clientes desde un solo lugar.
         </p>
+
+        <div class="hero-information">
+
+          <div class="information-pill">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ fechaActual }}</span>
+          </div>
+
+          <div class="information-pill">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>{{ horaActual }}</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="hero-decoration">
+
+        <div class="decoration-glow"></div>
+
+        <div class="settings-platform">
+
+          <div class="settings-icon">
+            <ion-icon name="settings-outline"></ion-icon>
+          </div>
+
+          <div class="platform-ring ring-one"></div>
+          <div class="platform-ring ring-two"></div>
+
+        </div>
 
       </div>
 
     </section>
 
-    <section class="modules-section">
+    <!-- Accesos rápidos -->
+    <section class="quick-strip">
 
-      <div class="section-heading">
+      <article class="quick-card featured">
 
-        <div>
-          <p>Módulos disponibles</p>
-          <h2>Administración de la tienda</h2>
+        <div class="quick-icon">
+          <ion-icon name="storefront-outline"></ion-icon>
         </div>
 
-        <span>
-          {{ modulos.length }} módulos
-        </span>
+        <div class="quick-number">
+          6
+        </div>
+
+        <div class="quick-copy">
+          <strong>Módulos disponibles</strong>
+          <span>Herramientas para gestionar tu negocio</span>
+        </div>
+
+        <ion-icon
+          class="quick-arrow"
+          name="chevron-forward-outline">
+        </ion-icon>
+
+      </article>
+
+      <article
+        class="quick-card"
+        (click)="abrirModulo(modulos[2])">
+
+        <div class="quick-icon blue">
+          <ion-icon name="receipt-outline"></ion-icon>
+        </div>
+
+        <div class="quick-copy">
+          <strong>Pedidos</strong>
+          <span>Consulta y actualiza estados</span>
+
+          <button type="button">
+            Ver pedidos recientes
+          </button>
+        </div>
+
+        <ion-icon
+          class="quick-arrow blue-arrow"
+          name="chevron-forward-outline">
+        </ion-icon>
+
+      </article>
+
+      <article
+        class="quick-card"
+        (click)="abrirModulo(modulos[3])">
+
+        <div class="quick-icon purple">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+
+        <div class="quick-copy">
+          <strong>Clientes</strong>
+          <span>Administra las cuentas de tus clientes</span>
+
+          <button type="button" class="purple-link">
+            Ver clientes registrados
+          </button>
+        </div>
+
+        <ion-icon
+          class="quick-arrow purple-arrow"
+          name="chevron-forward-outline">
+        </ion-icon>
+
+      </article>
+
+    </section>
+
+    <!-- Módulos -->
+    <section class="modules-section">
+
+      <div class="section-title">
+
+        <div>
+
+          <span class="section-eyebrow">
+            <i></i>
+            GESTIÓN DE LA TIENDA
+          </span>
+
+          <h2>
+            ¿Qué deseas administrar?
+          </h2>
+
+        </div>
+
+        <p>
+          Selecciona un módulo para comenzar.
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </p>
 
       </div>
 
@@ -102,17 +210,15 @@
         <article
           class="module-card"
           *ngFor="let modulo of modulos"
-          (click)="abrirModulo(modulo)"
-        >
+          [ngClass]="'theme-' + modulo.tema"
+          (click)="abrirModulo(modulo)">
 
-          <div class="module-top">
+          <div class="card-glow"></div>
+
+          <div class="module-head">
 
             <div class="module-icon">
-
-              <ion-icon
-                [name]="modulo.icono"
-              ></ion-icon>
-
+              <ion-icon [name]="modulo.icono"></ion-icon>
             </div>
 
             <span class="task-badge">
@@ -121,11 +227,17 @@
 
           </div>
 
-          <h3>{{ modulo.titulo }}</h3>
+          <div class="module-content">
 
-          <p>
-            {{ modulo.descripcion }}
-          </p>
+            <h3>
+              {{ modulo.titulo }}
+            </h3>
+
+            <p>
+              {{ modulo.descripcion }}
+            </p>
+
+          </div>
 
           <button
             type="button"
@@ -133,13 +245,14 @@
             (click)="
               abrirModulo(modulo);
               $event.stopPropagation()
-            "
-          >
-            Abrir módulo
+            ">
+
+            <span>Entrar al módulo</span>
 
             <ion-icon
-              name="chevron-forward-outline"
-            ></ion-icon>
+              name="chevron-forward-outline">
+            </ion-icon>
+
           </button>
 
         </article>

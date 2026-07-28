@@ -1,44 +1,64 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
 import { Router, RouterLink } from '@angular/router';
 
-import { CarritoService } from '../../services/carrito.service';
+import { IonicModule } from '@ionic/angular';
 
 import { addIcons } from 'ionicons';
 import {
-  cartOutline,
-  searchOutline,
-  giftOutline,
-  gameControllerOutline,
-  sparklesOutline,
-  colorPaletteOutline,
-  heartOutline,
-  briefcaseOutline,
-  rocketOutline,
-  cubeOutline,
-  bagHandleOutline,
   addOutline,
-  homeOutline,
+  arrowForwardOutline,
+  bagHandleOutline,
+  cartOutline,
+  checkmarkCircleOutline,
+  cubeOutline,
+  flameOutline,
+  giftOutline,
   gridOutline,
+  homeOutline,
+  locationOutline,
+  logOutOutline,
+  personOutline,
+  pricetagOutline,
   receiptOutline,
-    locationOutline,
-  personOutline
+  searchOutline,
+  sparklesOutline,
+  starOutline,
+  ticketOutline,
+  timeOutline
 } from 'ionicons/icons';
 
-interface CategoriaHome {
-  nombre: string;
-  descripcion: string;
-  icono: string;
-  imagen: string;
-}
+import {
+  AuthService,
+  UsuarioSesion
+} from '../../services/auth.service';
+
+import {
+  CarritoService
+} from '../../services/carrito.service';
+
+import {
+  PedidoService
+} from '../../services/pedido.service';
 
 interface ProductoHome {
   nombre: string;
   descripcion: string;
   precio: number;
+  precioAnterior?: number;
+  descuento?: number;
   icono: string;
+  imagen?: string;
+  etiqueta?: string;
+}
+
+interface UltimoPedidoHome {
+  idPedido: number;
+  numeroPedido: string;
+  estadoPedido: string;
+  total: number;
+  fechaEstimadaEntrega?: string;
 }
 
 @Component({
@@ -55,78 +75,117 @@ interface ProductoHome {
 })
 export class HomePage implements OnInit {
 
+  usuario: UsuarioSesion | null = null;
+
   cantidadCarritos = 0;
+
   cantidadProductosCarrito = 0;
+
   textoBusqueda = '';
 
-  categorias: CategoriaHome[] = [
+  ultimoPedido: UltimoPedidoHome | null = null;
+
+  ofertas: ProductoHome[] = [
     {
-      nombre: 'Gamer Box',
-      descripcion: 'Caja sorpresa con accesorios y artículos gamer.',
-      icono: 'game-controller-outline',
-      imagen: 'assets/img/Gamer-Box.png'
+      nombre: 'Gamer Box Básica',
+      descripcion:
+        'Accesorios gamer seleccionados para mejorar tu espacio.',
+      precio: 13500,
+      precioAnterior: 15000,
+      descuento: 10,
+      icono: 'cube-outline',
+      imagen:
+        'assets/img/Gamer-Box-Basica.png',
+      etiqueta: 'Oferta'
     },
     {
-      nombre: 'Beauty Box',
-      descripcion: 'Caja sorpresa con productos de belleza.',
-      icono: 'sparkles-outline',
-      imagen: 'assets/img/Beauty-Box.png'
-    },
-    {
-      nombre: 'Anime Box',
-      descripcion: 'Caja sorpresa con artículos de anime.',
-      icono: 'color-palette-outline',
-      imagen: 'assets/img/Anime-Box.png'
-    },
-    {
-      nombre: 'Self Care Box',
-      descripcion: 'Productos para relajación, bienestar y cuidado personal.',
-      icono: 'heart-outline',
-      imagen: 'assets/img/Self-Care-Box.png'
+      nombre: 'Beauty Box Glow',
+      descripcion:
+        'Productos de belleza y cuidado para una experiencia especial.',
+      precio: 14400,
+      precioAnterior: 18000,
+      descuento: 20,
+      icono:
+        'sparkles-outline',
+      imagen:
+        'assets/img/Beauty-Box.png',
+      etiqueta:
+        'Popular'
     },
     {
       nombre: 'Office Boost Box',
-      descripcion: 'Artículos útiles para oficina, estudio y productividad.',
-      icono: 'briefcase-outline',
-      imagen: 'assets/img/Office-Boost-Box.png'
-    },
-    {
-      nombre: 'Kids Fun Box',
-      descripcion: 'Juguetes, creatividad y diversión para niños.',
-      icono: 'rocket-outline',
-      imagen: 'assets/img/Kids-Fun-Box.png'
+      descripcion:
+        'Artículos para oficina, estudio y productividad.',
+      precio: 12500,
+      precioAnterior: 15000,
+      descuento: 16,
+      icono:
+        'bag-handle-outline',
+      imagen:
+        'assets/img/Office-Boost-Box.png',
+      etiqueta:
+        'Recomendada'
     }
   ];
 
+  productoRecomendado: ProductoHome = {
+    nombre:
+      'Mystic Deluxe Box',
+    descripcion:
+      'Una experiencia premium con productos especialmente seleccionados para sorprenderte.',
+    precio:
+      25000,
+    icono:
+      'gift-outline',
+    imagen:
+      'assets/img/Gamer-Box-deluxe.png',
+    etiqueta:
+      'Selección Mystic'
+  };
+
   productosDestacados: ProductoHome[] = [
     {
-      nombre: 'Mystic Deluxe Box',
-      descripcion: 'Caja premium con productos seleccionados.',
-      precio: 15000,
-      icono: 'cube-outline'
+      nombre:
+        'Anime Box Otaku',
+      descripcion:
+        'Artículos y sorpresas para amantes del anime.',
+      precio:
+        16000,
+      icono:
+        'cube-outline'
     },
     {
-      nombre: 'Office Boost Box',
-      descripcion: 'Ideal para regalos empresariales.',
-      precio: 12500,
-      icono: 'bag-handle-outline'
+      nombre:
+        'Self Care Box Relax',
+      descripcion:
+        'Bienestar, relajación y cuidado personal.',
+      precio:
+        17500,
+      icono:
+        'sparkles-outline'
+    },
+    {
+      nombre:
+        'Kids Fun Box',
+      descripcion:
+        'Juguetes, creatividad y diversión para niños.',
+      precio:
+        14500,
+      icono:
+        'gift-outline'
     }
   ];
 
   constructor(
     private carritoService: CarritoService,
+    private pedidoService: PedidoService,
+    private authService: AuthService,
     private router: Router
   ) {
     addIcons({
       cartOutline,
       searchOutline,
       giftOutline,
-      gameControllerOutline,
-      sparklesOutline,
-      colorPaletteOutline,
-      heartOutline,
-      briefcaseOutline,
-      rocketOutline,
       cubeOutline,
       bagHandleOutline,
       addOutline,
@@ -134,125 +193,208 @@ export class HomePage implements OnInit {
       gridOutline,
       receiptOutline,
       locationOutline,
-      personOutline
+      personOutline,
+      flameOutline,
+      starOutline,
+      ticketOutline,
+      timeOutline,
+      arrowForwardOutline,
+      checkmarkCircleOutline,
+      sparklesOutline,
+      pricetagOutline,
+      logOutOutline
     });
   }
 
   ngOnInit(): void {
-    this.obtenerCarritos();
-    this.actualizarCantidadProductos();
+    this.cargarPantalla();
   }
 
   ionViewWillEnter(): void {
-    this.actualizarCantidadProductos();
+    this.cargarPantalla();
   }
 
-  obtenerCarritos(): void {
-    this.carritoService.obtenerCarritos().subscribe({
-      next: (respuesta: any[]) => {
-        this.cantidadCarritos = respuesta.length;
+  private cargarPantalla(): void {
+    this.usuario =
+      this.authService.obtenerUsuario();
 
-        console.log(
-          'Carritos obtenidos desde el backend:',
-          respuesta
-        );
-      },
-      error: (error) => {
-        this.cantidadCarritos = 0;
+    this.obtenerCarritosDelUsuario();
 
-        console.error(
-          'Error al consultar los carritos:',
-          error
-        );
-      }
-    });
+    this.actualizarCantidadProductos();
+
+    this.cargarUltimoPedidoReal();
+  }
+
+  obtenerCarritosDelUsuario(): void {
+    const idUsuario =
+      this.usuario?.idUsuario;
+
+    if (!idUsuario) {
+      this.cantidadCarritos = 0;
+      return;
+    }
+
+    this.carritoService
+      .obtenerCarritos()
+      .subscribe({
+        next: carritos => {
+          this.cantidadCarritos =
+            (carritos ?? [])
+              .filter(
+                (carrito: any) =>
+                  Number(
+                    carrito.idUsuario
+                  ) === idUsuario &&
+                  String(
+                    carrito.estado ?? ''
+                  ).toLowerCase() ===
+                  'activo'
+              )
+              .length;
+        },
+
+        error: error => {
+          this.cantidadCarritos = 0;
+
+          console.error(
+            'Error al consultar carritos:',
+            error
+          );
+        }
+      });
+  }
+
+  cargarUltimoPedidoReal(): void {
+    const idUsuario =
+      this.usuario?.idUsuario;
+
+    if (!idUsuario) {
+      this.ultimoPedido = null;
+      return;
+    }
+
+    this.pedidoService
+      .obtenerPedidos()
+      .subscribe({
+        next: pedidos => {
+          const pedidosPropios =
+            (pedidos ?? [])
+              .filter(
+                pedido =>
+                  Number(
+                    pedido.idUsuario
+                  ) === idUsuario
+              )
+              .sort(
+                (
+                  pedidoA,
+                  pedidoB
+                ) =>
+                  pedidoB.idPedido -
+                  pedidoA.idPedido
+              );
+
+          const pedidoMasReciente =
+            pedidosPropios[0];
+
+          if (!pedidoMasReciente) {
+            this.ultimoPedido =
+              null;
+
+            localStorage.removeItem(
+              'ultimoPedido'
+            );
+
+            sessionStorage.removeItem(
+              'ultimoPedido'
+            );
+
+            return;
+          }
+
+          this.ultimoPedido = {
+            idPedido:
+              pedidoMasReciente.idPedido,
+
+            numeroPedido:
+              pedidoMasReciente
+                .numeroPedido ??
+              this.obtenerNumeroPedido(
+                pedidoMasReciente
+                  .idPedido
+              ),
+
+            estadoPedido:
+              pedidoMasReciente
+                .estadoPedido ??
+              'Pendiente',
+
+            total:
+              Number(
+                pedidoMasReciente
+                  .total ??
+                0
+              ),
+
+            fechaEstimadaEntrega:
+              pedidoMasReciente
+                .fechaEstimadaEntrega ??
+              undefined
+          };
+        },
+
+        error: error => {
+          this.ultimoPedido = null;
+
+          console.error(
+            'Error al consultar pedidos:',
+            error
+          );
+        }
+      });
   }
 
   actualizarCantidadProductos(): void {
-    const productosGuardados = JSON.parse(
-      sessionStorage.getItem('productosCarrito') ?? '[]'
-    );
+    try {
+      const productos =
+        JSON.parse(
+          sessionStorage.getItem(
+            'productosCarrito'
+          ) ?? '[]'
+        );
 
-    this.cantidadProductosCarrito = productosGuardados.reduce(
-      (total: number, producto: any) =>
-        total + Number(producto.cantidad ?? 0),
-      0
-    );
-  }
+      this.cantidadProductosCarrito =
+        productos.reduce(
+          (
+            total: number,
+            producto: any
+          ) =>
+            total +
+            Number(
+              producto.cantidad ?? 0
+            ),
+          0
+        );
+    } catch {
+      this.cantidadProductosCarrito = 0;
 
-  irAlCarrito(): void {
-    this.router.navigate(['/carrito']);
-  }
-
-  irACategorias(): void {
-    this.router.navigate(['/categorias']);
-  }
-
-  irAlCatalogo(): void {
-    sessionStorage.removeItem('categoriaSeleccionada');
-    sessionStorage.removeItem('busquedaMysticBox');
-
-    this.router.navigate(['/mysticbox']);
-  }
-
-  seleccionarCategoria(categoria: CategoriaHome): void {
-    sessionStorage.setItem(
-      'categoriaSeleccionada',
-      categoria.nombre
-    );
-
-    sessionStorage.removeItem('busquedaMysticBox');
-
-    this.router.navigate(['/mysticbox']);
-  }
-
-  abrirProducto(producto: ProductoHome): void {
-    sessionStorage.setItem(
-      'productoSeleccionado',
-      JSON.stringify(producto)
-    );
-
-    this.router.navigate(['/mysticbox']);
-  }
-
-  agregarAlCarrito(
-    producto: ProductoHome,
-    evento: MouseEvent
-  ): void {
-    evento.stopPropagation();
-
-    const productosGuardados = JSON.parse(
-      sessionStorage.getItem('productosCarrito') ?? '[]'
-    );
-
-    const productoExistente = productosGuardados.find(
-      (item: any) => item.nombre === producto.nombre
-    );
-
-    if (productoExistente) {
-      productoExistente.cantidad =
-        Number(productoExistente.cantidad ?? 0) + 1;
-    } else {
-      productosGuardados.push({
-        nombre: producto.nombre,
-        descripcion: producto.descripcion,
-        precio: producto.precio,
-        cantidad: 1
-      });
+      sessionStorage.removeItem(
+        'productosCarrito'
+      );
     }
+  }
 
-    sessionStorage.setItem(
-      'productosCarrito',
-      JSON.stringify(productosGuardados)
-    );
-
-    this.actualizarCantidadProductos();
-
-    this.router.navigate(['/carrito']);
+  obtenerNumeroPedido(
+    idPedido: number
+  ): string {
+    return `MB-${idPedido
+      .toString()
+      .padStart(6, '0')}`;
   }
 
   buscar(): void {
-    const valor = this.textoBusqueda.trim();
+    const valor =
+      this.textoBusqueda.trim();
 
     if (!valor) {
       return;
@@ -263,8 +405,141 @@ export class HomePage implements OnInit {
       valor
     );
 
-    sessionStorage.removeItem('categoriaSeleccionada');
+    sessionStorage.removeItem(
+      'categoriaSeleccionada'
+    );
 
-    this.router.navigate(['/mysticbox']);
+    this.router.navigate([
+      '/mysticbox'
+    ]);
+  }
+
+  irAlCarrito(): void {
+    this.router.navigate([
+      '/carrito'
+    ]);
+  }
+
+  irAlCatalogo(): void {
+    sessionStorage.removeItem(
+      'categoriaSeleccionada'
+    );
+
+    sessionStorage.removeItem(
+      'busquedaMysticBox'
+    );
+
+    this.router.navigate([
+      '/mysticbox'
+    ]);
+  }
+
+  irAEntregas(): void {
+    this.router.navigate([
+      '/entregas'
+    ]);
+  }
+
+  irACalificaciones(): void {
+    this.router.navigate([
+      '/calificaciones'
+    ]);
+  }
+
+  cerrarSesion(): void {
+    this.authService.cerrarSesion();
+
+    this.router.navigate(
+      ['/login'],
+      {
+        replaceUrl: true
+      }
+    );
+  }
+
+  abrirProducto(
+    producto: ProductoHome
+  ): void {
+    sessionStorage.setItem(
+      'productoSeleccionado',
+      JSON.stringify(producto)
+    );
+
+    this.router.navigate([
+      '/mysticbox'
+    ]);
+  }
+
+  agregarAlCarrito(
+    producto: ProductoHome,
+    evento?: MouseEvent
+  ): void {
+    evento?.stopPropagation();
+
+    let productosGuardados: any[] = [];
+
+    try {
+      productosGuardados =
+        JSON.parse(
+          sessionStorage.getItem(
+            'productosCarrito'
+          ) ?? '[]'
+        );
+    } catch {
+      productosGuardados = [];
+    }
+
+    const productoExistente =
+      productosGuardados.find(
+        productoGuardado =>
+          productoGuardado.nombre ===
+          producto.nombre
+      );
+
+    if (productoExistente) {
+      productoExistente.cantidad =
+        Number(
+          productoExistente.cantidad ??
+          0
+        ) + 1;
+    } else {
+      productosGuardados.push({
+        nombre:
+          producto.nombre,
+
+        descripcion:
+          producto.descripcion,
+
+        precio:
+          producto.precio,
+
+        cantidad:
+          1,
+
+        imagen:
+          producto.imagen ??
+          null
+      });
+    }
+
+    sessionStorage.setItem(
+      'productosCarrito',
+      JSON.stringify(
+        productosGuardados
+      )
+    );
+
+    this.actualizarCantidadProductos();
+  }
+
+  manejarErrorImagen(
+    evento: Event
+  ): void {
+    const imagen =
+      evento.target as
+      HTMLImageElement;
+
+    imagen.style.display =
+      'none';
   }
 }

@@ -1,0 +1,476 @@
+<ion-content class="boxes-content">
+
+  <main class="boxes-container">
+
+    <header class="topbar">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="volverAlPanel()"
+      >
+        <ion-icon
+          name="arrow-back-outline"
+        ></ion-icon>
+
+        Volver al panel
+      </button>
+
+      <button
+        type="button"
+        class="new-box-button"
+        (click)="abrirFormularioNuevaCaja()"
+      >
+        <ion-icon
+          name="add-outline"
+        ></ion-icon>
+
+        Nueva caja
+      </button>
+
+    </header>
+
+    <section class="page-header">
+
+      <div>
+        <p>MB-73</p>
+
+        <h1>Administrar cajas</h1>
+
+        <span>
+          Registra, edita, consulta y elimina
+          las Mystic Box de la tienda.
+        </span>
+      </div>
+
+      <div class="header-icon">
+        <ion-icon
+          name="cube-outline"
+        ></ion-icon>
+      </div>
+
+    </section>
+
+    <div
+      class="message success-message"
+      *ngIf="mensajeExito"
+    >
+      <ion-icon
+        name="checkmark-circle-outline"
+      ></ion-icon>
+
+      <span>{{ mensajeExito }}</span>
+    </div>
+
+    <div
+      class="message error-message"
+      *ngIf="mensajeError && !mostrarFormulario"
+    >
+      <ion-icon
+        name="alert-circle-outline"
+      ></ion-icon>
+
+      <span>{{ mensajeError }}</span>
+    </div>
+
+    <section class="toolbar-card">
+
+      <div class="search-box">
+
+        <ion-icon
+          name="search-outline"
+        ></ion-icon>
+
+        <input
+          type="text"
+          [(ngModel)]="textoBusqueda"
+          (input)="aplicarFiltro()"
+          placeholder="Buscar por nombre, descripción o categoría..."
+        />
+
+      </div>
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="cargarDatos()"
+      >
+        <ion-icon
+          name="refresh-outline"
+        ></ion-icon>
+
+        Actualizar
+      </button>
+
+      <div class="results-count">
+        <strong>
+          {{ cajasFiltradas.length }}
+        </strong>
+
+        <span>
+          cajas encontradas
+        </span>
+      </div>
+
+    </section>
+
+    <section
+      class="loading-card"
+      *ngIf="cargando"
+    >
+      <ion-spinner
+        name="crescent"
+      ></ion-spinner>
+
+      <p>Cargando cajas...</p>
+    </section>
+
+    <section
+      class="empty-card"
+      *ngIf="
+        !cargando &&
+        cajasFiltradas.length === 0
+      "
+    >
+      <ion-icon
+        name="cube-outline"
+      ></ion-icon>
+
+      <h2>No hay cajas registradas</h2>
+
+      <p>
+        Crea la primera Mystic Box
+        desde el botón Nueva caja.
+      </p>
+
+      <button
+        type="button"
+        (click)="abrirFormularioNuevaCaja()"
+      >
+        Crear caja
+      </button>
+    </section>
+
+    <section
+      class="boxes-grid"
+      *ngIf="
+        !cargando &&
+        cajasFiltradas.length > 0
+      "
+    >
+
+      <article
+        class="box-card"
+        *ngFor="let caja of cajasFiltradas"
+      >
+
+        <div class="box-image">
+
+          <img
+            [src]="obtenerImagenCaja(caja)"
+            [alt]="caja.nombreCaja"
+            (error)="manejarErrorImagen($event)"
+          />
+
+          <span
+            class="status-badge"
+            [class.inactive]="!caja.estado"
+          >
+            {{
+              caja.estado
+                ? 'Activa'
+                : 'Inactiva'
+            }}
+          </span>
+
+        </div>
+
+        <div class="box-information">
+
+          <span class="category-name">
+            {{
+              obtenerNombreCategoria(
+                caja.idCategoria
+              )
+            }}
+          </span>
+
+          <h2>{{ caja.nombreCaja }}</h2>
+
+          <p>
+            {{
+              caja.descripcion ||
+              'Sin descripción.'
+            }}
+          </p>
+
+          <div class="box-data">
+
+            <div>
+              <ion-icon
+                name="pricetag-outline"
+              ></ion-icon>
+
+              <span>Precio</span>
+
+              <strong>
+                ₡{{ caja.precio | number }}
+              </strong>
+            </div>
+
+            <div>
+              <ion-icon
+                name="archive-outline"
+              ></ion-icon>
+
+              <span>Stock</span>
+
+              <strong>
+                {{ caja.stock }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="box-actions">
+
+            <button
+              type="button"
+              class="edit-button"
+              (click)="abrirFormularioEditar(caja)"
+            >
+              <ion-icon
+                name="create-outline"
+              ></ion-icon>
+
+              Editar
+            </button>
+
+            <button
+              type="button"
+              class="delete-button"
+              (click)="eliminarCaja(caja)"
+            >
+              <ion-icon
+                name="trash-outline"
+              ></ion-icon>
+
+              Eliminar
+            </button>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <div
+    class="modal-overlay"
+    *ngIf="mostrarFormulario"
+    (click)="cerrarFormulario()"
+  >
+
+    <section
+      class="form-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+      <header class="form-header">
+
+        <div>
+          <p>
+            {{
+              modoEdicion
+                ? 'Editar registro'
+                : 'Nuevo registro'
+            }}
+          </p>
+
+          <h2>
+            {{
+              modoEdicion
+                ? 'Editar Mystic Box'
+                : 'Crear Mystic Box'
+            }}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="cerrarFormulario()"
+        >
+          <ion-icon
+            name="close-outline"
+          ></ion-icon>
+        </button>
+
+      </header>
+
+      <div
+        class="message error-message"
+        *ngIf="mensajeError"
+      >
+        <ion-icon
+          name="alert-circle-outline"
+        ></ion-icon>
+
+        <span>{{ mensajeError }}</span>
+      </div>
+
+      <div class="form-grid">
+
+        <label class="form-field">
+
+          <span>Nombre de la caja *</span>
+
+          <input
+            type="text"
+            [(ngModel)]="formulario.nombreCaja"
+            placeholder="Ejemplo: Gamer Deluxe Box"
+          />
+
+        </label>
+
+        <label class="form-field">
+
+          <span>Categoría *</span>
+
+          <select
+            [(ngModel)]="formulario.idCategoria"
+          >
+            <option
+              [ngValue]="null"
+            >
+              Seleccione una categoría
+            </option>
+
+            <option
+              *ngFor="let categoria of categorias"
+              [ngValue]="categoria.idCategoria"
+            >
+              {{ categoria.nombreCategoria }}
+            </option>
+          </select>
+
+        </label>
+
+        <label class="form-field">
+
+          <span>Precio *</span>
+
+          <input
+            type="number"
+            min="1"
+            [(ngModel)]="formulario.precio"
+            placeholder="15000"
+          />
+
+        </label>
+
+        <label class="form-field">
+
+          <span>Stock *</span>
+
+          <input
+            type="number"
+            min="0"
+            [(ngModel)]="formulario.stock"
+            placeholder="10"
+          />
+
+        </label>
+
+        <label class="form-field full-width">
+
+          <span>Ruta de la imagen</span>
+
+          <div class="input-with-icon">
+
+            <ion-icon
+              name="image-outline"
+            ></ion-icon>
+
+            <input
+              type="text"
+              [(ngModel)]="formulario.imagen"
+              placeholder="assets/img/Gamer-Box-Basica.png"
+            />
+
+          </div>
+
+        </label>
+
+        <label class="form-field full-width">
+
+          <span>Descripción</span>
+
+          <textarea
+            rows="4"
+            [(ngModel)]="formulario.descripcion"
+            placeholder="Descripción de la caja..."
+          ></textarea>
+
+        </label>
+
+        <label class="status-field full-width">
+
+          <input
+            type="checkbox"
+            [(ngModel)]="formulario.estado"
+          />
+
+          <div>
+            <strong>Caja activa</strong>
+
+            <span>
+              Las cajas activas estarán disponibles
+              para los clientes.
+            </span>
+          </div>
+
+        </label>
+
+      </div>
+
+      <footer class="form-actions">
+
+        <button
+          type="button"
+          class="cancel-button"
+          (click)="cerrarFormulario()"
+          [disabled]="guardando"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          class="save-button"
+          (click)="guardarCaja()"
+          [disabled]="guardando"
+        >
+          <ion-icon
+            name="save-outline"
+          ></ion-icon>
+
+          {{
+            guardando
+              ? 'Guardando...'
+              : modoEdicion
+                ? 'Guardar cambios'
+                : 'Crear caja'
+          }}
+        </button>
+
+      </footer>
+
+    </section>
+
+  </div>
+
+</ion-content>

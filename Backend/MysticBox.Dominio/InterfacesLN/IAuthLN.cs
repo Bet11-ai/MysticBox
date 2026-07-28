@@ -1,11 +1,18 @@
 ﻿using MysticBox.Dominio.DTO;
-using MysticBox.Dominio.Entidades;
 
 namespace MysticBox.Dominio.InterfacesLN;
 
 public interface IAuthLN
 {
-    Task<Usuario?> Login(LoginDTO loginDTO);
+    Task<LoginResponseDTO?> Login(
+        LoginDTO loginDTO
+    );
 
-    Task<Usuario> Registro(RegistroDTO registroDTO);
+    Task<LoginResponseDTO> Registro(
+        RegistroDTO registroDTO
+    );
+
+    Task<LoginResponseDTO> CrearAdministradorInicial(
+        RegistroDTO registroDTO
+    );
 }

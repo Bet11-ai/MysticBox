@@ -10,7 +10,11 @@ import {
   ToastController
 } from '@ionic/angular/standalone';
 
-import { AuthService } from '../../services/auth.service';
+import {
+  AuthService,
+  LoginRequest,
+  UsuarioSesion
+} from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -33,61 +37,127 @@ export class LoginPage {
 
   constructor(
     private router: Router,
-    private toastController: ToastController,
-    private authService: AuthService
+    private toastController:
+      ToastController,
+    private authService:
+      AuthService
   ) {}
 
-  async login() {
-    if (!this.correo.trim() || !this.contrasena.trim()) {
-      return this.mostrarMensaje('Digite correo y contraseña.');
+  async login(): Promise<void> {
+
+    if (
+      !this.correo.trim() ||
+      !this.contrasena.trim()
+    ) {
+      await this.mostrarMensaje(
+        'Digite correo y contraseña.',
+        'warning'
+      );
+
+      return;
     }
 
-    const datosLogin = {
-      correo: this.correo,
-      contrasena: this.contrasena
+    const datosLogin:
+      LoginRequest = {
+
+      correo:
+        this.correo
+          .trim()
+          .toLowerCase(),
+
+      contrasena:
+        this.contrasena
     };
 
     this.cargando = true;
 
-    this.authService.login(datosLogin).subscribe({
-  next: async (respuesta: any) => {
+    this.authService
+      .login(datosLogin)
+      .subscribe({
+        next: async (
+          respuesta:
+            UsuarioSesion
+        ) => {
+          this.cargando = false;
 
-    console.log('RESPUESTA DEL BACKEND:', respuesta);
+          this.authService
+            .guardarSesion(
+              respuesta
+            );
 
-    this.cargando = false;
+          const rutaDestino =
+            this.authService
+              .obtenerRutaInicial();
 
-    localStorage.setItem('usuario', JSON.stringify(respuesta));
+          if (
+            rutaDestino === '/login'
+          ) {
+            this.authService
+              .cerrarSesion();
 
-    await this.mostrarMensaje('Inicio de sesión correcto.');
+            await this.mostrarMensaje(
+              'El usuario no tiene un rol válido.',
+              'danger'
+            );
 
-    this.router.navigate(['/home']);
-  },
+            return;
+          }
 
-  error: async (error: any) => {
+          await this.mostrarMensaje(
+            `Bienvenido, ${respuesta.nombre}.`,
+            'success'
+          );
 
-    console.log('ERROR COMPLETO:', error);
-    console.log('STATUS:', error.status);
-    console.log('BODY:', error.error);
+          await this.router
+            .navigateByUrl(
+              rutaDestino,
+              {
+                replaceUrl: true
+              }
+            );
+        },
 
-    this.cargando = false;
+        error: async (
+          error: any
+        ) => {
+          this.cargando = false;
 
-    await this.mostrarMensaje('Correo o contraseña incorrectos.');
+          const mensaje =
+            error.error?.mensaje ??
+            'Correo o contraseña incorrectos.';
+
+          await this.mostrarMensaje(
+            mensaje,
+            'danger'
+          );
+        }
+      });
   }
-});
+
+  irRegistro(): void {
+    this.router.navigate(
+      ['/registro']
+    );
   }
 
-  async mostrarMensaje(mensaje: string) {
-    const toast = await this.toastController.create({
-      message: mensaje,
-      duration: 2500,
-      position: 'top',
-      color: 'primary'
-    });
+  private async mostrarMensaje(
+    mensaje: string,
+    color:
+      'primary' |
+      'success' |
+      'warning' |
+      'danger'
+  ): Promise<void> {
+
+    const toast =
+      await this.toastController
+        .create({
+          message: mensaje,
+          duration: 2500,
+          position: 'top',
+          color
+        });
 
     await toast.present();
-  }
-
-  irRegistro() {
-    this.router.navigate(['/registro']);
   }
 }

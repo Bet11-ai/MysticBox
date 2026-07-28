@@ -16,20 +16,184 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Login")]
-    public async Task<IActionResult> Login(LoginDTO loginDTO)
+    public async Task<IActionResult> Login(
+        LoginDTO loginDTO
+    )
     {
-        var usuario = await _authLN.Login(loginDTO);
+        if (
+            string.IsNullOrWhiteSpace(
+                loginDTO.Correo
+            ) ||
+            string.IsNullOrWhiteSpace(
+                loginDTO.Contrasena
+            )
+        )
+        {
+            return BadRequest(
+                new
+                {
+                    mensaje =
+                        "Debe indicar el correo y la contraseña."
+                }
+            );
+        }
+
+        var usuario =
+            await _authLN.Login(loginDTO);
 
         if (usuario == null)
-            return Unauthorized("Correo o contraseña incorrectos.");
+        {
+            return Unauthorized(
+                new
+                {
+                    mensaje =
+                        "Correo o contraseña incorrectos."
+                }
+            );
+        }
 
         return Ok(usuario);
     }
 
     [HttpPost("Registro")]
-    public async Task<IActionResult> Registro(RegistroDTO registroDTO)
+    public async Task<IActionResult> Registro(
+        RegistroDTO registroDTO
+    )
     {
-        var usuario = await _authLN.Registro(registroDTO);
-        return Ok(usuario);
+        if (
+            string.IsNullOrWhiteSpace(
+                registroDTO.Nombre
+            ) ||
+            string.IsNullOrWhiteSpace(
+                registroDTO.Correo
+            ) ||
+            string.IsNullOrWhiteSpace(
+                registroDTO.Contrasena
+            )
+        )
+        {
+            return BadRequest(
+                new
+                {
+                    mensaje =
+                        "Nombre, correo y contraseña son obligatorios."
+                }
+            );
+        }
+
+        try
+        {
+            var usuario =
+                await _authLN.Registro(
+                    registroDTO
+                );
+
+            return Ok(
+                new
+                {
+                    mensaje =
+                        "Usuario registrado correctamente.",
+
+                    usuario
+                }
+            );
+        }
+        catch (
+            InvalidOperationException error
+        )
+        {
+            return BadRequest(
+                new
+                {
+                    mensaje = error.Message
+                }
+            );
+        }
+        catch (Exception)
+        {
+            return StatusCode(
+                StatusCodes
+                    .Status500InternalServerError,
+
+                new
+                {
+                    mensaje =
+                        "No fue posible registrar el usuario."
+                }
+            );
+        }
+    }
+
+    [HttpPost("CrearAdministradorInicial")]
+    public async Task<IActionResult>
+        CrearAdministradorInicial(
+            RegistroDTO registroDTO
+        )
+    {
+        if (
+            string.IsNullOrWhiteSpace(
+                registroDTO.Nombre
+            ) ||
+            string.IsNullOrWhiteSpace(
+                registroDTO.Correo
+            ) ||
+            string.IsNullOrWhiteSpace(
+                registroDTO.Contrasena
+            )
+        )
+        {
+            return BadRequest(
+                new
+                {
+                    mensaje =
+                        "Nombre, correo y contraseña son obligatorios."
+                }
+            );
+        }
+
+        try
+        {
+            var administrador =
+                await _authLN
+                    .CrearAdministradorInicial(
+                        registroDTO
+                    );
+
+            return Ok(
+                new
+                {
+                    mensaje =
+                        "Administrador inicial creado correctamente.",
+
+                    usuario = administrador
+                }
+            );
+        }
+        catch (
+            InvalidOperationException error
+        )
+        {
+            return BadRequest(
+                new
+                {
+                    mensaje = error.Message
+                }
+            );
+        }
+        catch (Exception error)
+        {
+            return StatusCode(
+                StatusCodes
+                    .Status500InternalServerError,
+
+                new
+                {
+                    mensaje =
+                        "No fue posible crear el administrador inicial.",
+
+                    detalle = error.Message
+                }
+            );
+        }
     }
 }

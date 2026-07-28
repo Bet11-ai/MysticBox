@@ -1,30 +1,39 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+
 import { IonicModule } from '@ionic/angular';
-import { Router, RouterLink } from '@angular/router';
 
 import { addIcons } from 'ionicons';
-
 import {
-  arrowBackOutline,
+  barChartOutline,
+  calendarOutline,
+  chevronForwardOutline,
   cubeOutline,
+  logOutOutline,
+  peopleOutline,
+  personCircleOutline,
   pricetagOutline,
   receiptOutline,
-  peopleOutline,
-  barChartOutline,
-  shieldCheckmarkOutline,
   settingsOutline,
-  chevronForwardOutline,
-  logOutOutline,
-  storefrontOutline
+  shieldCheckmarkOutline,
+  sparklesOutline,
+  storefrontOutline,
+  timeOutline
 } from 'ionicons/icons';
+
+import {
+  AuthService,
+  UsuarioSesion
+} from '../../services/auth.service';
 
 interface ModuloAdministrativo {
   titulo: string;
   descripcion: string;
   icono: string;
-  ruta: string;
   tarea: string;
+  ruta: string;
+  tema: string;
 }
 
 @Component({
@@ -34,97 +43,183 @@ interface ModuloAdministrativo {
   standalone: true,
   imports: [
     CommonModule,
-    IonicModule,
-    RouterLink
+    IonicModule
   ]
 })
-export class AdminPage {
+export class AdminPage implements OnInit {
+
+  usuario: UsuarioSesion | null = null;
+
+  fechaActual = '';
+
+  horaActual = '';
+
+  private relojIntervalo?: ReturnType<typeof setInterval>;
 
   modulos: ModuloAdministrativo[] = [
     {
       titulo: 'Administrar cajas',
       descripcion:
-        'Registrar, editar, consultar y eliminar cajas sorpresa.',
+        'Registra, edita y organiza el catálogo de cajas sorpresa.',
       icono: 'cube-outline',
+      tarea: 'MB-73',
       ruta: '/admin-cajas',
-      tarea: 'MB-73'
+      tema: 'azul'
     },
     {
       titulo: 'Promociones y cupones',
       descripcion:
-        'Crear promociones, descuentos y códigos promocionales.',
+        'Crea descuentos, códigos promocionales y campañas.',
       icono: 'pricetag-outline',
+      tarea: 'MB-74',
       ruta: '/admin-promociones',
-      tarea: 'MB-74'
+      tema: 'morado'
     },
     {
       titulo: 'Gestionar pedidos',
       descripcion:
-        'Consultar pedidos y actualizar su estado.',
+        'Consulta pedidos, revisa detalles y actualiza sus estados.',
       icono: 'receipt-outline',
+      tarea: 'MB-75',
       ruta: '/admin-pedidos',
-      tarea: 'MB-75'
+      tema: 'turquesa'
     },
     {
       titulo: 'Gestionar clientes',
       descripcion:
-        'Consultar y administrar los clientes registrados.',
+        'Administra la información de los clientes registrados.',
       icono: 'people-outline',
+      tarea: 'MB-76',
       ruta: '/admin-clientes',
-      tarea: 'MB-76'
+      tema: 'naranja'
     },
     {
       titulo: 'Reportes gráficos',
       descripcion:
-        'Visualizar ventas, satisfacción y estadísticas.',
+        'Visualiza ventas, satisfacción y estadísticas del negocio.',
       icono: 'bar-chart-outline',
+      tarea: 'HU13',
       ruta: '/admin-reportes',
-      tarea: 'HU13'
+      tema: 'verde'
     },
     {
       titulo: 'White List',
       descripcion:
-        'Controlar los usuarios autorizados durante las pruebas.',
+        'Controla los usuarios autorizados durante las pruebas.',
       icono: 'shield-checkmark-outline',
-      ruta: '/admin-whitelist',
-      tarea: 'HU14'
+      tarea: 'HU14',
+      ruta: '/admin-white-list',
+      tema: 'dorado'
     }
   ];
 
   constructor(
+    private authService: AuthService,
     private router: Router
   ) {
     addIcons({
-      arrowBackOutline,
+      barChartOutline,
+      calendarOutline,
+      chevronForwardOutline,
       cubeOutline,
+      logOutOutline,
+      peopleOutline,
+      personCircleOutline,
       pricetagOutline,
       receiptOutline,
-      peopleOutline,
-      barChartOutline,
-      shieldCheckmarkOutline,
       settingsOutline,
-      chevronForwardOutline,
-      logOutOutline,
-      storefrontOutline
+      shieldCheckmarkOutline,
+      sparklesOutline,
+      storefrontOutline,
+      timeOutline
     });
+  }
+
+  ngOnInit(): void {
+    this.cargarAdministrador();
+    this.actualizarFechaHora();
+
+    this.relojIntervalo = setInterval(
+      () => this.actualizarFechaHora(),
+      60000
+    );
+  }
+
+  ionViewWillEnter(): void {
+    this.cargarAdministrador();
+    this.actualizarFechaHora();
+  }
+
+  ionViewWillLeave(): void {
+    if (this.relojIntervalo) {
+      clearInterval(this.relojIntervalo);
+    }
+  }
+
+  private cargarAdministrador(): void {
+    this.usuario =
+      this.authService.obtenerUsuario();
+
+    if (!this.usuario) {
+      this.router.navigate(
+        ['/login'],
+        {
+          replaceUrl: true
+        }
+      );
+
+      return;
+    }
+
+    if (Number(this.usuario.idRol) !== 1) {
+      this.router.navigate(
+        ['/home'],
+        {
+          replaceUrl: true
+        }
+      );
+    }
+  }
+
+  private actualizarFechaHora(): void {
+    const ahora = new Date();
+
+    this.fechaActual =
+      ahora.toLocaleDateString(
+        'es-CR',
+        {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        }
+      );
+
+    this.horaActual =
+      ahora.toLocaleTimeString(
+        'es-CR',
+        {
+          hour: '2-digit',
+          minute: '2-digit'
+        }
+      );
   }
 
   abrirModulo(
     modulo: ModuloAdministrativo
   ): void {
-    this.router.navigate([modulo.ruta]);
-  }
-
-  volverAlInicio(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate([
+      modulo.ruta
+    ]);
   }
 
   cerrarSesion(): void {
-    sessionStorage.removeItem('usuario');
-    sessionStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('token');
+    this.authService.cerrarSesion();
 
-    this.router.navigate(['/login']);
+    this.router.navigate(
+      ['/login'],
+      {
+        replaceUrl: true
+      }
+    );
   }
 }

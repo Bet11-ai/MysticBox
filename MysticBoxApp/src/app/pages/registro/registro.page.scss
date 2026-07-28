@@ -139,3 +139,61 @@ cursor:pointer;
 color:white;
 
 }
+
+.account-type-notice {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 14px;
+  border:
+    1px solid rgba(
+      38,
+      151,
+      255,
+      0.32
+    );
+  border-radius: 14px;
+  background:
+    rgba(
+      27,
+      132,
+      235,
+      0.1
+    );
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.account-type-notice > ion-icon {
+  min-width: 26px;
+  margin-top: 2px;
+  color: #299cff;
+  font-size: 26px;
+}
+
+.account-type-notice div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.account-type-notice span {
+  color: #8394aa;
+  font-size: 10px;
+}
+
+.account-type-notice strong {
+  color: #44a9ff;
+  font-size: 15px;
+}
+
+.account-type-notice small {
+  color: #a8b4c4;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.password-toggle {
+  color: #6caeea;
+  cursor: pointer;
+}

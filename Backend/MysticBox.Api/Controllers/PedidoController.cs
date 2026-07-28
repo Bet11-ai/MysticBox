@@ -141,6 +141,36 @@ namespace MysticBox.Api.Controllers
             );
         }
 
+        [HttpGet(
+            "{idPedido:int}/detalle-completo"
+        )]
+        public async Task<IActionResult>
+            ObtenerDetalleCompleto(
+                int idPedido
+            )
+        {
+            var pedido =
+                await _pedidoLN
+                    .ObtenerDetalleCompleto(
+                        idPedido
+                    );
+
+            if (pedido == null)
+            {
+                return NotFound(
+                    new
+                    {
+                        mensaje =
+                            "El pedido no fue encontrado."
+                    }
+                );
+            }
+
+            return Ok(pedido);
+        }
+
+
+
         [HttpPut("{idPedido:int}")]
         public async Task<IActionResult> ActualizarPedido(
             int idPedido,

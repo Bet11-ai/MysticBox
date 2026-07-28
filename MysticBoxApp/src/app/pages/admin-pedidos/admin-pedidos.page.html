@@ -1,0 +1,1066 @@
+<ion-content class="orders-content">
+
+  <main class="orders-container">
+
+    <header class="topbar">
+
+      <button
+        type="button"
+        class="back-button"
+        (click)="volverAlPanel()"
+      >
+        <ion-icon
+          name="arrow-back-outline"
+        ></ion-icon>
+
+        Volver al panel
+      </button>
+
+    </header>
+
+    <section class="page-header">
+
+      <div>
+        <p>MB-75</p>
+
+        <h1>Gestionar pedidos</h1>
+
+        <span>
+          Consulta los pedidos y actualiza
+          su estado de preparación y entrega.
+        </span>
+      </div>
+
+      <div class="header-icon">
+        <ion-icon
+          name="receipt-outline"
+        ></ion-icon>
+      </div>
+
+    </section>
+
+    <div
+      class="message success-message"
+      *ngIf="mensajeExito"
+    >
+      <ion-icon
+        name="checkmark-circle-outline"
+      ></ion-icon>
+
+      <span>{{ mensajeExito }}</span>
+    </div>
+
+    <div
+      class="message error-message"
+      *ngIf="mensajeError"
+    >
+      <ion-icon
+        name="alert-circle-outline"
+      ></ion-icon>
+
+      <span>{{ mensajeError }}</span>
+    </div>
+
+    <section class="summary-grid">
+
+      <article class="summary-card">
+
+        <div class="summary-icon">
+          <ion-icon
+            name="receipt-outline"
+          ></ion-icon>
+        </div>
+
+        <div>
+          <span>Total de pedidos</span>
+
+          <strong>
+            {{ pedidos.length }}
+          </strong>
+        </div>
+
+      </article>
+
+      <article class="summary-card">
+
+        <div class="summary-icon pending">
+          <ion-icon
+            name="time-outline"
+          ></ion-icon>
+        </div>
+
+        <div>
+          <span>Pendientes</span>
+
+          <strong>
+            {{
+              contarPedidosPorEstado(
+                'Pendiente'
+              )
+            }}
+          </strong>
+        </div>
+
+      </article>
+
+      <article class="summary-card">
+
+        <div class="summary-icon delivered">
+          <ion-icon
+            name="checkmark-circle-outline"
+          ></ion-icon>
+        </div>
+
+        <div>
+          <span>Entregados</span>
+
+          <strong>
+            {{
+              contarPedidosPorEstado(
+                'Entregado'
+              )
+            }}
+          </strong>
+        </div>
+
+      </article>
+
+      <article class="summary-card">
+
+        <div class="summary-icon money">
+          <ion-icon
+            name="cash-outline"
+          ></ion-icon>
+        </div>
+
+        <div>
+          <span>Ventas registradas</span>
+
+          <strong>
+            ₡{{
+              calcularTotalPedidos()
+                | number
+            }}
+          </strong>
+        </div>
+
+      </article>
+
+    </section>
+
+    <section class="toolbar-card">
+
+      <div class="search-box">
+
+        <ion-icon
+          name="search-outline"
+        ></ion-icon>
+
+        <input
+          type="text"
+          [(ngModel)]="textoBusqueda"
+          (input)="aplicarFiltros()"
+          placeholder="Buscar por número, usuario o estado..."
+        />
+
+      </div>
+
+      <select
+        class="state-filter"
+        [(ngModel)]="filtroEstado"
+        (change)="aplicarFiltros()"
+      >
+        <option value="Todos">
+          Todos los estados
+        </option>
+
+        <option
+          *ngFor="
+            let estado of estadosPedido
+          "
+          [value]="estado"
+        >
+          {{ estado }}
+        </option>
+      </select>
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="cargarPedidos()"
+      >
+        <ion-icon
+          name="refresh-outline"
+        ></ion-icon>
+
+        Actualizar
+      </button>
+
+      <div class="results-count">
+
+        <strong>
+          {{ pedidosFiltrados.length }}
+        </strong>
+
+        <span>
+          pedidos encontrados
+        </span>
+
+      </div>
+
+    </section>
+
+    <section
+      class="loading-card"
+      *ngIf="cargando"
+    >
+      <ion-spinner
+        name="crescent"
+      ></ion-spinner>
+
+      <p>Cargando pedidos...</p>
+    </section>
+
+    <section
+      class="empty-card"
+      *ngIf="
+        !cargando &&
+        pedidosFiltrados.length === 0
+      "
+    >
+      <ion-icon
+        name="cube-outline"
+      ></ion-icon>
+
+      <h2>No hay pedidos registrados</h2>
+
+      <p>
+        Los pedidos realizados por los clientes
+        aparecerán en este módulo.
+      </p>
+    </section>
+
+    <section
+      class="orders-grid"
+      *ngIf="
+        !cargando &&
+        pedidosFiltrados.length > 0
+      "
+    >
+
+      <article
+        class="order-card"
+        *ngFor="
+          let pedido of pedidosFiltrados
+        "
+      >
+
+        <header class="order-card-header">
+
+          <div class="order-number">
+
+            <div class="order-icon">
+              <ion-icon
+                name="receipt-outline"
+              ></ion-icon>
+            </div>
+
+            <div>
+              <span>Número de pedido</span>
+
+              <h2>
+                {{
+                  obtenerNumeroPedido(
+                    pedido.idPedido
+                  )
+                }}
+              </h2>
+            </div>
+
+          </div>
+
+          <span
+            class="status-badge"
+            [ngClass]="
+              obtenerClaseEstado(
+                pedido.estadoPedido
+              )
+            "
+          >
+            <ion-icon
+              [name]="
+                obtenerIconoEstado(
+                  pedido.estadoPedido
+                )
+              "
+            ></ion-icon>
+
+            {{ pedido.estadoPedido }}
+          </span>
+
+        </header>
+
+        <div class="order-information">
+
+          <div class="information-item">
+
+            <ion-icon
+              name="person-outline"
+            ></ion-icon>
+
+            <div>
+              <span>Cliente</span>
+
+              <strong>
+                {{
+                  obtenerNombreUsuario(
+                    pedido.idUsuario
+                  )
+                }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="information-item">
+
+            <ion-icon
+              name="calendar-outline"
+            ></ion-icon>
+
+            <div>
+              <span>Fecha</span>
+
+              <strong>
+                {{
+                  pedido.fechaPedido
+                    | date:
+                      'dd/MM/yyyy, h:mm a'
+                }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="information-item">
+
+            <ion-icon
+              name="card-outline"
+            ></ion-icon>
+
+            <div>
+              <span>Método de pago</span>
+
+              <strong>
+                {{
+                  obtenerMetodoPago(
+                    pedido.idMetodoPago
+                  )
+                }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="information-item">
+
+            <ion-icon
+              name="ticket-outline"
+            ></ion-icon>
+
+            <div>
+              <span>Cupón</span>
+
+              <strong>
+                {{
+                  pedido.idCupon
+                    ? 'Cupón #' +
+                      pedido.idCupon
+                    : 'Sin cupón'
+                }}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="amount-summary">
+
+          <div>
+            <span>Subtotal</span>
+
+            <strong>
+              ₡{{ pedido.subtotal | number }}
+            </strong>
+          </div>
+
+          <div>
+            <span>Descuento</span>
+
+            <strong class="discount">
+              - ₡{{
+                pedido.descuento ?? 0
+                  | number
+              }}
+            </strong>
+          </div>
+
+          <div class="total-row">
+            <span>Total</span>
+
+            <strong>
+              ₡{{ pedido.total | number }}
+            </strong>
+          </div>
+
+        </div>
+
+
+        <div class="order-actions">
+
+          <button
+            type="button"
+            class="detail-button"
+            (click)="abrirDetallePedido(pedido)"
+          >
+            <ion-icon
+              name="eye-outline"
+            ></ion-icon>
+
+            Ver detalle completo
+          </button>
+
+        </div>
+
+        <div class="status-editor">
+
+          <label>
+
+            <span>Actualizar estado</span>
+
+            <select
+              [(ngModel)]="
+                pedido.estadoSeleccionado
+              "
+            >
+              <option
+                *ngFor="
+                  let estado of estadosPedido
+                "
+                [value]="estado"
+              >
+                {{ estado }}
+              </option>
+            </select>
+
+          </label>
+
+          <div class="status-actions">
+
+            <button
+              type="button"
+              class="cancel-button"
+              (click)="
+                restaurarEstado(pedido)
+              "
+              [disabled]="
+                pedido.guardandoEstado
+              "
+            >
+              Restaurar
+            </button>
+
+            <button
+              type="button"
+              class="save-button"
+              (click)="guardarEstado(pedido)"
+              [disabled]="
+                pedido.guardandoEstado ||
+                pedido.estadoSeleccionado ===
+                  pedido.estadoPedido
+              "
+            >
+              <ion-icon
+                name="save-outline"
+              ></ion-icon>
+
+              {{
+                pedido.guardandoEstado
+                  ? 'Guardando...'
+                  : 'Guardar estado'
+              }}
+            </button>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </section>
+
+  </main>
+
+
+  <div
+    class="order-modal-overlay"
+    *ngIf="mostrarDetalle"
+    (click)="cerrarDetalleDesdeFondo($event)"
+  >
+
+    <section class="order-modal">
+
+      <header class="modal-header">
+
+        <div class="modal-title">
+
+          <div class="modal-title-icon">
+            <ion-icon
+              name="receipt-outline"
+            ></ion-icon>
+          </div>
+
+          <div>
+            <span>Detalle del pedido</span>
+
+            <h2>
+              {{
+                pedidoDetalle?.numeroPedido ??
+                'Consultando...'
+              }}
+            </h2>
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="modal-close-button"
+          (click)="cerrarDetallePedido()"
+          aria-label="Cerrar detalle"
+        >
+          <ion-icon
+            name="close-outline"
+          ></ion-icon>
+        </button>
+
+      </header>
+
+      <div
+        class="modal-loading"
+        *ngIf="cargandoDetalle"
+      >
+        <ion-spinner
+          name="crescent"
+        ></ion-spinner>
+
+        <p>
+          Consultando información del pedido...
+        </p>
+      </div>
+
+      <div
+        class="modal-error"
+        *ngIf="
+          !cargandoDetalle &&
+          mensajeErrorDetalle
+        "
+      >
+        <ion-icon
+          name="alert-circle-outline"
+        ></ion-icon>
+
+        <span>
+          {{ mensajeErrorDetalle }}
+        </span>
+      </div>
+
+      <div
+        class="modal-body"
+        *ngIf="
+          !cargandoDetalle &&
+          pedidoDetalle
+        "
+      >
+
+        <section class="modal-status-section">
+
+          <div>
+            <span>Estado actual</span>
+
+            <strong
+              class="status-badge modal-status"
+              [ngClass]="
+                obtenerClaseEstado(
+                  pedidoDetalle.estadoPedido
+                )
+              "
+            >
+              <ion-icon
+                [name]="
+                  obtenerIconoEstado(
+                    pedidoDetalle.estadoPedido
+                  )
+                "
+              ></ion-icon>
+
+              {{ pedidoDetalle.estadoPedido }}
+            </strong>
+          </div>
+
+          <div>
+            <span>Fecha del pedido</span>
+
+            <strong>
+              {{
+                pedidoDetalle.fechaPedido
+                  | date:
+                    'dd/MM/yyyy, h:mm a'
+              }}
+            </strong>
+          </div>
+
+          <div>
+            <span>Artículos</span>
+
+            <strong>
+              {{ calcularCantidadArticulos() }}
+            </strong>
+          </div>
+
+        </section>
+
+        <section class="modal-section">
+
+          <div class="section-heading">
+
+            <ion-icon
+              name="person-outline"
+            ></ion-icon>
+
+            <div>
+              <span>Información</span>
+              <h3>Cliente</h3>
+            </div>
+
+          </div>
+
+          <div class="client-information-grid">
+
+            <article class="detail-information-item">
+
+              <ion-icon
+                name="person-outline"
+              ></ion-icon>
+
+              <div>
+                <span>Nombre completo</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle.cliente.nombre
+                  }}
+                </strong>
+              </div>
+
+            </article>
+
+            <article class="detail-information-item">
+
+              <ion-icon
+                name="mail-outline"
+              ></ion-icon>
+
+              <div>
+                <span>Correo electrónico</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle.cliente.correo ||
+                    'No registrado'
+                  }}
+                </strong>
+              </div>
+
+            </article>
+
+            <article class="detail-information-item">
+
+              <ion-icon
+                name="call-outline"
+              ></ion-icon>
+
+              <div>
+                <span>Teléfono</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle.cliente.telefono ||
+                    'No registrado'
+                  }}
+                </strong>
+              </div>
+
+            </article>
+
+            <article class="detail-information-item">
+
+              <ion-icon
+                name="location-outline"
+              ></ion-icon>
+
+              <div>
+                <span>Dirección</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle.cliente.direccion ||
+                    'No registrada'
+                  }}
+                </strong>
+              </div>
+
+            </article>
+
+          </div>
+
+        </section>
+
+        <section class="modal-section">
+
+          <div class="section-heading">
+
+            <ion-icon
+              name="bag-handle-outline"
+            ></ion-icon>
+
+            <div>
+              <span>Contenido</span>
+              <h3>Productos del pedido</h3>
+            </div>
+
+          </div>
+
+          <div
+            class="empty-products"
+            *ngIf="
+              pedidoDetalle.productos.length === 0
+            "
+          >
+            <ion-icon
+              name="cube-outline"
+            ></ion-icon>
+
+            <div>
+              <strong>
+                No hay productos asociados
+              </strong>
+
+              <span>
+                Este pedido no contiene registros
+                en DetallePedido.
+              </span>
+            </div>
+          </div>
+
+          <div
+            class="product-list"
+            *ngIf="
+              pedidoDetalle.productos.length > 0
+            "
+          >
+
+            <article
+              class="product-detail-card"
+              *ngFor="
+                let producto of
+                  pedidoDetalle.productos
+              "
+            >
+
+              <div class="product-image">
+
+                <img
+                  *ngIf="
+                    producto.imagen &&
+                    !producto.errorImagen
+                  "
+                  [src]="
+                    obtenerImagenProducto(
+                      producto.imagen
+                    )
+                  "
+                  [alt]="producto.nombreCaja"
+                  (error)="
+                    marcarErrorImagen(producto)
+                  "
+                />
+
+                <ion-icon
+                  *ngIf="
+                    !producto.imagen ||
+                    producto.errorImagen
+                  "
+                  name="cube-outline"
+                ></ion-icon>
+
+              </div>
+
+              <div class="product-main-information">
+
+                <span>
+                  Caja #{{ producto.idCaja }}
+                </span>
+
+                <h4>
+                  {{ producto.nombreCaja }}
+                </h4>
+
+                <p *ngIf="producto.descripcion">
+                  {{ producto.descripcion }}
+                </p>
+
+                <div class="product-numbers">
+
+                  <span>
+                    Cantidad:
+                    <strong>
+                      {{ producto.cantidad }}
+                    </strong>
+                  </span>
+
+                  <span>
+                    Precio:
+                    <strong>
+                      ₡{{
+                        producto.precioUnitario
+                          | number
+                      }}
+                    </strong>
+                  </span>
+
+                </div>
+
+                <div
+                  class="personalization-box"
+                  *ngIf="
+                    producto.idPersonalizacion ||
+                    producto.tamanoCaja ||
+                    producto.preferencias ||
+                    producto.exclusiones ||
+                    producto.mensajePersonalizado
+                  "
+                >
+
+                  <strong>
+                    Personalización
+                  </strong>
+
+                  <span
+                    *ngIf="producto.tamanoCaja"
+                  >
+                    Tamaño:
+                    {{ producto.tamanoCaja }}
+                  </span>
+
+                  <span
+                    *ngIf="producto.preferencias"
+                  >
+                    Preferencias:
+                    {{ producto.preferencias }}
+                  </span>
+
+                  <span
+                    *ngIf="producto.exclusiones"
+                  >
+                    Exclusiones:
+                    {{ producto.exclusiones }}
+                  </span>
+
+                  <span
+                    *ngIf="
+                      producto.mensajePersonalizado
+                    "
+                  >
+                    Mensaje:
+                    {{
+                      producto.mensajePersonalizado
+                    }}
+                  </span>
+
+                </div>
+
+              </div>
+
+              <div class="product-subtotal">
+
+                <span>Subtotal</span>
+
+                <strong>
+                  ₡{{
+                    producto.subtotal
+                      | number
+                  }}
+                </strong>
+
+              </div>
+
+            </article>
+
+          </div>
+
+        </section>
+
+        <section class="modal-bottom-grid">
+
+          <article class="modal-section payment-section">
+
+            <div class="section-heading">
+
+              <ion-icon
+                name="card-outline"
+              ></ion-icon>
+
+              <div>
+                <span>Pago</span>
+                <h3>Método y cupón</h3>
+              </div>
+
+            </div>
+
+            <div class="payment-information">
+
+              <div>
+                <span>Método de pago</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle
+                      .metodoPago
+                      .nombreMetodo
+                  }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Cupón</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle.cupon
+                      ?.codigo ??
+                    'Sin cupón'
+                  }}
+                </strong>
+              </div>
+
+              <div
+                *ngIf="pedidoDetalle.cupon"
+              >
+                <span>Descripción</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle.cupon
+                      ?.descripcion ??
+                    'Sin descripción'
+                  }}
+                </strong>
+              </div>
+
+              <div
+                *ngIf="
+                  pedidoDetalle.cupon
+                    ?.porcentajeDescuento
+                "
+              >
+                <span>Porcentaje</span>
+
+                <strong>
+                  {{
+                    pedidoDetalle.cupon
+                      ?.porcentajeDescuento
+                  }}%
+                </strong>
+              </div>
+
+            </div>
+
+          </article>
+
+          <article class="modal-section totals-section">
+
+            <div class="section-heading">
+
+              <ion-icon
+                name="cash-outline"
+              ></ion-icon>
+
+              <div>
+                <span>Resumen</span>
+                <h3>Totales</h3>
+              </div>
+
+            </div>
+
+            <div class="modal-totals">
+
+              <div>
+                <span>Subtotal</span>
+
+                <strong>
+                  ₡{{
+                    pedidoDetalle.subtotal
+                      | number
+                  }}
+                </strong>
+              </div>
+
+              <div>
+                <span>Descuento</span>
+
+                <strong class="discount">
+                  - ₡{{
+                    pedidoDetalle.descuento
+                      | number
+                  }}
+                </strong>
+              </div>
+
+              <div class="modal-total-row">
+                <span>Total</span>
+
+                <strong>
+                  ₡{{
+                    pedidoDetalle.total
+                      | number
+                  }}
+                </strong>
+              </div>
+
+            </div>
+
+          </article>
+
+        </section>
+
+      </div>
+
+      <footer class="modal-footer">
+
+        <button
+          type="button"
+          class="modal-finish-button"
+          (click)="cerrarDetallePedido()"
+        >
+          Cerrar detalle
+        </button>
+
+      </footer>
+
+    </section>
+
+  </div>
+
+</ion-content>
