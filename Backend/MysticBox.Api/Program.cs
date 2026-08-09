@@ -49,6 +49,8 @@ builder.Services.AddScoped<IAuthLN, AuthLN>();
 builder.Services.AddScoped<IUsuarioLN, UsuarioLN>();
 
 builder.Services.AddScoped<IUnidadTrabajoEF, UnidadTrabajoEF>();
+builder.Services.AddScoped<IDashboardLN,DashboardLN
+>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();

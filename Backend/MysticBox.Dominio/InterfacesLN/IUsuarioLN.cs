@@ -1,17 +1,26 @@
 ﻿using MysticBox.Dominio.DTO;
-using MysticBox.Dominio.Entidades;
 
 namespace MysticBox.Dominio.InterfacesLN;
 
 public interface IUsuarioLN
 {
-    Task<List<Usuario>> ObtenerUsuarios();
+    Task<List<UsuarioDTO>>
+        ObtenerClientes();
 
-    Task<Usuario?> ObtenerUsuarioPorId(int idUsuario);
+    Task<UsuarioDTO?>
+        ObtenerClientePorId(
+            int idUsuario
+        );
 
-    Task<Usuario> CrearUsuario(UsuarioDTO usuarioDTO);
+    Task<bool>
+        ActualizarCliente(
+            int idUsuario,
+            ActualizarUsuarioDTO usuarioDTO
+        );
 
-    Task<bool> ActualizarUsuario(int idUsuario, UsuarioDTO usuarioDTO);
-
-    Task<bool> EliminarUsuario(int idUsuario);
+    Task<bool>
+        CambiarEstadoCliente(
+            int idUsuario,
+            bool estado
+        );
 }

@@ -331,9 +331,23 @@ export const routes: Routes = [
       )
   },
 
+
+   {
+    path: 'admin-dashboard',
+    loadComponent: () =>
+      import(
+        './pages/admin-dashboard/admin-dashboard.page'
+      ).then(
+        m => m.AdminDashboardPage
+      )
+  },
+
   {
     path: '**',
     redirectTo: 'login'
-  }
+  },
+
+
+    
 
 ];

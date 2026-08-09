@@ -7,81 +7,270 @@ namespace MysticBox.LogicaNegocio.Implementaciones;
 
 public class UsuarioLN : IUsuarioLN
 {
-    private readonly IUnidadTrabajoEF _unidadTrabajo;
+    private const int RolCliente = 2;
 
-    public UsuarioLN(IUnidadTrabajoEF unidadTrabajo)
+    private readonly IUnidadTrabajoEF
+        _unidadTrabajo;
+
+    public UsuarioLN(
+        IUnidadTrabajoEF unidadTrabajo
+    )
     {
-        _unidadTrabajo = unidadTrabajo;
+        _unidadTrabajo =
+            unidadTrabajo;
     }
 
-    public async Task<List<Usuario>> ObtenerUsuarios()
+    public async Task<List<UsuarioDTO>>
+        ObtenerClientes()
     {
-        var respuesta = _unidadTrabajo.TUsuario.Listar();
-        return await Task.FromResult(respuesta.ValorRetorno?.ToList() ?? new List<Usuario>());
+        var respuesta =
+            _unidadTrabajo
+                .TUsuario
+                .Listar();
+
+        var usuarios =
+            respuesta
+                .ValorRetorno
+                ?.ToList() ??
+            new List<Usuario>();
+
+        var clientes =
+            usuarios
+                .Where(
+                    usuario =>
+                        usuario.IdRol ==
+                        RolCliente
+                )
+                .OrderByDescending(
+                    usuario =>
+                        usuario.FechaRegistro
+                )
+                .ThenBy(
+                    usuario =>
+                        usuario.Nombre
+                )
+                .Select(
+                    MapearUsuarioDTO
+                )
+                .ToList();
+
+        return await Task.FromResult(
+            clientes
+        );
     }
 
-    public async Task<Usuario?> ObtenerUsuarioPorId(int idUsuario)
+    public async Task<UsuarioDTO?>
+        ObtenerClientePorId(
+            int idUsuario
+        )
     {
-        var respuesta = _unidadTrabajo.TUsuario.ObtenerEntidad(x => x.IdUsuario == idUsuario);
-        return await Task.FromResult(respuesta.ValorRetorno);
-    }
+        var respuesta =
+            _unidadTrabajo
+                .TUsuario
+                .ObtenerEntidad(
+                    usuario =>
+                        usuario.IdUsuario ==
+                        idUsuario &&
+                        usuario.IdRol ==
+                        RolCliente
+                );
 
-    public async Task<Usuario> CrearUsuario(UsuarioDTO usuarioDTO)
-    {
-        var usuario = new Usuario
+        if (
+            respuesta.ValorRetorno ==
+            null
+        )
         {
-            IdRol = usuarioDTO.IdRol,
-            Nombre = usuarioDTO.Nombre,
-            Correo = usuarioDTO.Correo,
-            Telefono = usuarioDTO.Telefono,
-            Direccion = usuarioDTO.Direccion,
-            Contrasena = usuarioDTO.Contrasena,
-            FechaRegistro = DateTime.Now,
-            Estado = usuarioDTO.Estado ?? true
+            return await Task
+                .FromResult<UsuarioDTO?>(
+                    null
+                );
+        }
+
+        var cliente =
+            MapearUsuarioDTO(
+                respuesta.ValorRetorno
+            );
+
+        return await Task.FromResult(
+            cliente
+        );
+    }
+
+    public async Task<bool>
+        ActualizarCliente(
+            int idUsuario,
+            ActualizarUsuarioDTO usuarioDTO
+        )
+    {
+        var respuesta =
+            _unidadTrabajo
+                .TUsuario
+                .ObtenerEntidad(
+                    usuario =>
+                        usuario.IdUsuario ==
+                        idUsuario &&
+                        usuario.IdRol ==
+                        RolCliente
+                );
+
+        if (
+            respuesta.ValorRetorno ==
+            null
+        )
+        {
+            return await Task.FromResult(
+                false
+            );
+        }
+
+        var correo =
+            usuarioDTO.Correo
+                .Trim()
+                .ToLower();
+
+        var correoExistente =
+            _unidadTrabajo
+                .TUsuario
+                .ObtenerEntidad(
+                    usuario =>
+                        usuario.Correo
+                            .ToLower() ==
+                        correo &&
+                        usuario.IdUsuario !=
+                        idUsuario
+                );
+
+        if (
+            correoExistente
+                .ValorRetorno != null
+        )
+        {
+            throw new
+                InvalidOperationException(
+                    "El correo electrónico ya está registrado por otro usuario."
+                );
+        }
+
+        var usuario =
+            respuesta.ValorRetorno;
+
+        usuario.Nombre =
+            usuarioDTO.Nombre.Trim();
+
+        usuario.Correo =
+            correo;
+
+        usuario.Telefono =
+            usuarioDTO.Telefono
+                ?.Trim();
+
+        usuario.Direccion =
+            usuarioDTO.Direccion
+                ?.Trim();
+
+        /*
+         * No se modifica:
+         *
+         * - IdRol
+         * - Contrasena
+         * - FechaRegistro
+         *
+         * Esos datos no deben cambiar
+         * desde administración de clientes.
+         */
+
+        _unidadTrabajo
+            .TUsuario
+            .Modificar(usuario);
+
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(
+            true
+        );
+    }
+
+    public async Task<bool>
+        CambiarEstadoCliente(
+            int idUsuario,
+            bool estado
+        )
+    {
+        var respuesta =
+            _unidadTrabajo
+                .TUsuario
+                .ObtenerEntidad(
+                    usuario =>
+                        usuario.IdUsuario ==
+                        idUsuario &&
+                        usuario.IdRol ==
+                        RolCliente
+                );
+
+        if (
+            respuesta.ValorRetorno ==
+            null
+        )
+        {
+            return await Task.FromResult(
+                false
+            );
+        }
+
+        var usuario =
+            respuesta.ValorRetorno;
+
+        usuario.Estado =
+            estado;
+
+        _unidadTrabajo
+            .TUsuario
+            .Modificar(usuario);
+
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(
+            true
+        );
+    }
+
+    private static UsuarioDTO
+        MapearUsuarioDTO(
+            Usuario usuario
+        )
+    {
+        return new UsuarioDTO
+        {
+            IdUsuario =
+                usuario.IdUsuario,
+
+            IdRol =
+                usuario.IdRol,
+
+            NombreRol =
+                usuario.IdRol ==
+                RolCliente
+                    ? "Cliente"
+                    : "Usuario",
+
+            Nombre =
+                usuario.Nombre,
+
+            Correo =
+                usuario.Correo,
+
+            Telefono =
+                usuario.Telefono,
+
+            Direccion =
+                usuario.Direccion,
+
+            FechaRegistro =
+                usuario.FechaRegistro,
+
+            Estado =
+                usuario.Estado ??
+                false
         };
-
-        _unidadTrabajo.TUsuario.Insertar(usuario);
-        _unidadTrabajo.Completar();
-
-        return await Task.FromResult(usuario);
-    }
-
-    public async Task<bool> ActualizarUsuario(int idUsuario, UsuarioDTO usuarioDTO)
-    {
-        var respuesta = _unidadTrabajo.TUsuario.ObtenerEntidad(x => x.IdUsuario == idUsuario);
-
-        if (respuesta.ValorRetorno == null)
-            return await Task.FromResult(false);
-
-        var usuario = respuesta.ValorRetorno;
-
-        usuario.IdRol = usuarioDTO.IdRol;
-        usuario.Nombre = usuarioDTO.Nombre;
-        usuario.Correo = usuarioDTO.Correo;
-        usuario.Telefono = usuarioDTO.Telefono;
-        usuario.Direccion = usuarioDTO.Direccion;
-        usuario.Contrasena = usuarioDTO.Contrasena;
-        usuario.Estado = usuarioDTO.Estado;
-
-        _unidadTrabajo.TUsuario.Modificar(usuario);
-        _unidadTrabajo.Completar();
-
-        return await Task.FromResult(true);
-    }
-
-    public async Task<bool> EliminarUsuario(int idUsuario)
-    {
-        var respuesta = _unidadTrabajo.TUsuario.ObtenerEntidad(x => x.IdUsuario == idUsuario);
-
-        if (respuesta.ValorRetorno == null)
-            return await Task.FromResult(false);
-
-        var usuario = respuesta.ValorRetorno;
-        usuario.Estado = false;
-
-        _unidadTrabajo.TUsuario.Modificar(usuario);
-        _unidadTrabajo.Completar();
-
-        return await Task.FromResult(true);
     }
 }

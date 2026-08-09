@@ -35,7 +35,7 @@ import {
     IonTitle,
     IonContent,
     IonItem,
-    IonLabel,
+  
     IonTextarea,
     IonButton
   ]

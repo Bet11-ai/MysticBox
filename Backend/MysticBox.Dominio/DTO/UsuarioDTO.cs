@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MysticBox.Dominio.DTO;
+﻿namespace MysticBox.Dominio.DTO;
 
 public class UsuarioDTO
 {
@@ -12,15 +6,38 @@ public class UsuarioDTO
 
     public int IdRol { get; set; }
 
-    public string Nombre { get; set; } = string.Empty;
+    public string NombreRol { get; set; } =
+        string.Empty;
 
-    public string Correo { get; set; } = string.Empty;
+    public string Nombre { get; set; } =
+        string.Empty;
+
+    public string Correo { get; set; } =
+        string.Empty;
 
     public string? Telefono { get; set; }
 
     public string? Direccion { get; set; }
 
-    public string Contrasena { get; set; } = string.Empty;
+    public DateTime? FechaRegistro { get; set; }
 
-    public bool? Estado { get; set; }
+    public bool Estado { get; set; }
+}
+
+public class ActualizarUsuarioDTO
+{
+    public string Nombre { get; set; } =
+        string.Empty;
+
+    public string Correo { get; set; } =
+        string.Empty;
+
+    public string? Telefono { get; set; }
+
+    public string? Direccion { get; set; }
+}
+
+public class CambiarEstadoUsuarioDTO
+{
+    public bool Estado { get; set; }
 }

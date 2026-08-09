@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router, } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { IonicModule } from '@ionic/angular';
@@ -65,7 +65,7 @@ interface EstadoSeguimiento {
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterLink
+  
   ]
 })
 export class EntregasPage implements OnInit {

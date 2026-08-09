@@ -1,13 +1,790 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>admin-clientes</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content
+  class="clientes-content">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">admin-clientes</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <main class="clientes-shell">
+
+    <!-- ENCABEZADO -->
+
+    <header class="page-header">
+
+      <div class="header-left">
+
+        <button
+          type="button"
+          class="back-button"
+          (click)="volverAlPanel()">
+
+          <ion-icon
+            name="arrow-back-outline">
+          </ion-icon>
+
+        </button>
+
+        <div>
+
+          <span class="eyebrow">
+            MB-76
+          </span>
+
+          <h1>
+            Gestionar clientes
+          </h1>
+
+          <p>
+            Consulta, edita y administra
+            las cuentas de clientes.
+          </p>
+
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="refresh-button"
+        (click)="cargarClientes()">
+
+        <ion-icon
+          name="refresh-outline">
+        </ion-icon>
+
+        Actualizar
+
+      </button>
+
+    </header>
+
+    <!-- RESUMEN -->
+
+    <section class="summary-grid">
+
+      <article class="summary-card total">
+
+        <div class="summary-icon">
+          <ion-icon
+            name="people-outline">
+          </ion-icon>
+        </div>
+
+        <div>
+          <span>
+            Clientes registrados
+          </span>
+
+          <strong>
+            {{ obtenerTotalClientes() }}
+          </strong>
+        </div>
+
+      </article>
+
+      <article class="summary-card active">
+
+        <div class="summary-icon">
+          <ion-icon
+            name="checkmark-circle-outline">
+          </ion-icon>
+        </div>
+
+        <div>
+          <span>
+            Clientes activos
+          </span>
+
+          <strong>
+            {{ obtenerTotalActivos() }}
+          </strong>
+        </div>
+
+      </article>
+
+      <article class="summary-card inactive">
+
+        <div class="summary-icon">
+          <ion-icon
+            name="alert-circle-outline">
+          </ion-icon>
+        </div>
+
+        <div>
+          <span>
+            Clientes inactivos
+          </span>
+
+          <strong>
+            {{ obtenerTotalInactivos() }}
+          </strong>
+        </div>
+
+      </article>
+
+    </section>
+
+    <!-- FILTROS -->
+
+    <section class="filters-panel">
+
+      <div class="search-wrapper">
+
+        <ion-icon
+          name="search-outline">
+        </ion-icon>
+
+        <input
+          type="text"
+          [(ngModel)]="textoBusqueda"
+          (input)="aplicarFiltros()"
+          placeholder="Buscar por nombre, correo o teléfono">
+
+        <button
+          *ngIf="textoBusqueda"
+          type="button"
+          class="clear-search"
+          (click)="limpiarBusqueda()">
+
+          <ion-icon
+            name="close-outline">
+          </ion-icon>
+
+        </button>
+
+      </div>
+
+      <div class="filter-buttons">
+
+        <button
+          type="button"
+          [class.active]="
+            filtroEstado === 'todos'
+          "
+          (click)="cambiarFiltro('todos')">
+
+          Todos
+
+        </button>
+
+        <button
+          type="button"
+          [class.active]="
+            filtroEstado === 'activos'
+          "
+          (click)="cambiarFiltro('activos')">
+
+          Activos
+
+        </button>
+
+        <button
+          type="button"
+          [class.active]="
+            filtroEstado === 'inactivos'
+          "
+          (click)="cambiarFiltro('inactivos')">
+
+          Inactivos
+
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- CARGANDO -->
+
+    <section
+      class="loading-state"
+      *ngIf="cargando">
+
+      <ion-spinner
+        name="crescent">
+      </ion-spinner>
+
+      <p>
+        Consultando clientes...
+      </p>
+
+    </section>
+
+    <!-- SIN RESULTADOS -->
+
+    <section
+      class="empty-state"
+      *ngIf="
+        !cargando &&
+        clientesFiltrados.length === 0
+      ">
+
+      <ion-icon
+        name="people-outline">
+      </ion-icon>
+
+      <h3>
+        No encontramos clientes
+      </h3>
+
+      <p>
+        Cambia los filtros o la búsqueda
+        para intentar nuevamente.
+      </p>
+
+    </section>
+
+    <!-- CLIENTES -->
+
+    <section
+      class="clients-grid"
+      *ngIf="
+        !cargando &&
+        clientesFiltrados.length > 0
+      ">
+
+      <article
+        class="client-card"
+        *ngFor="
+          let cliente of clientesFiltrados
+        "
+        [class.inactive-client]="
+          !cliente.estado
+        ">
+
+        <div class="client-top">
+
+          <div class="avatar">
+            {{
+              obtenerIniciales(
+                cliente.nombre
+              )
+            }}
+          </div>
+
+          <div class="client-main">
+
+            <div class="client-title">
+
+              <div>
+                <h3>
+                  {{ cliente.nombre }}
+                </h3>
+
+                <span>
+                  Cliente #{{ cliente.idUsuario }}
+                </span>
+              </div>
+
+              <span
+                class="status-badge"
+                [class.active-status]="
+                  cliente.estado
+                "
+                [class.inactive-status]="
+                  !cliente.estado
+                ">
+
+                {{
+                  cliente.estado
+                    ? 'Activo'
+                    : 'Inactivo'
+                }}
+
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="client-information">
+
+          <div class="info-row">
+
+            <ion-icon
+              name="mail-outline">
+            </ion-icon>
+
+            <div>
+              <span>Correo</span>
+
+              <strong>
+                {{ cliente.correo }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <ion-icon
+              name="call-outline">
+            </ion-icon>
+
+            <div>
+              <span>Teléfono</span>
+
+              <strong>
+                {{
+                  cliente.telefono ||
+                  'No registrado'
+                }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <ion-icon
+              name="location-outline">
+            </ion-icon>
+
+            <div>
+              <span>Dirección</span>
+
+              <strong>
+                {{
+                  cliente.direccion ||
+                  'No registrada'
+                }}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="info-row">
+
+            <ion-icon
+              name="time-outline">
+            </ion-icon>
+
+            <div>
+              <span>Registro</span>
+
+              <strong>
+                {{
+                  obtenerFecha(
+                    cliente.fechaRegistro
+                  )
+                }}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="client-actions">
+
+          <button
+            type="button"
+            class="detail-button"
+            (click)="abrirDetalle(cliente)">
+
+            <ion-icon
+              name="person-outline">
+            </ion-icon>
+
+            Ver detalle
+
+          </button>
+
+          <button
+            type="button"
+            class="edit-button"
+            (click)="abrirEdicion(cliente)">
+
+            <ion-icon
+              name="create-outline">
+            </ion-icon>
+
+            Editar
+
+          </button>
+
+          <button
+            type="button"
+            class="status-button"
+            [class.activate-button]="
+              !cliente.estado
+            "
+            [class.deactivate-button]="
+              cliente.estado
+            "
+            (click)="cambiarEstado(cliente)">
+
+            <ion-icon
+              [name]="
+                cliente.estado
+                  ? 'alert-circle-outline'
+                  : 'checkmark-circle-outline'
+              ">
+            </ion-icon>
+
+            {{
+              cliente.estado
+                ? 'Desactivar'
+                : 'Activar'
+            }}
+
+          </button>
+
+        </div>
+
+      </article>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL DETALLE -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="
+      mostrarModalDetalle &&
+      clienteSeleccionado
+    ">
+
+    <section class="modal-card">
+
+      <header class="modal-header">
+
+        <div>
+
+          <span>
+            INFORMACIÓN DEL CLIENTE
+          </span>
+
+          <h2>
+            {{ clienteSeleccionado.nombre }}
+          </h2>
+
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="cerrarDetalle()">
+
+          <ion-icon
+            name="close-outline">
+          </ion-icon>
+
+        </button>
+
+      </header>
+
+      <div class="modal-body">
+
+        <div class="detail-avatar">
+
+          {{
+            obtenerIniciales(
+              clienteSeleccionado.nombre
+            )
+          }}
+
+        </div>
+
+        <div class="detail-list">
+
+          <article>
+
+            <ion-icon
+              name="mail-outline">
+            </ion-icon>
+
+            <div>
+              <span>Correo electrónico</span>
+              <strong>
+                {{ clienteSeleccionado.correo }}
+              </strong>
+            </div>
+
+          </article>
+
+          <article>
+
+            <ion-icon
+              name="call-outline">
+            </ion-icon>
+
+            <div>
+              <span>Teléfono</span>
+              <strong>
+                {{
+                  clienteSeleccionado.telefono ||
+                  'No registrado'
+                }}
+              </strong>
+            </div>
+
+          </article>
+
+          <article>
+
+            <ion-icon
+              name="location-outline">
+            </ion-icon>
+
+            <div>
+              <span>Dirección</span>
+              <strong>
+                {{
+                  clienteSeleccionado.direccion ||
+                  'No registrada'
+                }}
+              </strong>
+            </div>
+
+          </article>
+
+          <article>
+
+            <ion-icon
+              name="time-outline">
+            </ion-icon>
+
+            <div>
+              <span>Fecha de registro</span>
+              <strong>
+                {{
+                  obtenerFecha(
+                    clienteSeleccionado
+                      .fechaRegistro
+                  )
+                }}
+              </strong>
+            </div>
+
+          </article>
+
+          <article>
+
+            <ion-icon
+              name="shield-checkmark-outline">
+            </ion-icon>
+
+            <div>
+              <span>Estado de la cuenta</span>
+
+              <strong
+                [class.text-active]="
+                  clienteSeleccionado.estado
+                "
+                [class.text-inactive]="
+                  !clienteSeleccionado.estado
+                ">
+
+                {{
+                  clienteSeleccionado.estado
+                    ? 'Activa'
+                    : 'Inactiva'
+                }}
+
+              </strong>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </div>
+
+      <footer class="modal-footer">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="cerrarDetalle()">
+
+          Cerrar
+
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="
+            cerrarDetalle();
+            abrirEdicion(
+              clienteSeleccionado
+            )
+          ">
+
+          <ion-icon
+            name="create-outline">
+          </ion-icon>
+
+          Editar cliente
+
+        </button>
+
+      </footer>
+
+    </section>
+
+  </div>
+
+  <!-- MODAL EDICIÓN -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="
+      mostrarModalEdicion &&
+      clienteSeleccionado
+    ">
+
+    <section class="modal-card">
+
+      <header class="modal-header">
+
+        <div>
+
+          <span>
+            EDITAR CLIENTE
+          </span>
+
+          <h2>
+            {{ clienteSeleccionado.nombre }}
+          </h2>
+
+        </div>
+
+        <button
+          type="button"
+          class="modal-close"
+          (click)="cerrarEdicion()">
+
+          <ion-icon
+            name="close-outline">
+          </ion-icon>
+
+        </button>
+
+      </header>
+
+      <div class="modal-body">
+
+        <div class="form-grid">
+
+          <label>
+
+            <span>
+              Nombre completo
+            </span>
+
+            <input
+              type="text"
+              [(ngModel)]="
+                formularioEdicion.nombre
+              ">
+
+          </label>
+
+          <label>
+
+            <span>
+              Correo electrónico
+            </span>
+
+            <input
+              type="email"
+              [(ngModel)]="
+                formularioEdicion.correo
+              ">
+
+          </label>
+
+          <label>
+
+            <span>
+              Teléfono
+            </span>
+
+            <input
+              type="tel"
+              [(ngModel)]="
+                formularioEdicion.telefono
+              ">
+
+          </label>
+
+          <label>
+
+            <span>
+              Dirección
+            </span>
+
+            <textarea
+              rows="3"
+              [(ngModel)]="
+                formularioEdicion.direccion
+              ">
+            </textarea>
+
+          </label>
+
+        </div>
+
+        <div class="security-notice">
+
+          <ion-icon
+            name="shield-checkmark-outline">
+          </ion-icon>
+
+          <div>
+
+            <strong>
+              Información protegida
+            </strong>
+
+            <span>
+              Desde este módulo no se puede
+              cambiar el rol ni la contraseña
+              del cliente.
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <footer class="modal-footer">
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="guardando"
+          (click)="cerrarEdicion()">
+
+          Cancelar
+
+        </button>
+
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="guardando"
+          (click)="guardarCambios()">
+
+          <ion-icon
+            name="save-outline">
+          </ion-icon>
+
+          {{
+            guardando
+              ? 'Guardando...'
+              : 'Guardar cambios'
+          }}
+
+        </button>
+
+      </footer>
+
+    </section>
+
+  </div>
+
 </ion-content>

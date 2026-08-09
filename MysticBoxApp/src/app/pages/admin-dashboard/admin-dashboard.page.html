@@ -1,0 +1,634 @@
+<ion-content class="dashboard-content">
+
+  <main class="dashboard-shell">
+
+    <!-- CABECERA -->
+
+    <header class="topbar">
+
+      <div class="brand-area">
+
+        <div class="brand-icon">
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </div>
+
+        <div>
+          <strong>Mystic Box</strong>
+          <span>Dashboard administrativo</span>
+        </div>
+
+      </div>
+
+      <div class="topbar-actions">
+
+        <div class="admin-info">
+
+          <ion-icon name="person-outline"></ion-icon>
+
+          <div>
+            <strong>
+              {{ usuario?.nombre || 'Administradora' }}
+            </strong>
+
+            <span>Administrador</span>
+          </div>
+
+        </div>
+
+        <button
+          type="button"
+          class="logout-btn"
+          (click)="cerrarSesion()">
+
+          <ion-icon name="log-out-outline"></ion-icon>
+
+          Cerrar sesión
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- NAVEGACIÓN -->
+
+    <section class="navigation-row">
+
+      <button
+        type="button"
+        class="back-btn"
+        (click)="volverPanel()">
+
+        <ion-icon name="arrow-back-outline"></ion-icon>
+
+        Volver al panel
+
+      </button>
+
+      <button
+        type="button"
+        class="refresh-btn"
+        (click)="cargarDashboard()"
+        [disabled]="cargando">
+
+        <ion-icon name="refresh-outline"></ion-icon>
+
+        Actualizar
+
+      </button>
+
+    </section>
+
+
+    <!-- TITULO -->
+
+    <section class="dashboard-heading">
+
+      <div>
+
+        <span class="task-label">
+          MB-78
+        </span>
+
+        <h1>
+          Dashboard
+        </h1>
+
+        <p>
+          Resumen general de la actividad
+          de Mystic Box.
+        </p>
+
+      </div>
+
+      <div class="heading-icon">
+        <ion-icon name="stats-chart-outline"></ion-icon>
+      </div>
+
+    </section>
+
+
+    <!-- CARGANDO -->
+
+    <section
+      class="loading-state"
+      *ngIf="cargando">
+
+      <ion-spinner name="crescent"></ion-spinner>
+
+      <p>
+        Cargando información...
+      </p>
+
+    </section>
+
+
+    <!-- ERROR -->
+
+    <section
+      class="error-state"
+      *ngIf="!cargando && mensajeError">
+
+      <ion-icon name="alert-circle-outline"></ion-icon>
+
+      <div>
+
+        <strong>
+          No pudimos cargar el dashboard
+        </strong>
+
+        <span>
+          {{ mensajeError }}
+        </span>
+
+      </div>
+
+      <button
+        type="button"
+        (click)="cargarDashboard()">
+
+        Reintentar
+
+      </button>
+
+    </section>
+
+
+    <ng-container
+      *ngIf="!cargando && dashboard">
+
+
+      <!-- TARJETAS PRINCIPALES -->
+
+      <section class="metrics-grid">
+
+        <article class="metric-card sales-card">
+
+          <div class="metric-icon">
+            <ion-icon name="cash-outline"></ion-icon>
+          </div>
+
+          <div class="metric-copy">
+
+            <span>
+              Ventas registradas
+            </span>
+
+            <strong>
+              {{ formatearMoneda(dashboard.ventasTotales) }}
+            </strong>
+
+            <small>
+              Total acumulado
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="metric-card"
+          (click)="irAPedidos()">
+
+          <div class="metric-icon blue">
+            <ion-icon name="receipt-outline"></ion-icon>
+          </div>
+
+          <div class="metric-copy">
+
+            <span>
+              Total de pedidos
+            </span>
+
+            <strong>
+              {{ dashboard.totalPedidos }}
+            </strong>
+
+            <small>
+              Pedidos registrados
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="metric-card"
+          (click)="irAClientes()">
+
+          <div class="metric-icon green">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+
+          <div class="metric-copy">
+
+            <span>
+              Clientes
+            </span>
+
+            <strong>
+              {{ dashboard.totalClientes }}
+            </strong>
+
+            <small>
+              {{ dashboard.clientesActivos }}
+              activos
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="metric-card">
+
+          <div class="metric-icon gold">
+            <ion-icon name="trending-up-outline"></ion-icon>
+          </div>
+
+          <div class="metric-copy">
+
+            <span>
+              Promedio por pedido
+            </span>
+
+            <strong>
+              {{ formatearMoneda(dashboard.promedioPorPedido) }}
+            </strong>
+
+            <small>
+              Valor promedio
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- ACCESOS / RESUMEN -->
+
+      <section class="secondary-grid">
+
+        <article
+          class="summary-card"
+          (click)="irACajas()">
+
+          <div class="summary-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Cajas registradas
+            </span>
+
+            <strong>
+              {{ dashboard.totalCajas }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="summary-card"
+          (click)="irAPromociones()">
+
+          <div class="summary-icon gold-icon">
+            <ion-icon name="ticket-outline"></ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Cupones activos
+            </span>
+
+            <strong>
+              {{ dashboard.cuponesActivos }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="summary-card">
+
+          <div class="summary-icon green-icon">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Clientes activos
+            </span>
+
+            <strong>
+              {{ dashboard.clientesActivos }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article
+          class="summary-card">
+
+          <div class="summary-icon red-icon">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Clientes inactivos
+            </span>
+
+            <strong>
+              {{ dashboard.clientesInactivos }}
+            </strong>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- ESTADOS DE PEDIDOS -->
+
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span>
+              OPERACIÓN
+            </span>
+
+            <h2>
+              Estado de los pedidos
+            </h2>
+
+          </div>
+
+          <button
+            type="button"
+            (click)="irAPedidos()">
+
+            Gestionar pedidos
+
+          </button>
+
+        </div>
+
+
+        <div class="status-grid">
+
+
+          <article class="status-card pending">
+
+            <ion-icon name="time-outline"></ion-icon>
+
+            <div>
+              <strong>
+                {{ dashboard.pedidosPendientes }}
+              </strong>
+
+              <span>
+                Pendientes
+              </span>
+            </div>
+
+          </article>
+
+
+          <article class="status-card preparing">
+
+            <ion-icon name="construct-outline"></ion-icon>
+
+            <div>
+              <strong>
+                {{ dashboard.pedidosPreparando }}
+              </strong>
+
+              <span>
+                Preparando
+              </span>
+            </div>
+
+          </article>
+
+
+          <article class="status-card packing">
+
+            <ion-icon name="archive-outline"></ion-icon>
+
+            <div>
+              <strong>
+                {{ dashboard.pedidosEmpacando }}
+              </strong>
+
+              <span>
+                Empacando
+              </span>
+            </div>
+
+          </article>
+
+
+          <article class="status-card road">
+
+            <ion-icon name="car-outline"></ion-icon>
+
+            <div>
+              <strong>
+                {{ dashboard.pedidosEnCamino }}
+              </strong>
+
+              <span>
+                En camino
+              </span>
+            </div>
+
+          </article>
+
+
+          <article class="status-card delivered">
+
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+
+            <div>
+              <strong>
+                {{ dashboard.pedidosEntregados }}
+              </strong>
+
+              <span>
+                Entregados
+              </span>
+            </div>
+
+          </article>
+
+
+          <article class="status-card cancelled">
+
+            <ion-icon name="close-circle-outline"></ion-icon>
+
+            <div>
+              <strong>
+                {{ dashboard.pedidosCancelados }}
+              </strong>
+
+              <span>
+                Cancelados
+              </span>
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- ÚLTIMOS PEDIDOS -->
+
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span>
+              ACTIVIDAD RECIENTE
+            </span>
+
+            <h2>
+              Últimos pedidos
+            </h2>
+
+          </div>
+
+          <button
+            type="button"
+            (click)="irAPedidos()">
+
+            Ver todos
+
+          </button>
+
+        </div>
+
+
+        <div
+          class="orders-table"
+          *ngIf="dashboard.ultimosPedidos.length > 0">
+
+
+          <div class="table-header">
+
+            <span>Pedido</span>
+            <span>Cliente</span>
+            <span>Fecha</span>
+            <span>Estado</span>
+            <span>Total</span>
+
+          </div>
+
+
+          <div
+            class="order-row"
+            *ngFor="
+              let pedido of dashboard.ultimosPedidos;
+              trackBy: trackPedido
+            ">
+
+            <div class="order-number">
+
+              <div class="order-icon">
+                <ion-icon name="bag-handle-outline"></ion-icon>
+              </div>
+
+              <strong>
+                {{ pedido.numeroPedido }}
+              </strong>
+
+            </div>
+
+
+            <span class="client-name">
+              {{ pedido.cliente }}
+            </span>
+
+
+            <span class="date">
+              {{ formatearFecha(pedido.fechaPedido) }}
+            </span>
+
+
+            <span
+              class="status-badge"
+              [ngClass]="
+                obtenerClaseEstado(
+                  pedido.estadoPedido
+                )
+              ">
+
+              <ion-icon
+                [name]="
+                  obtenerIconoEstado(
+                    pedido.estadoPedido
+                  )
+                ">
+              </ion-icon>
+
+              {{ pedido.estadoPedido }}
+
+            </span>
+
+
+            <strong class="order-total">
+              {{ formatearMoneda(pedido.total) }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="empty-orders"
+          *ngIf="dashboard.ultimosPedidos.length === 0">
+
+          <ion-icon name="receipt-outline"></ion-icon>
+
+          <strong>
+            No hay pedidos registrados
+          </strong>
+
+          <span>
+            Los pedidos recientes aparecerán aquí.
+          </span>
+
+        </div>
+
+      </section>
+
+    </ng-container>
+
+  </main>
+
+</ion-content>

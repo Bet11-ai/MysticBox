@@ -8,61 +8,164 @@ namespace MysticBox.Api.Controllers;
 [ApiController]
 public class UsuarioController : ControllerBase
 {
-    private readonly IUsuarioLN _usuarioLN;
+    private readonly IUsuarioLN
+        _usuarioLN;
 
-    public UsuarioController(IUsuarioLN usuarioLN)
+    public UsuarioController(
+        IUsuarioLN usuarioLN
+    )
     {
-        _usuarioLN = usuarioLN;
+        _usuarioLN =
+            usuarioLN;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> ObtenerUsuarios()
+    [HttpGet("clientes")]
+    public async Task<IActionResult>
+        ObtenerClientes()
     {
-        var usuarios = await _usuarioLN.ObtenerUsuarios();
-        return Ok(usuarios);
+        var clientes =
+            await _usuarioLN
+                .ObtenerClientes();
+
+        return Ok(clientes);
     }
 
-    [HttpGet("{idUsuario}")]
-    public async Task<IActionResult> ObtenerUsuarioPorId(int idUsuario)
+    [HttpGet(
+        "clientes/{idUsuario:int}"
+    )]
+    public async Task<IActionResult>
+        ObtenerClientePorId(
+            int idUsuario
+        )
     {
-        var usuario = await _usuarioLN.ObtenerUsuarioPorId(idUsuario);
+        var cliente =
+            await _usuarioLN
+                .ObtenerClientePorId(
+                    idUsuario
+                );
 
-        if (usuario == null)
-            return NotFound("Usuario no encontrado.");
+        if (cliente == null)
+        {
+            return NotFound(
+                new
+                {
+                    mensaje =
+                        "Cliente no encontrado."
+                }
+            );
+        }
 
-        return Ok(usuario);
+        return Ok(cliente);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> CrearUsuario([FromBody] UsuarioDTO usuarioDTO)
+    [HttpPut(
+        "clientes/{idUsuario:int}"
+    )]
+    public async Task<IActionResult>
+        ActualizarCliente(
+            int idUsuario,
+            [FromBody]
+            ActualizarUsuarioDTO
+                usuarioDTO
+        )
     {
-        var usuario = await _usuarioLN.CrearUsuario(usuarioDTO);
-        return Ok(usuario);
+        if (
+            string.IsNullOrWhiteSpace(
+                usuarioDTO.Nombre
+            ) ||
+            string.IsNullOrWhiteSpace(
+                usuarioDTO.Correo
+            )
+        )
+        {
+            return BadRequest(
+                new
+                {
+                    mensaje =
+                        "Nombre y correo son obligatorios."
+                }
+            );
+        }
+
+        try
+        {
+            var resultado =
+                await _usuarioLN
+                    .ActualizarCliente(
+                        idUsuario,
+                        usuarioDTO
+                    );
+
+            if (!resultado)
+            {
+                return NotFound(
+                    new
+                    {
+                        mensaje =
+                            "Cliente no encontrado."
+                    }
+                );
+            }
+
+            return Ok(
+                new
+                {
+                    mensaje =
+                        "Cliente actualizado correctamente."
+                }
+            );
+        }
+        catch (
+            InvalidOperationException error
+        )
+        {
+            return BadRequest(
+                new
+                {
+                    mensaje =
+                        error.Message
+                }
+            );
+        }
     }
 
-    [HttpPut("{idUsuario}")]
-    public async Task<IActionResult> ActualizarUsuario(int idUsuario, [FromBody] UsuarioDTO usuarioDTO)
+    [HttpPatch(
+        "clientes/{idUsuario:int}/estado"
+    )]
+    public async Task<IActionResult>
+        CambiarEstadoCliente(
+            int idUsuario,
+            [FromBody]
+            CambiarEstadoUsuarioDTO
+                estadoDTO
+        )
     {
-        var resultado = await _usuarioLN.ActualizarUsuario(idUsuario, usuarioDTO);
+        var resultado =
+            await _usuarioLN
+                .CambiarEstadoCliente(
+                    idUsuario,
+                    estadoDTO.Estado
+                );
 
         if (!resultado)
-            return NotFound("Usuario no encontrado.");
+        {
+            return NotFound(
+                new
+                {
+                    mensaje =
+                        "Cliente no encontrado."
+                }
+            );
+        }
 
-        return Ok("Usuario actualizado correctamente.");
+        return Ok(
+            new
+            {
+                mensaje =
+                    estadoDTO.Estado
+                        ? "Cliente activado correctamente."
+                        : "Cliente desactivado correctamente."
+            }
+        );
     }
-
-    [HttpDelete("{idUsuario}")]
-    public async Task<IActionResult> EliminarUsuario(int idUsuario)
-    {
-        var resultado = await _usuarioLN.EliminarUsuario(idUsuario);
-
-        if (!resultado)
-            return NotFound("Usuario no encontrado.");
-
-        return Ok("Usuario eliminado correctamente.");
-
-
-    }
-
-
 }

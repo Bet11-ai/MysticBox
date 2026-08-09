@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
 
 import { addIcons } from 'ionicons';
+
 import {
   barChartOutline,
   calendarOutline,
   chevronForwardOutline,
   cubeOutline,
+  gridOutline,
   logOutOutline,
   peopleOutline,
   personCircleOutline,
@@ -18,6 +20,7 @@ import {
   settingsOutline,
   shieldCheckmarkOutline,
   sparklesOutline,
+  statsChartOutline,
   storefrontOutline,
   timeOutline
 } from 'ionicons/icons';
@@ -27,13 +30,13 @@ import {
   UsuarioSesion
 } from '../../services/auth.service';
 
-interface ModuloAdministrativo {
+interface ModuloAdmin {
   titulo: string;
   descripcion: string;
   icono: string;
   tarea: string;
   ruta: string;
-  tema: string;
+  tema?: string;
 }
 
 @Component({
@@ -46,7 +49,8 @@ interface ModuloAdministrativo {
     IonicModule
   ]
 })
-export class AdminPage implements OnInit {
+export class AdminPage
+  implements OnInit, OnDestroy {
 
   usuario: UsuarioSesion | null = null;
 
@@ -54,9 +58,12 @@ export class AdminPage implements OnInit {
 
   horaActual = '';
 
-  private relojIntervalo?: ReturnType<typeof setInterval>;
+  private intervaloReloj:
+    ReturnType<typeof setInterval> |
+    null = null;
 
-  modulos: ModuloAdministrativo[] = [
+  modulos: ModuloAdmin[] = [
+
     {
       titulo: 'Administrar cajas',
       descripcion:
@@ -66,6 +73,7 @@ export class AdminPage implements OnInit {
       ruta: '/admin-cajas',
       tema: 'azul'
     },
+
     {
       titulo: 'Promociones y cupones',
       descripcion:
@@ -75,15 +83,17 @@ export class AdminPage implements OnInit {
       ruta: '/admin-promociones',
       tema: 'morado'
     },
+
     {
       titulo: 'Gestionar pedidos',
       descripcion:
-        'Consulta pedidos, revisa detalles y actualiza sus estados.',
+        'Consulta pedidos, detalles y actualiza sus estados.',
       icono: 'receipt-outline',
       tarea: 'MB-75',
       ruta: '/admin-pedidos',
       tema: 'turquesa'
     },
+
     {
       titulo: 'Gestionar clientes',
       descripcion:
@@ -93,6 +103,17 @@ export class AdminPage implements OnInit {
       ruta: '/admin-clientes',
       tema: 'naranja'
     },
+
+    {
+      titulo: 'Dashboard',
+      descripcion:
+        'Consulta ventas, clientes, pedidos y la actividad general de la tienda.',
+      icono: 'grid-outline',
+      tarea: 'MB-78',
+      ruta: '/admin-dashboard',
+      tema: 'dorado'
+    },
+
     {
       titulo: 'Reportes gráficos',
       descripcion:
@@ -102,26 +123,30 @@ export class AdminPage implements OnInit {
       ruta: '/admin-reportes',
       tema: 'verde'
     },
+
     {
       titulo: 'White List',
       descripcion:
         'Controla los usuarios autorizados durante las pruebas.',
       icono: 'shield-checkmark-outline',
       tarea: 'HU14',
-      ruta: '/admin-white-list',
+      ruta: '/admin-whitelist',
       tema: 'dorado'
     }
+
   ];
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {
+
     addIcons({
       barChartOutline,
       calendarOutline,
       chevronForwardOutline,
       cubeOutline,
+      gridOutline,
       logOutOutline,
       peopleOutline,
       personCircleOutline,
@@ -130,37 +155,56 @@ export class AdminPage implements OnInit {
       settingsOutline,
       shieldCheckmarkOutline,
       sparklesOutline,
+      statsChartOutline,
       storefrontOutline,
       timeOutline
     });
   }
 
   ngOnInit(): void {
-    this.cargarAdministrador();
+
+    this.verificarAdministrador();
+
     this.actualizarFechaHora();
 
-    this.relojIntervalo = setInterval(
-      () => this.actualizarFechaHora(),
-      60000
-    );
+    this.intervaloReloj =
+      setInterval(
+        () => {
+          this.actualizarFechaHora();
+        },
+        60000
+      );
   }
 
   ionViewWillEnter(): void {
-    this.cargarAdministrador();
+
+    this.verificarAdministrador();
+
     this.actualizarFechaHora();
   }
 
-  ionViewWillLeave(): void {
-    if (this.relojIntervalo) {
-      clearInterval(this.relojIntervalo);
+  ngOnDestroy(): void {
+
+    if (this.intervaloReloj) {
+
+      clearInterval(
+        this.intervaloReloj
+      );
+
+      this.intervaloReloj =
+        null;
     }
   }
 
-  private cargarAdministrador(): void {
+  private verificarAdministrador():
+    void {
+
     this.usuario =
-      this.authService.obtenerUsuario();
+      this.authService
+        .obtenerUsuario();
 
     if (!this.usuario) {
+
       this.router.navigate(
         ['/login'],
         {
@@ -171,18 +215,28 @@ export class AdminPage implements OnInit {
       return;
     }
 
-    if (Number(this.usuario.idRol) !== 1) {
+    if (
+      Number(
+        this.usuario.idRol
+      ) !== 1
+    ) {
+
       this.router.navigate(
         ['/home'],
         {
           replaceUrl: true
         }
       );
+
+      return;
     }
   }
 
-  private actualizarFechaHora(): void {
-    const ahora = new Date();
+  private actualizarFechaHora():
+    void {
+
+    const ahora =
+      new Date();
 
     this.fechaActual =
       ahora.toLocaleDateString(
@@ -205,15 +259,29 @@ export class AdminPage implements OnInit {
   }
 
   abrirModulo(
-    modulo: ModuloAdministrativo
+    modulo: ModuloAdmin
   ): void {
+
+    if (!modulo.ruta) {
+      return;
+    }
+
     this.router.navigate([
       modulo.ruta
     ]);
   }
 
+  irDashboard(): void {
+
+    this.router.navigate([
+      '/admin-dashboard'
+    ]);
+  }
+
   cerrarSesion(): void {
-    this.authService.cerrarSesion();
+
+    this.authService
+      .cerrarSesion();
 
     this.router.navigate(
       ['/login'],
