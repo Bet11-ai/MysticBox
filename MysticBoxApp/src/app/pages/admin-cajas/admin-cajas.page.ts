@@ -548,14 +548,19 @@ export class AdminCajasPage implements OnInit {
     );
   }
 
-  obtenerImagenCaja(
-    caja: Caja
-  ): string {
-    return (
-      caja.imagen?.trim() ||
-      'assets/img/logo.png'
-    );
+obtenerImagenCaja(caja: Caja): string {
+  const imagen = caja.imagen?.trim();
+
+  if (!imagen) {
+    return 'assets/img/logo.png';
   }
+
+  if (imagen.startsWith('assets/')) {
+    return imagen;
+  }
+
+  return `assets/img/${imagen}`;
+}
 
   manejarErrorImagen(
     evento: Event

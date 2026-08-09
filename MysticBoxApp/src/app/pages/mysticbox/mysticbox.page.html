@@ -1,128 +1,150 @@
 <ion-content [fullscreen]="true">
 
-  <div class="catalogo-page">
+  <!-- NAVEGACIÓN -->
+  <div class="catalogo-navegacion">
 
-    <!-- NAVEGACIÓN -->
-    <div class="catalogo-navegacion">
-
-      <button
-        type="button"
-        class="nav-btn nav-btn-categorias"
-        (click)="irACategorias()"
-      >
-        <span class="nav-flecha">←</span>
-        Volver a categorías
-      </button>
-
-      <button
-        type="button"
-        class="nav-btn nav-btn-inicio"
-        (click)="irAHome()"
-      >
-        Inicio
-      </button>
-
-    </div>
-
-    <!-- ENCABEZADO -->
-    <div class="catalogo-header">
-
-      <p class="catalogo-label">
-        MysticBox
-      </p>
-
-      <h1>
-        Catálogo de cajas
-      </h1>
-
-      <p>
-        Explora nuestras cajas sorpresa y elige la que más se adapte a tus gustos.
-      </p>
-
-    </div>
-
-    <!-- CARGANDO -->
-    <div
-      class="estado-carga"
-      *ngIf="cargando"
+    <button
+      type="button"
+      class="nav-btn nav-btn-categorias"
+      (click)="irACategorias()"
     >
-      Cargando cajas...
-    </div>
+      <span class="nav-flecha">←</span>
+      Volver a categorías
+    </button>
 
-    <!-- ERROR -->
-    <div
-      class="estado-carga error"
-      *ngIf="!cargando && mensajeError"
+    <button
+      type="button"
+      class="nav-btn nav-btn-inicio"
+      (click)="irAHome()"
     >
-      {{ mensajeError }}
-    </div>
+      Inicio
+    </button>
 
-    <!-- SIN CAJAS -->
-    <div
-      class="estado-carga"
-      *ngIf="!cargando && !mensajeError && cajas.length === 0"
+  </div>
+
+  <!-- ENCABEZADO -->
+  <div class="catalogo-header">
+
+    <p class="catalogo-label">
+      MysticBox
+    </p>
+
+    <h1>
+      Catálogo de cajas
+    </h1>
+
+    <p>
+      Explora nuestras cajas sorpresa y elige la que más se adapte a tus gustos.
+    </p>
+
+  </div>
+
+  <!-- CARGANDO -->
+  <div
+    class="estado-carga"
+    *ngIf="cargando"
+  >
+    Cargando cajas...
+  </div>
+
+  <!-- ERROR -->
+  <div
+    class="estado-carga error"
+    *ngIf="!cargando && mensajeError"
+  >
+    {{ mensajeError }}
+  </div>
+
+  <!-- SIN CAJAS -->
+  <div
+    class="estado-carga"
+    *ngIf="
+      !cargando &&
+      !mensajeError &&
+      cajas.length === 0
+    "
+  >
+    No hay cajas disponibles.
+  </div>
+
+  <!-- CATÁLOGO -->
+  <div
+    class="catalogo-grid"
+    *ngIf="
+      !cargando &&
+      !mensajeError &&
+      cajas.length > 0
+    "
+  >
+
+    <article
+      class="mysticbox-card"
+      *ngFor="let caja of cajas"
     >
-      No hay cajas disponibles.
-    </div>
 
-    <!-- CATÁLOGO -->
-    <div
-      class="catalogo-grid"
-      *ngIf="!cargando && !mensajeError && cajas.length > 0"
-    >
+      <!-- IMAGEN DE LA CAJA -->
+      <div class="mysticbox-imagen">
 
-      <article
-        class="mysticbox-card"
-        *ngFor="let caja of cajas"
-      >
+        <img
+          [src]="obtenerImagen(caja.imagen)"
+          [alt]="caja.nombreCaja"
+        >
 
-        <!-- IMAGEN DE LA CAJA -->
-        <div class="mysticbox-imagen">
+      </div>
 
-          <img
-            [src]="obtenerImagen(caja.imagen)"
-            [alt]="caja.nombreCaja"
-          >
+      <!-- INFORMACIÓN DE LA CAJA -->
+      <div class="mysticbox-info">
+
+        <h2>
+          {{ caja.nombreCaja }}
+        </h2>
+
+        <p class="mysticbox-description">
+          {{ caja.descripcion }}
+        </p>
+
+        <!-- AVISO DE IMAGEN -->
+        <div class="imagen-aviso">
+
+          <span class="aviso-icon">
+            <ion-icon
+              name="information-circle-outline"
+            ></ion-icon>
+          </span>
+
+          <span class="aviso-texto">
+            Las imágenes son ilustrativas. Al tratarse de cajas sorpresa, los productos, diseños, colores y presentación varian según disponibilidad.
+
+
+          </span>
 
         </div>
 
-        <!-- INFORMACIÓN DE LA CAJA -->
-        <div class="mysticbox-info">
+        <!-- DATOS DE LA CAJA -->
+        <div class="mysticbox-datos">
 
-          <h2>
-            {{ caja.nombreCaja }}
-          </h2>
+          <span class="precio">
+            ₡{{ caja.precio | number:'1.0-0' }}
+          </span>
 
-          <p>
-            {{ caja.descripcion }}
-          </p>
-
-          <div class="mysticbox-datos">
-
-            <span class="precio">
-              ₡{{ caja.precio | number:'1.0-0' }}
-            </span>
-
-            <span class="stock">
-              Stock: {{ caja.stock }}
-            </span>
-
-          </div>
-
-          <!-- BOTÓN PARA PERSONALIZAR LA CAJA -->
-          <button
-            type="button"
-            class="seleccionar-btn"
-            (click)="personalizarCaja(caja)"
-          >
-            Personalizar caja
-          </button>
+          <span class="stock">
+            Stock: {{ caja.stock }}
+          </span>
 
         </div>
 
-      </article>
+        <!-- BOTÓN PARA PERSONALIZAR -->
+        <button
+          type="button"
+          class="seleccionar-btn"
+          (click)="personalizarCaja(caja)"
+        >
+          Personalizar caja
+        </button>
 
-    </div>
+      </div>
+
+    </article>
 
   </div>
 

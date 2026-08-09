@@ -1,91 +1,321 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Personalizar Mystic Box</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true">
 
-<ion-content>
   <div class="personalizacion-page">
 
-    <section class="encabezado">
-      <span class="marca">MysticBox</span>
+    
 
-      <h1>Personaliza tu caja</h1>
+    <div class="botones-superiores">
+
+    <ion-button
+  type="button"
+  fill="outline"
+  class="boton-secundario"
+  (click)="volverAlCatalogo()"
+>
+  Volver al catálogo
+</ion-button>
+
+      <ion-button
+        type="button"
+        fill="outline"
+        class="boton-superior"
+        (click)="irAHome()"
+      >
+        ← Inicio
+      </ion-button>
+
+    </div>
+
+
+    
+    <header class="encabezado">
+
+      <span class="marca">
+        MYSTICBOX
+      </span>
+
+      <h1>
+        Personaliza tu caja
+      </h1>
 
       <p>
-        Cuéntanos tus gustos, los productos que no deseas recibir
-        y agrega un mensaje especial.
+        Elige tus preferencias y haz que tu MysticBox
+        sea aún más especial.
       </p>
-    </section>
+
+    </header>
+
+
+    
 
     <section class="resumen-caja">
-      <span>Caja seleccionada</span>
 
-      <h2>{{ nombreCaja }}</h2>
+      <div class="resumen-icono">
+        ✦
+      </div>
 
-      <p>{{ nombreCategoria }}</p>
+      <div class="resumen-contenido">
 
-      <strong>Nivel: {{ tamanoCaja }}</strong>
+        <span class="resumen-label">
+          CAJA SELECCIONADA
+        </span>
+
+        <h2>
+          {{ nombreCaja }}
+        </h2>
+
+        <p>
+          {{ nombreCategoria }}
+        </p>
+
+        <div class="nivel-caja">
+
+          <span>
+            Nivel
+          </span>
+
+          <strong>
+            {{ tamanoCaja }}
+          </strong>
+
+        </div>
+
+      </div>
+
     </section>
+
+
+
+
+    <section class="imagen-caja">
+
+      <div class="imagen-contenedor">
+
+        <img
+          [src]="imagenCaja"
+          [alt]="nombreCaja"
+        >
+
+      </div>
+
+      <div class="imagen-aviso">
+
+        <span class="aviso-icon">
+          !
+        </span>
+
+        <p>
+          Imagen ilustrativa. Al tratarse de cajas sorpresa, los productos, diseños, colores y presentación varian según disponibilidad.
+        </p>
+
+      </div>
+
+    </section>
+
+
+   
 
     <form
       class="formulario"
       (ngSubmit)="guardarPersonalizacion()"
     >
 
-      <div class="campo">
-        <ion-item lines="none">
-          <ion-textarea
-            label="Preferencias"
-            labelPlacement="stacked"
-            placeholder="Ejemplo: accesorios LED, colores azules o productos para computadora"
-            [(ngModel)]="preferencias"
-            name="preferencias"
-            [autoGrow]="true"
-            maxlength="500"
+      
+
+      <section class="seccion-productos">
+
+        <div class="seccion-titulo">
+
+          <span class="numero-seccion">
+            01
+          </span>
+
+          <div>
+
+            <h2>
+              ¿Qué te gustaría recibir?
+            </h2>
+
+            <p>
+              Selecciona los productos que más te interesan.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="productos-grid">
+
+          <button
+            type="button"
+            class="producto-btn"
+            *ngFor="let producto of productosCaja"
+            [class.seleccionado]="
+              estaSeleccionado(
+                producto,
+                preferenciasSeleccionadas
+              )
+            "
+            (click)="
+              alternarProducto(
+                producto,
+                preferenciasSeleccionadas
+              )
+            "
           >
-          </ion-textarea>
-        </ion-item>
 
-        <small>
-          Indica qué estilos, colores o productos te gustan.
-        </small>
-      </div>
+            <span class="producto-check">
 
-      <div class="campo">
-        <ion-item lines="none">
-          <ion-textarea
-            label="Productos que no deseas recibir"
-            labelPlacement="stacked"
-            placeholder="Ejemplo: no incluir micrófonos ni audífonos"
-            [(ngModel)]="exclusiones"
-            name="exclusiones"
-            [autoGrow]="true"
-            maxlength="500"
+              <span
+                *ngIf="
+                  estaSeleccionado(
+                    producto,
+                    preferenciasSeleccionadas
+                  )
+                "
+              >
+                ✓
+              </span>
+
+            </span>
+
+            <span class="producto-nombre">
+              {{ producto }}
+            </span>
+
+          </button>
+
+        </div>
+
+      </section>
+
+
+      
+
+      <section class="seccion-productos exclusiones">
+
+        <div class="seccion-titulo">
+
+          <span class="numero-seccion">
+            02
+          </span>
+
+          <div>
+
+            <h2>
+              ¿Qué prefieres no recibir?
+            </h2>
+
+            <p>
+              Selecciona los productos que deseas excluir.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="productos-grid">
+
+          <button
+            type="button"
+            class="producto-btn"
+            *ngFor="let producto of productosCaja"
+            [class.seleccionado-exclusion]="
+              estaSeleccionado(
+                producto,
+                exclusionesSeleccionadas
+              )
+            "
+            (click)="
+              alternarProducto(
+                producto,
+                exclusionesSeleccionadas
+              )
+            "
           >
-          </ion-textarea>
-        </ion-item>
 
-        <small>
-          Escribe los productos que deben quedar fuera de tu caja.
-        </small>
-      </div>
+            <span class="producto-check">
 
-      <div class="campo">
-        <ion-item lines="none">
+              <span
+                *ngIf="
+                  estaSeleccionado(
+                    producto,
+                    exclusionesSeleccionadas
+                  )
+                "
+              >
+                ✓
+              </span>
+
+            </span>
+
+            <span class="producto-nombre">
+              {{ producto }}
+            </span>
+
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- MENSAJE -->
+
+      <section class="mensaje-seccion">
+
+        <div class="seccion-titulo">
+
+          <span class="numero-seccion">
+            03
+          </span>
+
+          <div>
+
+            <h2>
+              Agrega un mensaje especial
+            </h2>
+
+            <p>
+              Escribe una frase que quieras encontrar
+              dentro de tu caja.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <ion-item
+          lines="none"
+          class="mensaje-item"
+        >
+
           <ion-textarea
             label="Mensaje personalizado"
             labelPlacement="stacked"
-            placeholder="Ejemplo: Que disfrutes tu experiencia gamer"
+            placeholder="Ejemplo: ¡Disfruta tu caja! ✨"
             [(ngModel)]="mensajePersonalizado"
             name="mensajePersonalizado"
             [autoGrow]="true"
             maxlength="250"
           >
           </ion-textarea>
-        </ion-item>
-      </div>
 
+        </ion-item>
+
+
+        <small class="mensaje-ayuda">
+          Puedes escribir una dedicatoria, frase o mensaje
+          especial para tu MysticBox.
+        </small>
+
+      </section>
+
+
+      
       <p
         class="mensaje-error"
         *ngIf="mensajeError"
@@ -93,15 +323,10 @@
         {{ mensajeError }}
       </p>
 
+
+      
+
       <div class="acciones">
-        <ion-button
-          type="button"
-          fill="outline"
-          class="boton-secundario"
-          (click)="volverAlCatalogo()"
-        >
-          Volver al catálogo
-        </ion-button>
 
         <ion-button
           type="submit"
@@ -110,8 +335,11 @@
         >
           Guardar personalización
         </ion-button>
+
       </div>
 
     </form>
+
   </div>
+
 </ion-content>
