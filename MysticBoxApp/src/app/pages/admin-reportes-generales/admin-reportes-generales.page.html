@@ -1,0 +1,591 @@
+<ion-content class="reportes-generales-content">
+
+  <main class="reportes-generales-shell">
+
+    <header class="page-header">
+
+      <div class="header-left">
+
+        <button
+          type="button"
+          class="back-button"
+          (click)="volverAlPanel()">
+
+          <ion-icon
+            name="arrow-back-outline">
+          </ion-icon>
+
+        </button>
+
+        <div>
+
+          <span class="task-label">
+            MB-82
+          </span>
+
+          <h1>
+            Reporte administrativo
+          </h1>
+
+          <p>
+            Consulta un resumen consolidado
+            de ventas, pedidos y satisfacción.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="header-actions">
+
+        <div class="year-selector">
+
+          <ion-icon
+            name="calendar-outline">
+          </ion-icon>
+
+          <select
+            [(ngModel)]="anioSeleccionado"
+            (change)="cambiarAnio()">
+
+            <option
+              *ngFor="
+                let anio of
+                  aniosDisponibles
+              "
+              [ngValue]="anio">
+
+              {{ anio }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="refresh-button"
+          [disabled]="cargando"
+          (click)="cargarReporte()">
+
+          <ion-icon
+            name="refresh-outline">
+          </ion-icon>
+
+          Actualizar
+
+        </button>
+
+
+        <button
+          type="button"
+          class="print-button"
+          [disabled]="cargando"
+          (click)="imprimirReporte()">
+
+          <ion-icon
+            name="print-outline">
+          </ion-icon>
+
+          Imprimir
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <section
+      *ngIf="cargando"
+      class="loading-state">
+
+      <ion-spinner
+        name="crescent">
+      </ion-spinner>
+
+      <span>
+        Generando reporte...
+      </span>
+
+    </section>
+
+
+    <section
+      *ngIf="
+        !cargando &&
+        mensajeError
+      "
+      class="error-state">
+
+      <ion-icon
+        name="alert-circle-outline">
+      </ion-icon>
+
+      <div>
+
+        <strong>
+          No fue posible generar el reporte.
+        </strong>
+
+        <span>
+          {{ mensajeError }}
+        </span>
+
+      </div>
+
+      <button
+        type="button"
+        (click)="cargarReporte()">
+
+        Reintentar
+
+      </button>
+
+    </section>
+
+
+    <ng-container
+      *ngIf="
+        !cargando &&
+        estadisticas
+      ">
+
+      <section class="report-heading">
+
+        <div>
+
+          <span>
+            REPORTE {{ estadisticas.anio }}
+          </span>
+
+          <h2>
+            Resumen general de Mystic Box
+          </h2>
+
+          <p>
+            Información administrativa consolidada
+            del periodo seleccionado.
+          </p>
+
+        </div>
+
+        <ion-icon
+          name="document-text-outline">
+        </ion-icon>
+
+      </section>
+
+
+      <section class="summary-grid">
+
+        <article class="summary-card ventas">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="cash-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Ventas totales
+            </span>
+
+            <strong>
+              {{
+                formatearMoneda(
+                  estadisticas
+                    .ventasTotales
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card pedidos">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="receipt-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Total pedidos
+            </span>
+
+            <strong>
+              {{
+                estadisticas
+                  .totalPedidos
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card promedio">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="trending-up-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Promedio por pedido
+            </span>
+
+            <strong>
+              {{
+                formatearMoneda(
+                  estadisticas
+                    .promedioVenta
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card clientes">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="people-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Clientes compradores
+            </span>
+
+            <strong>
+              {{
+                estadisticas
+                  .totalClientesConPedidos
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card descuentos">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="ticket-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Descuentos aplicados
+            </span>
+
+            <strong>
+              {{
+                formatearMoneda(
+                  estadisticas
+                    .descuentosAplicados
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card satisfaccion">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="star-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Satisfacción promedio
+            </span>
+
+            <strong>
+              {{
+                promedioSatisfaccion
+                  | number:'1.1-1'
+              }}
+            </strong>
+
+            <small>
+              de 5 estrellas
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <section class="detail-grid">
+
+        <article class="report-card">
+
+          <header class="section-title">
+
+            <div>
+
+              <span>
+                PEDIDOS
+              </span>
+
+              <h2>
+                Distribución por estado
+              </h2>
+
+            </div>
+
+          </header>
+
+
+          <div class="states-list">
+
+            <div
+              *ngFor="
+                let estado of
+                  estadisticas
+                    .pedidosPorEstado
+              "
+              class="state-row">
+
+              <div>
+
+                <strong>
+                  {{ estado.estado }}
+                </strong>
+
+                <span>
+                  {{
+                    estado.porcentaje
+                      | number:'1.0-1'
+                  }}%
+                </span>
+
+              </div>
+
+              <strong>
+                {{ estado.cantidad }}
+              </strong>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <article class="report-card">
+
+          <header class="section-title">
+
+            <div>
+
+              <span>
+                DESTACADO
+              </span>
+
+              <h2>
+                Mejor mes
+              </h2>
+
+            </div>
+
+          </header>
+
+
+          <div class="best-month">
+
+            <ion-icon
+              name="stats-chart-outline">
+            </ion-icon>
+
+            <div>
+
+              <strong>
+                {{
+                  estadisticas
+                    .mesMayorVenta ||
+                  'Sin información'
+                }}
+              </strong>
+
+              <span>
+                Mayor venta mensual
+              </span>
+
+            </div>
+
+            <strong>
+              {{
+                formatearMoneda(
+                  estadisticas
+                    .mayorVentaMensual
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <section class="orders-section">
+
+        <header class="section-title">
+
+          <div>
+
+            <span>
+              DETALLE
+            </span>
+
+            <h2>
+              Pedidos del periodo
+            </h2>
+
+          </div>
+
+          <strong>
+            {{ pedidosFiltrados.length }}
+            registrados
+          </strong>
+
+        </header>
+
+
+        <div
+          class="orders-table"
+          *ngIf="
+            pedidosFiltrados.length > 0
+          ">
+
+          <div class="table-head">
+
+            <span>Pedido</span>
+            <span>Fecha</span>
+            <span>Estado</span>
+            <span>Subtotal</span>
+            <span>Descuento</span>
+            <span>Total</span>
+
+          </div>
+
+
+          <div
+            class="table-row"
+            *ngFor="
+              let pedido of
+                pedidosFiltrados;
+              trackBy: trackPedido
+            ">
+
+            <strong>
+              {{ pedido.numeroPedido }}
+            </strong>
+
+            <span>
+              {{
+                formatearFecha(
+                  pedido.fechaPedido
+                )
+              }}
+            </span>
+
+            <span>
+              {{ pedido.estadoPedido }}
+            </span>
+
+            <span>
+              {{
+                formatearMoneda(
+                  pedido.subtotal
+                )
+              }}
+            </span>
+
+            <span>
+              {{
+                formatearMoneda(
+                  pedido.descuento
+                )
+              }}
+            </span>
+
+            <strong class="total-value">
+              {{
+                formatearMoneda(
+                  pedido.total
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="empty-state"
+          *ngIf="
+            pedidosFiltrados.length === 0
+          ">
+
+          No existen pedidos
+          en el periodo seleccionado.
+
+        </div>
+
+      </section>
+
+    </ng-container>
+
+  </main>
+
+</ion-content>

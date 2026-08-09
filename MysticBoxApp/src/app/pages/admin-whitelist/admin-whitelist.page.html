@@ -1,13 +1,651 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>admin-whitelist</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="whitelist-content">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">admin-whitelist</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <main class="whitelist-shell">
+
+    <!-- ENCABEZADO -->
+
+    <header class="page-header">
+
+      <div class="header-left">
+
+        <button
+          type="button"
+          class="back-button"
+          (click)="volverAlPanel()">
+
+          <ion-icon
+            name="arrow-back-outline">
+          </ion-icon>
+
+        </button>
+
+        <div>
+
+          <span class="task-label">
+            MB-84
+          </span>
+
+          <h1>
+            White List
+          </h1>
+
+          <p>
+            Administra los correos autorizados
+            para acceder durante las pruebas.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="header-actions">
+
+        <button
+          type="button"
+          class="refresh-button"
+          [disabled]="cargando"
+          (click)="cargarRegistros()">
+
+          <ion-icon
+            name="refresh-outline">
+          </ion-icon>
+
+          Actualizar
+
+        </button>
+
+
+        <button
+          type="button"
+          class="add-button"
+          (click)="abrirNuevo()">
+
+          <ion-icon
+            name="add-outline">
+          </ion-icon>
+
+          Autorizar correo
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- RESUMEN -->
+
+    <section class="summary-grid">
+
+      <article class="summary-card total">
+
+        <div class="summary-icon">
+
+          <ion-icon
+            name="shield-checkmark-outline">
+          </ion-icon>
+
+        </div>
+
+        <div>
+
+          <span>
+            Correos registrados
+          </span>
+
+          <strong>
+            {{ registros.length }}
+          </strong>
+
+          <small>
+            Total en White List
+          </small>
+
+        </div>
+
+      </article>
+
+
+      <article class="summary-card active">
+
+        <div class="summary-icon">
+
+          <ion-icon
+            name="checkmark-circle-outline">
+          </ion-icon>
+
+        </div>
+
+        <div>
+
+          <span>
+            Autorizados
+          </span>
+
+          <strong>
+            {{ obtenerTotalActivos() }}
+          </strong>
+
+          <small>
+            Correos activos
+          </small>
+
+        </div>
+
+      </article>
+
+
+      <article class="summary-card inactive">
+
+        <div class="summary-icon">
+
+          <ion-icon
+            name="close-circle-outline">
+          </ion-icon>
+
+        </div>
+
+        <div>
+
+          <span>
+            Inactivos
+          </span>
+
+          <strong>
+            {{ obtenerTotalInactivos() }}
+          </strong>
+
+          <small>
+            Acceso desactivado
+          </small>
+
+        </div>
+
+      </article>
+
+    </section>
+
+
+    <!-- MENSAJES -->
+
+    <section
+      class="message success-message"
+      *ngIf="mensajeExito">
+
+      <ion-icon
+        name="checkmark-circle-outline">
+      </ion-icon>
+
+      <span>
+        {{ mensajeExito }}
+      </span>
+
+    </section>
+
+
+    <section
+      class="message error-message"
+      *ngIf="mensajeError">
+
+      <ion-icon
+        name="alert-circle-outline">
+      </ion-icon>
+
+      <span>
+        {{ mensajeError }}
+      </span>
+
+    </section>
+
+
+    <!-- BUSCADOR / FILTROS -->
+
+    <section class="filters-card">
+
+      <div class="search-box">
+
+        <ion-icon
+          name="search-outline">
+        </ion-icon>
+
+        <input
+          type="text"
+          [(ngModel)]="textoBusqueda"
+          (input)="aplicarFiltros()"
+          placeholder="Buscar por correo electrónico..." />
+
+      </div>
+
+
+      <div class="filter-buttons">
+
+        <button
+          type="button"
+          [class.active]="
+            filtroEstado === 'todos'
+          "
+          (click)="cambiarFiltro('todos')">
+
+          Todos
+
+        </button>
+
+
+        <button
+          type="button"
+          [class.active]="
+            filtroEstado === 'activos'
+          "
+          (click)="cambiarFiltro('activos')">
+
+          Activos
+
+        </button>
+
+
+        <button
+          type="button"
+          [class.active]="
+            filtroEstado === 'inactivos'
+          "
+          (click)="cambiarFiltro('inactivos')">
+
+          Inactivos
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- CARGANDO -->
+
+    <section
+      class="state-card"
+      *ngIf="cargando">
+
+      <ion-spinner
+        name="crescent">
+      </ion-spinner>
+
+      <strong>
+        Consultando White List...
+      </strong>
+
+      <span>
+        Cargando correos autorizados.
+      </span>
+
+    </section>
+
+
+    <!-- SIN RESULTADOS -->
+
+    <section
+      class="state-card"
+      *ngIf="
+        !cargando &&
+        registrosFiltrados.length === 0
+      ">
+
+      <div class="empty-icon">
+
+        <ion-icon
+          name="mail-outline">
+        </ion-icon>
+
+      </div>
+
+      <strong>
+        No hay registros para mostrar
+      </strong>
+
+      <span>
+        Puedes cambiar los filtros
+        o agregar un nuevo correo.
+      </span>
+
+    </section>
+
+
+    <!-- LISTADO -->
+
+    <section
+      class="records-grid"
+      *ngIf="
+        !cargando &&
+        registrosFiltrados.length > 0
+      ">
+
+      <article
+        class="record-card"
+        *ngFor="
+          let registro of registrosFiltrados;
+          trackBy: trackRegistro
+        "
+        [class.record-inactive]="
+          !registro.activo
+        ">
+
+        <header class="record-header">
+
+          <div class="record-main">
+
+            <div
+              class="record-icon"
+              [class.active-icon]="
+                registro.activo
+              ">
+
+              <ion-icon
+                name="mail-outline">
+              </ion-icon>
+
+            </div>
+
+            <div>
+
+              <span>
+                Correo autorizado
+              </span>
+
+              <h2>
+                {{ registro.correo }}
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <span
+            class="status-badge"
+            [class.status-active]="
+              registro.activo
+            "
+            [class.status-inactive]="
+              !registro.activo
+            ">
+
+            <ion-icon
+              [name]="
+                registro.activo
+                  ? 'checkmark-circle-outline'
+                  : 'close-circle-outline'
+              ">
+            </ion-icon>
+
+            {{
+              registro.activo
+                ? 'Activo'
+                : 'Inactivo'
+            }}
+
+          </span>
+
+        </header>
+
+
+        <section class="record-info">
+
+          <div>
+
+            <span>
+              ID
+            </span>
+
+            <strong>
+              #{{ registro.idWhiteList }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Fecha de registro
+            </span>
+
+            <strong>
+              {{
+                formatearFecha(
+                  registro.fechaRegistro
+                )
+              }}
+            </strong>
+
+          </div>
+
+
+          <div>
+
+            <span>
+              Estado
+            </span>
+
+            <strong
+              [class.text-active]="
+                registro.activo
+              "
+              [class.text-inactive]="
+                !registro.activo
+              ">
+
+              {{
+                registro.activo
+                  ? 'Autorizado'
+                  : 'Sin acceso'
+              }}
+
+            </strong>
+
+          </div>
+
+        </section>
+
+
+        <footer class="record-actions">
+
+          <button
+            type="button"
+            class="edit-button"
+            (click)="editar(registro)">
+
+            <ion-icon
+              name="create-outline">
+            </ion-icon>
+
+            Editar
+
+          </button>
+
+
+          <button
+            type="button"
+            class="state-button"
+            [class.activate-button]="
+              !registro.activo
+            "
+            (click)="cambiarEstado(registro)">
+
+            <ion-icon
+              [name]="
+                registro.activo
+                  ? 'close-circle-outline'
+                  : 'checkmark-circle-outline'
+              ">
+            </ion-icon>
+
+            {{
+              registro.activo
+                ? 'Desactivar'
+                : 'Activar'
+            }}
+
+          </button>
+
+
+          <button
+            type="button"
+            class="delete-button"
+            (click)="eliminar(registro)">
+
+            <ion-icon
+              name="trash-outline">
+            </ion-icon>
+
+            Eliminar
+
+          </button>
+
+        </footer>
+
+      </article>
+
+    </section>
+
+
+    <!-- MODAL / FORMULARIO -->
+
+    <div
+      class="modal-backdrop"
+      *ngIf="mostrarFormulario"
+      (click)="cancelarFormulario()">
+
+      <section
+        class="form-modal"
+        (click)="$event.stopPropagation()">
+
+        <header class="form-header">
+
+          <div>
+
+            <span>
+              {{
+                modoEdicion
+                  ? 'EDITAR AUTORIZACIÓN'
+                  : 'NUEVA AUTORIZACIÓN'
+              }}
+            </span>
+
+            <h2>
+
+              {{
+                modoEdicion
+                  ? 'Modificar White List'
+                  : 'Autorizar correo'
+              }}
+
+            </h2>
+
+          </div>
+
+
+          <button
+            type="button"
+            class="close-button"
+            (click)="cancelarFormulario()">
+
+            <ion-icon
+              name="close-circle-outline">
+            </ion-icon>
+
+          </button>
+
+        </header>
+
+
+        <div class="form-body">
+
+          <label>
+
+            <span>
+              Correo electrónico
+            </span>
+
+            <div class="input-box">
+
+              <ion-icon
+                name="mail-outline">
+              </ion-icon>
+
+              <input
+                type="email"
+                [(ngModel)]="correoFormulario"
+                placeholder="ejemplo@mysticbox.com" />
+
+            </div>
+
+          </label>
+
+
+          <label class="toggle-row">
+
+            <div>
+
+              <span>
+                Estado de autorización
+              </span>
+
+              <small>
+                Define si el correo puede acceder.
+              </small>
+
+            </div>
+
+            <input
+              type="checkbox"
+              [(ngModel)]="activoFormulario" />
+
+          </label>
+
+        </div>
+
+
+        <footer class="form-actions">
+
+          <button
+            type="button"
+            class="cancel-button"
+            [disabled]="guardando"
+            (click)="cancelarFormulario()">
+
+            Cancelar
+
+          </button>
+
+
+          <button
+            type="button"
+            class="save-button"
+            [disabled]="guardando"
+            (click)="guardar()">
+
+            <ion-icon
+              name="shield-checkmark-outline">
+            </ion-icon>
+
+            {{
+              guardando
+                ? 'Guardando...'
+                : (
+                    modoEdicion
+                      ? 'Guardar cambios'
+                      : 'Autorizar correo'
+                  )
+            }}
+
+          </button>
+
+        </footer>
+
+      </section>
+
+    </div>
+
+  </main>
+
 </ion-content>

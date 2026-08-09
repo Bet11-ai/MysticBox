@@ -1,39 +1,160 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Mis pedidos</ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content class="pedidos-content">
 
-  <main class="pedidos-container">
+  <main class="pedidos-shell">
 
-    <section class="encabezado-pagina">
+    <!-- VOLVER -->
 
-      <span class="etiqueta">MysticBox</span>
+    <button
+      type="button"
+      class="back-button"
+      (click)="volverAlInicio()">
 
-      <h1>Historial de compras</h1>
+      <ion-icon
+        name="arrow-back-outline">
+      </ion-icon>
+
+      Volver al inicio
+
+    </button>
+
+
+    <!-- ENCABEZADO -->
+
+    <section class="page-heading">
+
+      <div>
+
+        <span class="eyebrow">
+          MIS COMPRAS
+        </span>
+
+        <h1>
+          Historial de pedidos
+        </h1>
+
+        <p>
+          Consulta el estado de tus compras,
+          revisa los montos y vuelve a abrir
+          tus facturas cuando lo necesites.
+        </p>
+
+      </div>
+
+
+      <div class="heading-icon">
+
+        <ion-icon
+          name="receipt-outline">
+        </ion-icon>
+
+      </div>
+
+    </section>
+
+
+    <!-- RESUMEN -->
+
+    <section
+      class="summary-strip"
+      *ngIf="
+        !cargando &&
+        !mensajeError &&
+        pedidos.length > 0
+      ">
+
+      <div class="summary-icon">
+
+        <ion-icon
+          name="bag-handle-outline">
+        </ion-icon>
+
+      </div>
+
+      <div>
+
+        <strong>
+          {{ pedidos.length }}
+        </strong>
+
+        <span>
+          pedido{{
+            pedidos.length === 1
+              ? ''
+              : 's'
+          }}
+          registrado{{
+            pedidos.length === 1
+              ? ''
+              : 's'
+          }}
+        </span>
+
+      </div>
 
       <p>
-        Consulta tus pedidos realizados y vuelve a abrir
-        sus facturas.
+        Tus compras más recientes
+        aparecen primero.
       </p>
 
     </section>
 
-    <section
-      *ngIf="cargando"
-      class="mensaje-estado"
-    >
-      <p>Cargando tus pedidos...</p>
-    </section>
+
+    <!-- CARGANDO -->
 
     <section
-      *ngIf="!cargando && mensajeError"
-      class="mensaje-estado mensaje-error"
-    >
-      <p>{{ mensajeError }}</p>
+      *ngIf="cargando"
+      class="state-card">
+
+      <ion-spinner
+        name="crescent">
+      </ion-spinner>
+
+      <strong>
+        Cargando tus pedidos...
+      </strong>
+
+      <span>
+        Estamos consultando
+        tu historial de compras.
+      </span>
+
     </section>
+
+
+    <!-- ERROR -->
+
+    <section
+      *ngIf="
+        !cargando &&
+        mensajeError
+      "
+      class="state-card error-card">
+
+      <ion-icon
+        name="receipt-outline">
+      </ion-icon>
+
+      <strong>
+        No fue posible cargar
+        tus pedidos
+      </strong>
+
+      <span>
+        {{ mensajeError }}
+      </span>
+
+      <button
+        type="button"
+        (click)="cargarPedidos()">
+
+        Intentar nuevamente
+
+      </button>
+
+    </section>
+
+
+    <!-- VACÍO -->
 
     <section
       *ngIf="
@@ -41,121 +162,289 @@
         !mensajeError &&
         pedidos.length === 0
       "
-      class="mensaje-estado"
-    >
-      <h2>No tienes pedidos todavía</h2>
+      class="state-card">
 
-      <p>
-        Cuando completes una compra aparecerá en esta sección.
-      </p>
+      <div class="empty-icon">
+
+        <ion-icon
+          name="bag-handle-outline">
+        </ion-icon>
+
+      </div>
+
+      <strong>
+        Aún no tienes pedidos
+      </strong>
+
+      <span>
+        Cuando completes una compra,
+        aparecerá automáticamente
+        en esta sección.
+      </span>
 
       <button
         type="button"
-        class="boton-secundario"
-        (click)="volverAlInicio()"
-      >
-        Volver al inicio
+        (click)="volverAlInicio()">
+
+        Explorar Mystic Box
+
       </button>
+
     </section>
 
+
+    <!-- LISTA -->
+
     <section
-      *ngIf="!cargando && pedidos.length > 0"
-      class="lista-pedidos"
-    >
+      *ngIf="
+        !cargando &&
+        !mensajeError &&
+        pedidos.length > 0
+      "
+      class="orders-list">
 
       <article
-        *ngFor="let pedido of pedidos"
-        class="pedido-card"
-      >
+        *ngFor="
+          let pedido of pedidos;
+          trackBy: trackPedido
+        "
+        class="order-card">
 
-        <div class="pedido-encabezado">
+        <!-- ENCABEZADO PEDIDO -->
 
-          <div>
+        <header class="order-header">
 
-            <span class="pedido-label">
-              Pedido
-            </span>
+          <div class="order-title">
 
-            <h2>
-              {{ pedido.numeroPedido }}
-            </h2>
+            <div class="order-icon">
+
+              <ion-icon
+                name="bag-handle-outline">
+              </ion-icon>
+
+            </div>
+
+            <div>
+
+              <span>
+                Número de pedido
+              </span>
+
+              <h2>
+                {{ pedido.numeroPedido }}
+              </h2>
+
+            </div>
 
           </div>
 
-          <span class="estado-pedido">
-            {{ pedido.estadoPedido || 'Pendiente' }}
+
+          <span
+            class="status-pill"
+            [ngClass]="
+              obtenerClaseEstado(
+                pedido.estadoPedido
+              )
+            ">
+
+            <ion-icon
+              [name]="
+                obtenerIconoEstado(
+                  pedido.estadoPedido
+                )
+              ">
+            </ion-icon>
+
+            {{
+              pedido.estadoPedido ||
+              'Pendiente'
+            }}
+
           </span>
 
-        </div>
+        </header>
 
-        <div class="pedido-informacion">
 
-          <div class="dato-pedido">
+        <!-- INFORMACIÓN -->
 
-            <span>Fecha</span>
+        <section class="order-information">
 
-            <strong>
-              {{
-                pedido.fechaPedido
-                  | date:'dd/MM/yyyy, h:mm a'
-              }}
-            </strong>
+          <article class="information-box">
 
-          </div>
+            <div class="information-icon">
 
-          <div class="dato-pedido">
+              <ion-icon
+                name="calendar-outline">
+              </ion-icon>
 
-            <span>Subtotal</span>
+            </div>
 
-            <strong>
-              {{
-                pedido.subtotal
-                  | currency:'CRC':'symbol-narrow':'1.0-0'
-              }}
-            </strong>
+            <div>
 
-          </div>
+              <span>
+                Fecha de compra
+              </span>
 
-          <div class="dato-pedido">
+              <strong>
+                {{
+                  pedido.fechaPedido
+                    | date:
+                      'dd/MM/yyyy, h:mm a'
+                }}
+              </strong>
 
-            <span>Descuento</span>
+            </div>
 
-            <strong>
-              {{
-                pedido.descuento
-                  | currency:'CRC':'symbol-narrow':'1.0-0'
-              }}
-            </strong>
+          </article>
 
-          </div>
 
-          <div class="dato-pedido dato-total">
+          <article class="information-box">
 
-            <span>Total</span>
+            <div class="information-icon">
 
-            <strong>
-              {{
-                pedido.total
-                  | currency:'CRC':'symbol-narrow':'1.0-0'
-              }}
-            </strong>
+              <ion-icon
+                name="wallet-outline">
+              </ion-icon>
 
-          </div>
+            </div>
 
-        </div>
+            <div>
 
-        <button
-          type="button"
-          class="boton-factura"
-          [disabled]="!pedido.factura"
-          (click)="verFactura(pedido)"
-        >
-          {{
-            pedido.factura
-              ? 'Ver factura'
-              : 'Factura no disponible'
-          }}
-        </button>
+              <span>
+                Subtotal
+              </span>
+
+              <strong>
+                {{
+                  pedido.subtotal
+                    | currency:
+                      'CRC':
+                      'symbol-narrow':
+                      '1.0-0'
+                }}
+              </strong>
+
+            </div>
+
+          </article>
+
+
+          <article class="information-box">
+
+            <div class="information-icon discount">
+
+              <ion-icon
+                name="card-outline">
+              </ion-icon>
+
+            </div>
+
+            <div>
+
+              <span>
+                Descuento
+              </span>
+
+              <strong class="discount-value">
+
+                {{
+                  pedido.descuento
+                    | currency:
+                      'CRC':
+                      'symbol-narrow':
+                      '1.0-0'
+                }}
+
+              </strong>
+
+            </div>
+
+          </article>
+
+
+          <article class="information-box total-box">
+
+            <div class="information-icon">
+
+              <ion-icon
+                name="receipt-outline">
+              </ion-icon>
+
+            </div>
+
+            <div>
+
+              <span>
+                Total pagado
+              </span>
+
+              <strong>
+
+                {{
+                  pedido.total
+                    | currency:
+                      'CRC':
+                      'symbol-narrow':
+                      '1.0-0'
+                }}
+
+              </strong>
+
+            </div>
+
+          </article>
+
+        </section>
+
+
+        <!-- ACCIONES -->
+
+        <footer class="order-actions">
+
+          <button
+            type="button"
+            class="invoice-button"
+            [disabled]="!pedido.factura"
+            (click)="verFactura(pedido)">
+
+            <ion-icon
+              name="document-text-outline">
+            </ion-icon>
+
+            {{
+              pedido.factura
+                ? 'Ver factura'
+                : 'Factura no disponible'
+            }}
+
+            <ion-icon
+              *ngIf="pedido.factura"
+              class="action-arrow"
+              name="chevron-forward-outline">
+            </ion-icon>
+
+          </button>
+
+
+          <button
+            *ngIf="
+              puedeCalificar(
+                pedido
+              )
+            "
+            type="button"
+            class="rating-button"
+            (click)="irACalificar(pedido)">
+
+            <ion-icon
+              name="star-outline">
+            </ion-icon>
+
+            Calificar experiencia
+
+          </button>
+
+        </footer>
 
       </article>
 

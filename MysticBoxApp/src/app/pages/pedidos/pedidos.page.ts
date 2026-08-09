@@ -3,15 +3,31 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import {
-  IonContent,
-  IonHeader,
-  IonTitle,
-  IonToolbar
-} from '@ionic/angular/standalone';
+import { IonicModule } from '@ionic/angular';
 
-import { FacturaService } from '../../services/factura.service';
-import { PedidoService } from '../../services/pedido.service';
+import { addIcons } from 'ionicons';
+
+import {
+  arrowBackOutline,
+  bagHandleOutline,
+  calendarOutline,
+  cardOutline,
+  checkmarkCircleOutline,
+  chevronForwardOutline,
+  documentTextOutline,
+  receiptOutline,
+  starOutline,
+  timeOutline,
+  walletOutline
+} from 'ionicons/icons';
+
+import {
+  FacturaService
+} from '../../services/factura.service';
+
+import {
+  PedidoService
+} from '../../services/pedido.service';
 
 @Component({
   selector: 'app-pedidos',
@@ -20,10 +36,7 @@ import { PedidoService } from '../../services/pedido.service';
   standalone: true,
   imports: [
     CommonModule,
-    IonContent,
-    IonHeader,
-    IonTitle,
-    IonToolbar
+    IonicModule
   ]
 })
 export class PedidosPage implements OnInit {
@@ -38,15 +51,38 @@ export class PedidosPage implements OnInit {
     private pedidoService: PedidoService,
     private facturaService: FacturaService,
     private router: Router
-  ) {}
+  ) {
+
+    addIcons({
+      arrowBackOutline,
+      bagHandleOutline,
+      calendarOutline,
+      cardOutline,
+      checkmarkCircleOutline,
+      chevronForwardOutline,
+      documentTextOutline,
+      receiptOutline,
+      starOutline,
+      timeOutline,
+      walletOutline
+    });
+  }
 
   ngOnInit(): void {
     this.cargarPedidos();
   }
 
+  ionViewWillEnter(): void {
+    this.cargarPedidos();
+  }
+
   cargarPedidos(): void {
 
-    const idUsuario = this.obtenerIdUsuario();
+    this.cargando = true;
+    this.mensajeError = '';
+
+    const idUsuario =
+      this.obtenerIdUsuario();
 
     if (!idUsuario) {
 
@@ -59,45 +95,76 @@ export class PedidosPage implements OnInit {
     }
 
     forkJoin({
-      pedidos: this.pedidoService.obtenerPedidos(),
-      facturas: this.facturaService.obtenerFacturas()
-    }).subscribe({
+      pedidos:
+        this.pedidoService
+          .obtenerPedidos(),
 
-      next: ({ pedidos, facturas }) => {
+      facturas:
+        this.facturaService
+          .obtenerFacturas()
+    })
+    .subscribe({
+
+      next: ({
+        pedidos,
+        facturas
+      }) => {
 
         const pedidosDelUsuario =
-          pedidos
+          (pedidos ?? [])
             .filter(
               pedido =>
-                Number(pedido.idUsuario) ===
-                Number(idUsuario)
+                Number(
+                  pedido.idUsuario
+                ) ===
+                Number(
+                  idUsuario
+                )
             )
             .sort(
-              (pedidoA, pedidoB) =>
-                Number(pedidoB.idPedido) -
-                Number(pedidoA.idPedido)
+              (
+                pedidoA,
+                pedidoB
+              ) =>
+                Number(
+                  pedidoB.idPedido
+                ) -
+                Number(
+                  pedidoA.idPedido
+                )
             );
 
         this.pedidos =
-          pedidosDelUsuario.map(pedido => {
+          pedidosDelUsuario
+            .map(
+              pedido => {
 
-            const factura =
-              facturas.find(
-                facturaEncontrada =>
-                  Number(facturaEncontrada.idPedido) ===
-                  Number(pedido.idPedido)
-              );
+                const factura =
+                  (facturas ?? [])
+                    .find(
+                      facturaEncontrada =>
+                        Number(
+                          facturaEncontrada.idPedido
+                        ) ===
+                        Number(
+                          pedido.idPedido
+                        )
+                    );
 
-            return {
-              ...pedido,
+                return {
+                  ...pedido,
 
-              numeroPedido:
-                pedido.numeroPedido ??
-                `MB-${String(pedido.idPedido).padStart(6, '0')}`,
+                  numeroPedido:
+                    pedido.numeroPedido ??
+                    `MB-${String(
+                      pedido.idPedido
+                    ).padStart(6, '0')}`,
 
-              factura: factura ?? null
-            };
-          });
+                  factura:
+                    factura ?? null
+                };
+              }
+            );
 
         this.cargando = false;
       },
@@ -117,10 +184,14 @@ export class PedidosPage implements OnInit {
     });
   }
 
-  verFactura(pedido: any): void {
+  verFactura(
+    pedido: any
+  ): void {
 
     const idFactura =
-      Number(pedido.factura?.idFactura);
+      Number(
+        pedido.factura?.idFactura
+      );
 
     if (!idFactura) {
 
@@ -140,21 +211,170 @@ export class PedidosPage implements OnInit {
     );
   }
 
-  volverAlInicio(): void {
-    this.router.navigate(['/home']);
+  irACalificar(
+    pedido: any
+  ): void {
+
+    /*
+     * Guardamos específicamente
+     * el pedido seleccionado.
+     *
+     * Así Calificaciones ya no depende
+     * únicamente del último pedido
+     * generado durante la compra.
+     */
+    const pedidoCalificar = {
+      idPedido:
+        Number(
+          pedido.idPedido
+        ),
+
+      numeroPedido:
+        pedido.numeroPedido,
+
+      estadoPedido:
+        pedido.estadoPedido,
+
+      total:
+        Number(
+          pedido.total ?? 0
+        ),
+
+      fechaPedido:
+        pedido.fechaPedido ?? '',
+
+      fechaEstimadaEntrega:
+        pedido.fechaEstimadaEntrega ?? ''
+    };
+
+    sessionStorage.setItem(
+      'ultimoPedido',
+      JSON.stringify(
+        pedidoCalificar
+      )
+    );
+
+    this.router.navigate([
+      '/calificaciones'
+    ]);
   }
 
-  private obtenerIdUsuario(): number | null {
+  puedeCalificar(
+    pedido: any
+  ): boolean {
+
+    return (
+      this.normalizarEstado(
+        pedido.estadoPedido
+      ) === 'entregado'
+    );
+  }
+
+  obtenerClaseEstado(
+    estado:
+      string |
+      null |
+      undefined
+  ): string {
+
+    switch (
+      this.normalizarEstado(
+        estado
+      )
+    ) {
+
+      case 'pendiente':
+        return 'estado-pendiente';
+
+      case 'preparando':
+        return 'estado-preparando';
+
+      case 'empacando':
+        return 'estado-empacando';
+
+      case 'en camino':
+        return 'estado-camino';
+
+      case 'entregado':
+        return 'estado-entregado';
+
+      case 'cancelado':
+        return 'estado-cancelado';
+
+      default:
+        return 'estado-default';
+    }
+  }
+
+  obtenerIconoEstado(
+    estado:
+      string |
+      null |
+      undefined
+  ): string {
+
+    switch (
+      this.normalizarEstado(
+        estado
+      )
+    ) {
+
+      case 'entregado':
+        return 'checkmark-circle-outline';
+
+      case 'pendiente':
+        return 'time-outline';
+
+      default:
+        return 'bag-handle-outline';
+    }
+  }
+
+  volverAlInicio(): void {
+
+    this.router.navigate([
+      '/home'
+    ]);
+  }
+
+  private normalizarEstado(
+    estado:
+      string |
+      null |
+      undefined
+  ): string {
+
+    return (
+      estado ??
+      ''
+    )
+      .trim()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(
+        /[\u0300-\u036f]/g,
+        ''
+      );
+  }
+
+  private obtenerIdUsuario():
+    number | null {
 
     const idGuardado =
-      Number(localStorage.getItem('idUsuario'));
+      Number(
+        localStorage.getItem(
+          'idUsuario'
+        )
+      );
 
     if (idGuardado) {
       return idGuardado;
     }
 
     const usuarioGuardado =
-      localStorage.getItem('usuario');
+      localStorage.getItem(
+        'usuario'
+      );
 
     if (!usuarioGuardado) {
       return null;
@@ -163,7 +383,9 @@ export class PedidosPage implements OnInit {
     try {
 
       const usuario =
-        JSON.parse(usuarioGuardado);
+        JSON.parse(
+          usuarioGuardado
+        );
 
       const idUsuario =
         Number(
@@ -182,5 +404,15 @@ export class PedidosPage implements OnInit {
 
       return null;
     }
+  }
+
+  trackPedido(
+    index: number,
+    pedido: any
+  ): number {
+
+    return Number(
+      pedido.idPedido
+    );
   }
 }
