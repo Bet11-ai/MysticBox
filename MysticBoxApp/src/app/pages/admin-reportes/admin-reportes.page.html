@@ -1,13 +1,665 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>admin-reportes</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="reportes-content">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">admin-reportes</ion-title>
-    </ion-toolbar>
-  </ion-header>
+  <main class="reportes-shell">
+
+    <!-- ENCABEZADO -->
+
+    <header class="page-header">
+
+      <div class="header-left">
+
+        <button
+          type="button"
+          class="back-button"
+          (click)="volverAlPanel()">
+
+          <ion-icon
+            name="arrow-back-outline">
+          </ion-icon>
+
+        </button>
+
+        <div>
+
+          <span class="task-label">
+            MB-80
+          </span>
+
+          <h1>
+            Reportes gráficos
+          </h1>
+
+          <p>
+            Visualiza el comportamiento de ventas,
+            pedidos y clientes.
+          </p>
+
+        </div>
+
+      </div>
+
+      <div class="header-actions">
+
+        <div class="year-selector">
+
+          <ion-icon
+            name="calendar-outline">
+          </ion-icon>
+
+          <select
+            [(ngModel)]="anioSeleccionado"
+            (change)="cambiarAnio()">
+
+            <option
+              *ngFor="
+                let anio of aniosDisponibles
+              "
+              [ngValue]="anio">
+
+              {{ anio }}
+
+            </option>
+
+          </select>
+
+        </div>
+
+        <button
+          type="button"
+          class="refresh-button"
+          [disabled]="cargando"
+          (click)="cargarReporte()">
+
+          <ion-icon
+            name="refresh-outline">
+          </ion-icon>
+
+          Actualizar
+
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- CARGANDO -->
+
+    <section
+      class="loading-state"
+      *ngIf="cargando">
+
+      <ion-spinner
+        name="crescent">
+      </ion-spinner>
+
+      <span>
+        Generando reportes...
+      </span>
+
+    </section>
+
+
+    <!-- ERROR -->
+
+    <section
+      class="error-state"
+      *ngIf="
+        !cargando &&
+        mensajeError
+      ">
+
+      <ion-icon
+        name="alert-circle-outline">
+      </ion-icon>
+
+      <div>
+
+        <strong>
+          No fue posible generar los reportes.
+        </strong>
+
+        <span>
+          {{ mensajeError }}
+        </span>
+
+      </div>
+
+      <button
+        type="button"
+        (click)="cargarReporte()">
+
+        Reintentar
+
+      </button>
+
+    </section>
+
+
+    <ng-container
+      *ngIf="
+        !cargando &&
+        estadisticas
+      ">
+
+      <!-- RESUMEN -->
+
+      <section class="summary-grid">
+
+        <article class="summary-card ventas">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="cash-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Ventas del año
+            </span>
+
+            <strong>
+              {{
+                formatearMoneda(
+                  estadisticas.ventasTotales
+                )
+              }}
+            </strong>
+
+            <small>
+              {{ estadisticas.anio }}
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card pedidos">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="receipt-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Pedidos
+            </span>
+
+            <strong>
+              {{ estadisticas.totalPedidos }}
+            </strong>
+
+            <small>
+              Registrados
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card promedio">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="trending-up-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Promedio por pedido
+            </span>
+
+            <strong>
+              {{
+                formatearMoneda(
+                  estadisticas.promedioVenta
+                )
+              }}
+            </strong>
+
+            <small>
+              Ticket promedio
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card clientes">
+
+          <div class="summary-icon">
+
+            <ion-icon
+              name="people-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              Clientes compradores
+            </span>
+
+            <strong>
+              {{
+                estadisticas
+                  .totalClientesConPedidos
+              }}
+            </strong>
+
+            <small>
+              Usuarios distintos
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- VENTAS POR MES -->
+
+      <section class="report-grid">
+
+        <article class="report-card sales-chart-card">
+
+          <header class="card-header">
+
+            <div>
+
+              <span>
+                VENTAS
+              </span>
+
+              <h2>
+                Ventas mensuales
+              </h2>
+
+              <p>
+                Comparación de ingresos
+                durante {{ estadisticas.anio }}.
+              </p>
+
+            </div>
+
+            <ion-icon
+              name="bar-chart-outline">
+            </ion-icon>
+
+          </header>
+
+
+          <div class="bar-chart">
+
+            <div
+              class="bar-column"
+              *ngFor="
+                let venta of
+                  estadisticas.ventasPorMes;
+                trackBy: trackMes
+              ">
+
+              <div class="bar-value">
+
+                <span
+                  *ngIf="venta.ventas > 0">
+
+                  {{
+                    formatearMoneda(
+                      venta.ventas
+                    )
+                  }}
+
+                </span>
+
+              </div>
+
+              <div class="bar-area">
+
+                <div
+                  class="bar"
+                  [style.height.%]="
+                    obtenerAlturaVenta(
+                      venta
+                    )
+                  "
+                  [class.active-bar]="
+                    venta.mes ===
+                    estadisticas.mesMayorVenta
+                  ">
+
+                </div>
+
+              </div>
+
+              <strong>
+                {{
+                  venta.mes
+                    .substring(0, 3)
+                }}
+              </strong>
+
+              <small>
+                {{
+                  venta.cantidadPedidos
+                }}
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <div class="best-month">
+
+            <ion-icon
+              name="trophy-outline">
+            </ion-icon>
+
+            <div>
+
+              <span>
+                Mejor mes
+              </span>
+
+              <strong>
+                {{
+                  estadisticas
+                    .mesMayorVenta ||
+                  'Sin información'
+                }}
+              </strong>
+
+            </div>
+
+            <strong class="best-total">
+              {{
+                formatearMoneda(
+                  estadisticas
+                    .mayorVentaMensual
+                )
+              }}
+            </strong>
+
+          </div>
+
+        </article>
+
+
+        <!-- GRÁFICO CIRCULAR -->
+
+        <article class="report-card donut-card">
+
+          <header class="card-header">
+
+            <div>
+
+              <span>
+                PEDIDOS
+              </span>
+
+              <h2>
+                Estados
+              </h2>
+
+              <p>
+                Distribución actual de pedidos.
+              </p>
+
+            </div>
+
+            <ion-icon
+              name="pie-chart-outline">
+            </ion-icon>
+
+          </header>
+
+
+          <div class="donut-container">
+
+            <div
+              class="donut"
+              [style.background]="
+                obtenerGraficoCircular()
+              ">
+
+              <div class="donut-center">
+
+                <strong>
+                  {{
+                    estadisticas.totalPedidos
+                  }}
+                </strong>
+
+                <span>
+                  pedidos
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="legend">
+
+            <div
+              class="legend-row"
+              *ngFor="
+                let estado of
+                  estadisticas.pedidosPorEstado;
+                trackBy: trackEstado
+              ">
+
+              <div>
+
+                <span
+                  class="legend-dot"
+                  [style.background]="
+                    obtenerColorEstado(
+                      estado.estado
+                    )
+                  ">
+                </span>
+
+                <strong>
+                  {{ estado.estado }}
+                </strong>
+
+              </div>
+
+              <span>
+                {{ estado.cantidad }}
+                ·
+                {{
+                  estado.porcentaje
+                    | number:'1.0-1'
+                }}%
+              </span>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- CLIENTES -->
+
+      <section class="report-card clients-chart">
+
+        <header class="card-header">
+
+          <div>
+
+            <span>
+              CLIENTES
+            </span>
+
+            <h2>
+              Clientes con mayor compra
+            </h2>
+
+            <p>
+              Ranking por monto total comprado
+              durante {{ estadisticas.anio }}.
+            </p>
+
+          </div>
+
+          <ion-icon
+            name="people-outline">
+          </ion-icon>
+
+        </header>
+
+
+        <div
+          class="client-chart-list"
+          *ngIf="
+            estadisticas
+              .mejoresClientes
+              .length > 0
+          ">
+
+          <div
+            class="client-chart-row"
+            *ngFor="
+              let cliente of
+                estadisticas.mejoresClientes;
+              let posicion = index;
+              trackBy: trackCliente
+            ">
+
+            <span
+              class="ranking"
+              [class.first]="
+                posicion === 0
+              ">
+
+              #{{ posicion + 1 }}
+
+            </span>
+
+
+            <div class="client-name">
+
+              <strong>
+                {{ cliente.nombre }}
+              </strong>
+
+              <span>
+                {{
+                  cliente.cantidadPedidos
+                }}
+                pedido{{
+                  cliente.cantidadPedidos === 1
+                    ? ''
+                    : 's'
+                }}
+              </span>
+
+            </div>
+
+
+            <div class="client-bar-track">
+
+              <div
+                class="client-bar"
+                [style.width.%]="
+                  obtenerBarraCliente(
+                    cliente
+                  )
+                ">
+              </div>
+
+            </div>
+
+
+            <strong class="client-total">
+
+              {{
+                formatearMoneda(
+                  cliente.totalComprado
+                )
+              }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div
+          class="empty-state"
+          *ngIf="
+            estadisticas
+              .mejoresClientes
+              .length === 0
+          ">
+
+          Todavía no existen compras
+          para generar este gráfico.
+
+        </div>
+
+      </section>
+
+
+      <!-- BOTÓN ESTADÍSTICAS -->
+
+      <section class="footer-action">
+
+        <div>
+
+          <span>
+            ¿Necesitas ver el detalle?
+          </span>
+
+          <strong>
+            Consulta las estadísticas completas.
+          </strong>
+
+        </div>
+
+        <button
+          type="button"
+          (click)="irAEstadisticas()">
+
+          <ion-icon
+            name="stats-chart-outline">
+          </ion-icon>
+
+          Ver estadísticas
+
+        </button>
+
+      </section>
+
+    </ng-container>
+
+  </main>
+
 </ion-content>

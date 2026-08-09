@@ -49,7 +49,11 @@ builder.Services.AddScoped<IAuthLN, AuthLN>();
 builder.Services.AddScoped<IUsuarioLN, UsuarioLN>();
 
 builder.Services.AddScoped<IUnidadTrabajoEF, UnidadTrabajoEF>();
-builder.Services.AddScoped<IDashboardLN,DashboardLN
+
+builder.Services.AddScoped<IDashboardLN,DashboardLN>();
+
+builder.Services.AddScoped< IEstadisticasLN,EstadisticasLN
+
 >();
 
 // Swagger
@@ -67,6 +71,9 @@ builder.Services.AddScoped<IPersonalizacionLN, PersonalizacionLN>();
 //builder.Services.AddScoped<IMysticBoxLN, MysticBoxLN>();
 
 builder.Services.AddScoped<IMysticBoxLN, MysticBoxLN>();
+builder.Services.AddScoped< IEstadisticasLN, EstadisticasLN
+>();
+
 
 var app = builder.Build();
 

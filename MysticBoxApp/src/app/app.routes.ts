@@ -1,16 +1,8 @@
 import { Routes } from '@angular/router';
 
-import {
-  authGuard
-} from './guards/auth.guard';
-
-import {
-  adminGuard
-} from './guards/admin.guard';
-
-import {
-  clienteGuard
-} from './guards/cliente.guard';
+import { authGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
+import { clienteGuard } from './guards/cliente.guard';
 
 export const routes: Routes = [
 
@@ -27,21 +19,15 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import(
-        './pages/login/login.page'
-      ).then(
-        m => m.LoginPage
-      )
+      import('./pages/login/login.page')
+        .then(m => m.LoginPage)
   },
 
   {
     path: 'registro',
     loadComponent: () =>
-      import(
-        './pages/registro/registro.page'
-      ).then(
-        m => m.RegistroPage
-      )
+      import('./pages/registro/registro.page')
+        .then(m => m.RegistroPage)
   },
 
   // =====================================
@@ -50,155 +36,90 @@ export const routes: Routes = [
 
   {
     path: 'home',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/home/home.page'
-      ).then(
-        m => m.HomePage
-      )
+      import('./pages/home/home.page')
+        .then(m => m.HomePage)
   },
 
   {
     path: 'carrito',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/carrito/carrito.page'
-      ).then(
-        m => m.CarritoPage
-      )
+      import('./pages/carrito/carrito.page')
+        .then(m => m.CarritoPage)
   },
 
   {
     path: 'proceso-compra',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/proceso-compra/proceso-compra.page'
-      ).then(
-        m => m.ProcesoCompraPage
-      )
+      import('./pages/proceso-compra/proceso-compra.page')
+        .then(m => m.ProcesoCompraPage)
   },
 
   {
     path: 'pedidos',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/pedidos/pedidos.page'
-      ).then(
-        m => m.PedidosPage
-      )
+      import('./pages/pedidos/pedidos.page')
+        .then(m => m.PedidosPage)
   },
 
   {
     path: 'entregas',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/entregas/entregas.page'
-      ).then(
-        m => m.EntregasPage
-      )
+      import('./pages/entregas/entregas.page')
+        .then(m => m.EntregasPage)
   },
 
   {
     path: 'calificaciones',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/calificaciones/calificaciones.page'
-      ).then(
-        m => m.CalificacionesPage
-      )
+      import('./pages/calificaciones/calificaciones.page')
+        .then(m => m.CalificacionesPage)
   },
 
   {
     path: 'perfil',
-    canActivate: [
-      authGuard
-    ],
+    canActivate: [authGuard],
     loadComponent: () =>
-      import(
-        './pages/perfil/perfil.page'
-      ).then(
-        m => m.PerfilPage
-      )
+      import('./pages/perfil/perfil.page')
+        .then(m => m.PerfilPage)
   },
 
   {
     path: 'categorias',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/categorias/categorias.page'
-      ).then(
-        m => m.CategoriasPage
-      )
+      import('./pages/categorias/categorias.page')
+        .then(m => m.CategoriasPage)
   },
 
   {
     path: 'mysticbox',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/mysticbox/mysticbox.page'
-      ).then(
-        m => m.MysticboxPage
-      )
+      import('./pages/mysticbox/mysticbox.page')
+        .then(m => m.MysticboxPage)
   },
 
   {
     path: 'personalizacion',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/personalizacion/personalizacion.page'
-      ).then(
-        m => m.PersonalizacionPage
-      )
+      import('./pages/personalizacion/personalizacion.page')
+        .then(m => m.PersonalizacionPage)
   },
 
   {
     path: 'factura',
-    canActivate: [
-      authGuard,
-      clienteGuard
-    ],
+    canActivate: [authGuard, clienteGuard],
     loadComponent: () =>
-      import(
-        './pages/factura/factura.page'
-      ).then(
-        m => m.FacturaPage
-      )
+      import('./pages/factura/factura.page')
+        .then(m => m.FacturaPage)
   },
 
   // =====================================
@@ -207,145 +128,142 @@ export const routes: Routes = [
 
   {
     path: 'admin',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/admin/admin.page'
-      ).then(
-        m => m.AdminPage
-      )
+      import('./pages/admin/admin.page')
+        .then(m => m.AdminPage)
   },
 
   {
     path: 'usuarios',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/usuarios/usuarios.page'
-      ).then(
-        m => m.UsuariosPage
-      )
+      import('./pages/usuarios/usuarios.page')
+        .then(m => m.UsuariosPage)
   },
 
   {
     path: 'roles',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/roles/roles.page'
-      ).then(
-        m => m.RolesPage
-      )
+      import('./pages/roles/roles.page')
+        .then(m => m.RolesPage)
   },
 
   {
     path: 'admin-cajas',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/admin-cajas/admin-cajas.page'
-      ).then(
-        m => m.AdminCajasPage
-      )
+      import('./pages/admin-cajas/admin-cajas.page')
+        .then(m => m.AdminCajasPage)
   },
 
   {
     path: 'admin-promociones',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/admin-promociones/admin-promociones.page'
-      ).then(
-        m => m.AdminPromocionesPage
-      )
+      import('./pages/admin-promociones/admin-promociones.page')
+        .then(m => m.AdminPromocionesPage)
   },
 
   {
     path: 'admin-pedidos',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/admin-pedidos/admin-pedidos.page'
-      ).then(
-        m => m.AdminPedidosPage
-      )
+      import('./pages/admin-pedidos/admin-pedidos.page')
+        .then(m => m.AdminPedidosPage)
   },
 
   {
     path: 'admin-clientes',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/admin-clientes/admin-clientes.page'
-      ).then(
-        m => m.AdminClientesPage
-      )
+      import('./pages/admin-clientes/admin-clientes.page')
+        .then(m => m.AdminClientesPage)
+  },
+
+  // =====================================
+  // DASHBOARD
+  // =====================================
+
+  {
+    path: 'admin-dashboard',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-dashboard/admin-dashboard.page')
+        .then(m => m.AdminDashboardPage)
   },
 
   {
     path: 'admin-reportes',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/admin-reportes/admin-reportes.page'
-      ).then(
-        m => m.AdminReportesPage
-      )
+      import('./pages/admin-reportes/admin-reportes.page')
+        .then(m => m.AdminReportesPage)
+  },
+
+  {
+    path: 'admin-estadisticas',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./pages/admin-estadisticas/admin-estadisticas.page')
+        .then(m => m.AdminEstadisticasPage)
   },
 
   {
     path: 'admin-whitelist',
-    canActivate: [
-      authGuard,
-      adminGuard
-    ],
+    canActivate: [authGuard, adminGuard],
     loadComponent: () =>
-      import(
-        './pages/admin-whitelist/admin-whitelist.page'
-      ).then(
-        m => m.AdminWhitelistPage
-      )
+      import('./pages/admin-whitelist/admin-whitelist.page')
+        .then(m => m.AdminWhitelistPage)
   },
 
 
    {
-    path: 'admin-dashboard',
-    loadComponent: () =>
-      import(
-        './pages/admin-dashboard/admin-dashboard.page'
-      ).then(
-        m => m.AdminDashboardPage
-      )
-  },
+   
+  path: 'admin-estadisticas',
+  canActivate: [
+    authGuard,
+    adminGuard
+  ],
+  loadComponent: () =>
+    import(
+      './pages/admin-estadisticas/admin-estadisticas.page'
+    ).then(
+      m => m.AdminEstadisticasPage
+    )
+},
+{
+  path: 'admin-satisfaccion',
+  canActivate: [
+    authGuard,
+    adminGuard
+  ],
+  loadComponent: () =>
+    import(
+      './pages/admin-satisfaccion/admin-satisfaccion.page'
+    ).then(
+      m => m.AdminSatisfaccionPage
+    )
+},
+{
+  path: 'admin-reportes-generales',
+  canActivate: [
+    authGuard,
+    adminGuard
+  ],
+  loadComponent: () =>
+    import(
+      './pages/admin-reportes-generales/admin-reportes-generales.page'
+    ).then(
+      m => m.AdminReportesGeneralesPage
+    )
+},
 
-  {
-    path: '**',
-    redirectTo: 'login'
-  },
+{
+  path: '**',
+  redirectTo: 'login'
+}
 
 
     

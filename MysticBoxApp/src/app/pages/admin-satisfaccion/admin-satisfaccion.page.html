@@ -1,0 +1,609 @@
+<ion-content class="satisfaccion-content">
+
+  <main class="satisfaccion-shell">
+
+    <!-- ENCABEZADO -->
+
+    <header class="page-header">
+
+      <div class="header-left">
+
+        <button
+          type="button"
+          class="back-button"
+          (click)="volverAlPanel()">
+
+          <ion-icon
+            name="arrow-back-outline">
+          </ion-icon>
+
+        </button>
+
+        <div>
+
+          <span class="task-label">
+            MB-81
+          </span>
+
+          <h1>
+            Satisfacción del cliente
+          </h1>
+
+          <p>
+            Analiza las calificaciones
+            y opiniones recibidas.
+          </p>
+
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="refresh-button"
+        [disabled]="cargando"
+        (click)="cargarCalificaciones()">
+
+        <ion-icon
+          name="refresh-outline">
+        </ion-icon>
+
+        Actualizar
+
+      </button>
+
+    </header>
+
+
+    <!-- CARGANDO -->
+
+    <section
+      class="loading-state"
+      *ngIf="cargando">
+
+      <ion-spinner
+        name="crescent">
+      </ion-spinner>
+
+      <span>
+        Consultando opiniones...
+      </span>
+
+    </section>
+
+
+    <!-- ERROR -->
+
+    <section
+      class="error-state"
+      *ngIf="
+        !cargando &&
+        mensajeError
+      ">
+
+      <ion-icon
+        name="alert-circle-outline">
+      </ion-icon>
+
+      <div>
+
+        <strong>
+          No fue posible cargar
+          las calificaciones.
+        </strong>
+
+        <span>
+          {{ mensajeError }}
+        </span>
+
+      </div>
+
+      <button
+        type="button"
+        (click)="cargarCalificaciones()">
+
+        Reintentar
+
+      </button>
+
+    </section>
+
+
+    <ng-container
+      *ngIf="!cargando && !mensajeError">
+
+      <!-- RESUMEN -->
+
+      <section class="summary-grid">
+
+        <article class="summary-card average">
+
+          <div class="summary-icon">
+            <ion-icon
+              name="star-outline">
+            </ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Calificación promedio
+            </span>
+
+            <strong>
+              {{ promedio | number:'1.1-1' }}
+            </strong>
+
+            <small>
+              de 5 estrellas
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card total">
+
+          <div class="summary-icon">
+            <ion-icon
+              name="chatbubble-ellipses-outline">
+            </ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Opiniones recibidas
+            </span>
+
+            <strong>
+              {{ totalCalificaciones }}
+            </strong>
+
+            <small>
+              Total registrado
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card positive">
+
+          <div class="summary-icon">
+            <ion-icon
+              name="happy-outline">
+            </ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Satisfacción positiva
+            </span>
+
+            <strong>
+              {{ obtenerPorcentajePositivas() }}%
+            </strong>
+
+            <small>
+              4 y 5 estrellas
+            </small>
+
+          </div>
+
+        </article>
+
+
+        <article class="summary-card negative">
+
+          <div class="summary-icon">
+            <ion-icon
+              name="sad-outline">
+            </ion-icon>
+          </div>
+
+          <div>
+
+            <span>
+              Opiniones negativas
+            </span>
+
+            <strong>
+              {{ negativas }}
+            </strong>
+
+            <small>
+              1 y 2 estrellas
+            </small>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- PANEL PRINCIPAL -->
+
+      <section class="content-grid">
+
+        <!-- PROMEDIO -->
+
+        <article class="rating-card">
+
+          <header>
+
+            <span>
+              RESUMEN
+            </span>
+
+            <h2>
+              Calificación general
+            </h2>
+
+          </header>
+
+
+          <div class="big-rating">
+
+            <strong>
+              {{ promedio | number:'1.1-1' }}
+            </strong>
+
+            <div>
+
+              <div class="stars-big">
+
+                <ion-icon
+                  *ngFor="
+                    let estrella of
+                      obtenerEstrellas(
+                        promedio
+                      )
+                  "
+                  name="star">
+                </ion-icon>
+
+              </div>
+
+              <span>
+                Basado en
+                {{ totalCalificaciones }}
+                opinión{{
+                  totalCalificaciones === 1
+                    ? ''
+                    : 'es'
+                }}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div class="distribution">
+
+            <div
+              class="distribution-row"
+              *ngFor="
+                let item of distribucion
+              ">
+
+              <span class="star-number">
+
+                {{ item.estrellas }}
+
+                <ion-icon
+                  name="star">
+                </ion-icon>
+
+              </span>
+
+              <div class="bar-track">
+
+                <div
+                  class="bar-fill"
+                  [style.width.%]="
+                    item.porcentaje
+                  ">
+                </div>
+
+              </div>
+
+              <strong>
+                {{ item.cantidad }}
+              </strong>
+
+              <small>
+                {{
+                  item.porcentaje
+                    | number:'1.0-0'
+                }}%
+              </small>
+
+            </div>
+
+          </div>
+
+        </article>
+
+
+        <!-- CLASIFICACIÓN -->
+
+        <article class="classification-card">
+
+          <header>
+
+            <span>
+              PERCEPCIÓN
+            </span>
+
+            <h2>
+              Clasificación
+            </h2>
+
+          </header>
+
+
+          <div class="classification-list">
+
+            <article class="positive-box">
+
+              <ion-icon
+                name="happy-outline">
+              </ion-icon>
+
+              <div>
+
+                <span>
+                  Positivas
+                </span>
+
+                <strong>
+                  {{ positivas }}
+                </strong>
+
+                <small>
+                  4–5 estrellas
+                </small>
+
+              </div>
+
+            </article>
+
+
+            <article class="neutral-box">
+
+              <ion-icon
+                name="stats-chart-outline">
+              </ion-icon>
+
+              <div>
+
+                <span>
+                  Neutrales
+                </span>
+
+                <strong>
+                  {{ neutrales }}
+                </strong>
+
+                <small>
+                  3 estrellas
+                </small>
+
+              </div>
+
+            </article>
+
+
+            <article class="negative-box">
+
+              <ion-icon
+                name="sad-outline">
+              </ion-icon>
+
+              <div>
+
+                <span>
+                  Negativas
+                </span>
+
+                <strong>
+                  {{ negativas }}
+                </strong>
+
+                <small>
+                  1–2 estrellas
+                </small>
+
+              </div>
+
+            </article>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- COMENTARIOS -->
+
+      <section class="reviews-section">
+
+        <header class="section-header">
+
+          <div>
+
+            <span>
+              OPINIONES
+            </span>
+
+            <h2>
+              Comentarios recientes
+            </h2>
+
+          </div>
+
+          <strong>
+            {{ totalCalificaciones }}
+            registrados
+          </strong>
+
+        </header>
+
+
+        <div
+          class="reviews-list"
+          *ngIf="
+            calificaciones.length > 0
+          ">
+
+          <article
+            class="review-card"
+            *ngFor="
+              let calificacion of calificaciones;
+              trackBy: trackCalificacion
+            "
+            [ngClass]="
+              obtenerClaseCalificacion(
+                calificacion.estrellas
+              )
+            ">
+
+            <div class="review-top">
+
+              <div class="order-avatar">
+
+                {{
+                  calificacion.idPedido
+                    .toString()
+                    .padStart(2, '0')
+                }}
+
+              </div>
+
+              <div class="review-title">
+
+                <strong>
+                  Pedido
+                  MB-{{
+                    calificacion.idPedido
+                      .toString()
+                      .padStart(6, '0')
+                  }}
+                </strong>
+
+                <span>
+
+                  <ion-icon
+                    name="time-outline">
+                  </ion-icon>
+
+                  {{
+                    formatearFecha(
+                      calificacion
+                        .fechaCalificacion
+                    )
+                  }}
+
+                </span>
+
+              </div>
+
+
+              <div class="review-stars">
+
+                <ion-icon
+                  *ngFor="
+                    let estrella of
+                      obtenerEstrellas(
+                        calificacion.estrellas
+                      )
+                  "
+                  name="star">
+                </ion-icon>
+
+                <ion-icon
+                  class="empty-star"
+                  *ngFor="
+                    let estrella of
+                      obtenerEstrellasVacias(
+                        calificacion.estrellas
+                      )
+                  "
+                  name="star-outline">
+                </ion-icon>
+
+              </div>
+
+            </div>
+
+
+            <div class="review-comment">
+
+              <ion-icon
+                name="chatbubble-ellipses-outline">
+              </ion-icon>
+
+              <p
+                *ngIf="
+                  calificacion.comentario
+                ">
+
+                {{
+                  calificacion.comentario
+                }}
+
+              </p>
+
+              <p
+                class="no-comment"
+                *ngIf="
+                  !calificacion.comentario
+                ">
+
+                El cliente calificó el pedido
+                sin agregar un comentario.
+
+              </p>
+
+            </div>
+
+          </article>
+
+        </div>
+
+
+        <div
+          class="empty-state"
+          *ngIf="
+            calificaciones.length === 0
+          ">
+
+          <ion-icon
+            name="star-outline">
+          </ion-icon>
+
+          <strong>
+            Todavía no hay calificaciones
+          </strong>
+
+          <span>
+            Las opiniones de los clientes
+            aparecerán aquí.
+          </span>
+
+        </div>
+
+      </section>
+
+    </ng-container>
+
+  </main>
+
+</ion-content>

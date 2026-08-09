@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import {
+  Component,
+  OnDestroy,
+  OnInit
+} from '@angular/core';
 
+import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
 import { addIcons } from 'ionicons';
@@ -22,7 +26,9 @@ import {
   sparklesOutline,
   statsChartOutline,
   storefrontOutline,
-  timeOutline
+  starOutline,
+  timeOutline,
+  documentTextOutline,
 } from 'ionicons/icons';
 
 import {
@@ -36,7 +42,7 @@ interface ModuloAdmin {
   icono: string;
   tarea: string;
   ruta: string;
-  tema?: string;
+  tema: string;
 }
 
 @Component({
@@ -87,7 +93,7 @@ export class AdminPage
     {
       titulo: 'Gestionar pedidos',
       descripcion:
-        'Consulta pedidos, detalles y actualiza sus estados.',
+        'Consulta pedidos, revisa detalles y actualiza sus estados.',
       icono: 'receipt-outline',
       tarea: 'MB-75',
       ruta: '/admin-pedidos',
@@ -115,6 +121,25 @@ export class AdminPage
     },
 
     {
+      titulo: 'Estadísticas',
+      descripcion:
+        'Analiza ventas, pedidos, descuentos y comportamiento de clientes.',
+      icono: 'stats-chart-outline',
+      tarea: 'MB-79',
+      ruta: '/admin-estadisticas',
+      tema: 'morado'
+    },
+    {
+  titulo: 'Satisfacción',
+  descripcion:
+    'Analiza calificaciones, opiniones y nivel de satisfacción de los clientes.',
+  icono: 'star-outline',
+  tarea: 'MB-81',
+  ruta: '/admin-satisfaccion',
+  tema: 'dorado'
+},
+
+    {
       titulo: 'Reportes gráficos',
       descripcion:
         'Visualiza ventas, satisfacción y estadísticas del negocio.',
@@ -132,7 +157,16 @@ export class AdminPage
       tarea: 'HU14',
       ruta: '/admin-whitelist',
       tema: 'dorado'
-    }
+    },
+    {
+  titulo: 'Reportes',
+  descripcion:
+    'Genera un resumen consolidado de ventas, pedidos y satisfacción.',
+  icono: 'document-text-outline',
+  tarea: 'MB-82',
+  ruta: '/admin-reportes-generales',
+  tema: 'azul'
+},
 
   ];
 
@@ -157,7 +191,9 @@ export class AdminPage
       sparklesOutline,
       statsChartOutline,
       storefrontOutline,
-      timeOutline
+      starOutline,
+      timeOutline,
+     documentTextOutline,
     });
   }
 
@@ -191,17 +227,14 @@ export class AdminPage
         this.intervaloReloj
       );
 
-      this.intervaloReloj =
-        null;
+      this.intervaloReloj = null;
     }
   }
 
-  private verificarAdministrador():
-    void {
+  private verificarAdministrador(): void {
 
     this.usuario =
-      this.authService
-        .obtenerUsuario();
+      this.authService.obtenerUsuario();
 
     if (!this.usuario) {
 
@@ -232,8 +265,7 @@ export class AdminPage
     }
   }
 
-  private actualizarFechaHora():
-    void {
+  private actualizarFechaHora(): void {
 
     const ahora =
       new Date();
@@ -268,13 +300,6 @@ export class AdminPage
 
     this.router.navigate([
       modulo.ruta
-    ]);
-  }
-
-  irDashboard(): void {
-
-    this.router.navigate([
-      '/admin-dashboard'
     ]);
   }
 
