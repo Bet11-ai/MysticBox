@@ -94,8 +94,72 @@ namespace MysticBox.Api.Controllers
                 });
             }
 
+            if (pedidoDTO.CostoEnvio < 0)
+            {
+                return BadRequest(new
+                {
+                    mensaje =
+                        "El costo de envío no puede ser negativo."
+                });
+            }
+
+            var tipoEntrega =
+                pedidoDTO.TipoEntrega?
+                    .Trim()
+                    .ToLowerInvariant();
+
+            if (
+                tipoEntrega != "retiro" &&
+                tipoEntrega != "envio"
+            )
+            {
+                return BadRequest(new
+                {
+                    mensaje =
+                        "Debe seleccionar retiro en tienda o envío."
+                });
+            }
+
+            if (tipoEntrega == "retiro")
+            {
+                pedidoDTO.CostoEnvio = 0;
+                pedidoDTO.DireccionEntrega = null;
+                pedidoDTO.ProvinciaEntrega = null;
+            }
+
+            if (tipoEntrega == "envio")
+            {
+                if (
+                    string.IsNullOrWhiteSpace(
+                        pedidoDTO.DireccionEntrega
+                    )
+                )
+                {
+                    return BadRequest(new
+                    {
+                        mensaje =
+                            "Debe indicar la dirección de entrega."
+                    });
+                }
+
+                if (
+                    string.IsNullOrWhiteSpace(
+                        pedidoDTO.ProvinciaEntrega
+                    )
+                )
+                {
+                    return BadRequest(new
+                    {
+                        mensaje =
+                            "Debe indicar la provincia de entrega."
+                    });
+                }
+            }
+
             var totalEsperado =
-                pedidoDTO.Subtotal - descuento;
+                pedidoDTO.Subtotal
+                - descuento
+                + pedidoDTO.CostoEnvio;
 
             if (Math.Round(pedidoDTO.Total, 2) !=
                 Math.Round(totalEsperado, 2))
@@ -135,6 +199,9 @@ namespace MysticBox.Api.Controllers
                     subtotal = pedido.Subtotal,
                     descuento = pedido.Descuento ?? 0,
                     total = pedido.Total,
+                    tipoEntrega = pedido.TipoEntrega,
+                    direccionEntrega = pedido.DireccionEntrega,
+                    provinciaEntrega = pedido.ProvinciaEntrega,
                     idCupon = pedido.IdCupon,
                     idMetodoPago = pedido.IdMetodoPago
                 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MysticBox.Dominio.DTO;
 using MysticBox.Dominio.InterfacesLN;
 
@@ -26,41 +26,42 @@ namespace MysticBox.Api.Controllers
         public async Task<IActionResult> ObtenerMysticBoxPorId(int idCaja)
         {
             var caja = await _mysticBoxLN.ObtenerMysticBoxPorId(idCaja);
-
-            if (caja == null)
-                return NotFound();
-
-            return Ok(caja);
+            return caja == null ? NotFound() : Ok(caja);
         }
 
         [HttpPost]
         public async Task<IActionResult> CrearMysticBox([FromBody] MysticBoxDTO mysticBoxDTO)
         {
-            var caja = await _mysticBoxLN.CrearMysticBox(mysticBoxDTO);
-
-            return Ok(caja);
+            try
+            {
+                var caja = await _mysticBoxLN.CrearMysticBox(mysticBoxDTO);
+                return Ok(caja);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpPut("{idCaja}")]
         public async Task<IActionResult> ActualizarMysticBox(int idCaja, [FromBody] MysticBoxDTO mysticBoxDTO)
         {
-            var resultado = await _mysticBoxLN.ActualizarMysticBox(idCaja, mysticBoxDTO);
-
-            if (!resultado)
-                return NotFound();
-
-            return Ok(resultado);
+            try
+            {
+                var resultado = await _mysticBoxLN.ActualizarMysticBox(idCaja, mysticBoxDTO);
+                return resultado ? Ok(new { mensaje = "Caja actualizada correctamente." }) : NotFound();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { mensaje = ex.Message });
+            }
         }
 
         [HttpDelete("{idCaja}")]
         public async Task<IActionResult> EliminarMysticBox(int idCaja)
         {
             var resultado = await _mysticBoxLN.EliminarMysticBox(idCaja);
-
-            if (!resultado)
-                return NotFound();
-
-            return Ok(resultado);
+            return resultado ? Ok(new { mensaje = "Caja eliminada correctamente." }) : NotFound();
         }
     }
 }

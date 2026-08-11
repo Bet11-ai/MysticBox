@@ -108,9 +108,23 @@ public class PedidoLN : IPedidoLN
 
                 Descuento =
                     pedido.Descuento ?? 0,
+                
 
+                CostoEnvio =
+    pedido.CostoEnvio,
                 Total =
                     pedido.Total,
+
+                TipoEntrega =
+    pedido.TipoEntrega,
+
+                DireccionEntrega =
+    pedido.DireccionEntrega,
+
+                ProvinciaEntrega =
+    pedido.ProvinciaEntrega,
+
+               
 
                 Cliente =
                     new ClientePedidoDTO
@@ -295,12 +309,24 @@ public class PedidoLN : IPedidoLN
                 Descuento =
                     pedidoDTO.Descuento,
 
+                CostoEnvio =
+                    pedidoDTO.CostoEnvio,
+
                 Total =
                     pedidoDTO.Total,
 
                 EstadoPedido =
                     pedidoDTO.EstadoPedido ??
-                    "Pendiente"
+                    "Pendiente",
+
+                TipoEntrega =
+                    pedidoDTO.TipoEntrega,
+
+                DireccionEntrega =
+                    pedidoDTO.DireccionEntrega,
+
+                ProvinciaEntrega =
+                    pedidoDTO.ProvinciaEntrega
             };
 
         _unidadTrabajo
@@ -359,6 +385,17 @@ public class PedidoLN : IPedidoLN
 
         pedido.Descuento =
             pedidoDTO.Descuento;
+        pedido.CostoEnvio =
+    pedidoDTO.CostoEnvio;
+
+        pedido.TipoEntrega =
+            pedidoDTO.TipoEntrega;
+
+        pedido.DireccionEntrega =
+            pedidoDTO.DireccionEntrega;
+
+        pedido.ProvinciaEntrega =
+            pedidoDTO.ProvinciaEntrega;
 
         pedido.Total =
             pedidoDTO.Total;

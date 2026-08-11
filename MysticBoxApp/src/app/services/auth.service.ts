@@ -34,6 +34,16 @@ export interface RegistroResponse {
   usuario: UsuarioSesion;
 }
 
+export interface RecuperarContrasenaRequest {
+  correo: string;
+  telefono: string;
+  nuevaContrasena: string;
+}
+
+export interface MensajeResponse {
+  mensaje: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -63,6 +73,15 @@ export class AuthService {
   ): Observable<UsuarioSesion> {
     return this.http.post<UsuarioSesion>(
       `${this.apiUrl}/Login`,
+      datos
+    );
+  }
+
+  recuperarContrasena(
+    datos: RecuperarContrasenaRequest
+  ): Observable<MensajeResponse> {
+    return this.http.post<MensajeResponse>(
+      `${this.apiUrl}/RecuperarContrasena`,
       datos
     );
   }

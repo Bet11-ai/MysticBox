@@ -1293,3 +1293,369 @@
   .hero-card { min-height: 320px; }
   .offer-image { height: 190px; }
 }
+
+
+.whatsapp-help {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  border-radius: 999px;
+  padding: 13px 18px;
+  background: #25d366;
+  color: #07110a;
+  font-weight: 800;
+  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+  cursor: pointer;
+}
+
+.whatsapp-help ion-icon {
+  font-size: 24px;
+}
+
+@media (max-width: 700px) {
+  .whatsapp-help span { display: none; }
+  .whatsapp-help { width: 54px; height: 54px; padding: 0; justify-content: center; }
+}
+
+/* =========================================================
+   LEGIBILIDAD + RESPONSIVE FINAL
+   Corrige tamaños demasiado pequeños del Home y usa
+   los nombres de clase reales presentes en home.page.html.
+   ========================================================= */
+
+/* Escritorio / laptop */
+@media (min-width: 1100px) {
+  .last-order-card {
+    min-height: 92px;
+    padding: 16px 18px;
+    gap: 16px;
+  }
+
+  .last-order-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+  }
+
+  .last-order-information {
+    span { font-size: 12px; }
+    h2 { margin: 4px 0; font-size: 17px; }
+    p { font-size: 12px; line-height: 1.45; }
+  }
+
+  .last-order-total {
+    span { font-size: 11px; }
+    strong { font-size: 17px; }
+  }
+
+  .track-button {
+    min-height: 44px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+
+  .products-list {
+    border-radius: 16px;
+  }
+
+  .featured-product {
+    min-height: 88px;
+    padding: 13px 16px;
+    grid-template-columns: 62px minmax(0, 1fr) auto auto;
+    gap: 15px;
+  }
+
+  .product-icon {
+    width: 62px;
+    height: 62px;
+    border-radius: 13px;
+  }
+
+  .product-description {
+    h3 { font-size: 16px; }
+    p { margin-top: 5px; font-size: 12px; line-height: 1.45; }
+  }
+
+  .featured-price {
+    font-size: 16px;
+  }
+
+  .add-product-button {
+    width: 42px;
+    height: 42px;
+    font-size: 21px;
+  }
+
+  .rating-invitation {
+    min-height: 94px;
+    padding: 18px 20px;
+    gap: 16px;
+  }
+
+  .rating-invitation .rating-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 23px;
+  }
+
+  .rating-invitation span { font-size: 11px; }
+  .rating-invitation h2 { margin: 4px 0; font-size: 17px; }
+  .rating-invitation p { font-size: 12px; line-height: 1.45; }
+  .rating-invitation button {
+    min-height: 44px;
+    padding: 0 17px;
+    font-size: 12px;
+  }
+
+  .whatsapp-help {
+    min-height: 52px;
+    padding: 0 20px;
+    font-size: 13px;
+  }
+}
+
+/* Tablet y celular */
+@media (max-width: 820px) {
+  .shop-sidebar {
+    position: static;
+    height: auto;
+    padding: 16px;
+  }
+
+  .side-brand strong { font-size: 18px; }
+  .side-brand span { font-size: 12px; }
+
+  .side-menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .menu-item {
+    min-height: 46px;
+    padding: 0 12px;
+  }
+
+  .menu-item ion-icon { font-size: 20px; }
+  .menu-item span { font-size: 13px; }
+  .menu-label { font-size: 10px; }
+
+  .side-logout {
+    min-height: 46px;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  .shop-main {
+    padding: 16px 14px 96px;
+  }
+
+  .welcome-copy span,
+  .welcome-copy p { font-size: 13px; }
+  .welcome-copy h1 { font-size: 26px; }
+
+  .round-action {
+    width: 46px;
+    height: 46px;
+    font-size: 21px;
+  }
+
+  .search-box {
+    min-height: 50px;
+  }
+  .search-box input { font-size: 14px; }
+  .search-box button {
+    height: 40px;
+    min-width: 82px;
+    font-size: 13px;
+  }
+
+  .catalog-nav {
+    min-height: 52px;
+    gap: 6px;
+    scrollbar-width: none;
+  }
+  .catalog-nav::-webkit-scrollbar { display: none; }
+  .catalog-nav button {
+    min-height: 42px;
+    padding: 0 14px;
+    font-size: 13px;
+  }
+
+  .hero-card {
+    min-height: auto;
+    padding: 25px 20px;
+  }
+  .hero-information .hero-label { font-size: 11px; }
+  .hero-information h2 {
+    font-size: clamp(30px, 9vw, 42px);
+    line-height: 1.08;
+  }
+  .hero-information p {
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .hero-information button {
+    min-height: 48px;
+    padding: 0 18px;
+    font-size: 14px;
+  }
+
+  .benefits-grid article {
+    min-height: 84px;
+    padding: 15px;
+  }
+  .benefits-grid article strong { font-size: 15px; }
+  .benefits-grid article span { font-size: 12px; line-height: 1.5; }
+
+  .section-heading {
+    align-items: center;
+  }
+  .section-heading > div > span { font-size: 10px; }
+  .section-heading h2 { font-size: 21px; }
+  .view-link { font-size: 13px; }
+
+  .offer-information h3 { font-size: 17px; }
+  .offer-information p { font-size: 13px; line-height: 1.5; }
+  .offer-information .price-container strong { font-size: 18px; }
+  .previous-price { font-size: 12px; }
+  .offer-label,
+  .discount-badge { font-size: 11px; }
+
+  .recommendation-card {
+    min-height: auto;
+    padding: 22px 18px;
+  }
+  .recommendation-content .recommendation-label { font-size: 11px; }
+  .recommendation-content h2 { font-size: 24px; }
+  .recommendation-content p { font-size: 14px; line-height: 1.55; }
+  .recommendation-actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .recommendation-actions strong { font-size: 19px; }
+  .recommendation-actions button {
+    min-height: 44px;
+    padding: 0 15px;
+    font-size: 13px;
+  }
+
+  .last-order-card {
+    min-height: auto;
+    padding: 15px;
+    gap: 12px;
+  }
+  .last-order-icon {
+    width: 46px;
+    height: 46px;
+    font-size: 21px;
+  }
+  .last-order-information span { font-size: 11px; }
+  .last-order-information h2 { font-size: 16px; }
+  .last-order-information p { font-size: 12px; line-height: 1.45; }
+  .last-order-total span { font-size: 11px; }
+  .last-order-total strong { font-size: 15px; }
+  .track-button {
+    min-height: 43px;
+    font-size: 12px;
+  }
+
+  .featured-product {
+    min-height: 84px;
+    padding: 12px;
+    gap: 12px;
+  }
+  .product-icon {
+    width: 54px;
+    height: 54px;
+  }
+  .product-description h3 { font-size: 15px; }
+  .product-description p { font-size: 12px; line-height: 1.4; }
+  .featured-price { font-size: 15px; }
+  .add-product-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .rating-invitation {
+    padding: 16px;
+  }
+  .rating-invitation span { font-size: 11px; }
+  .rating-invitation h2 { font-size: 16px; }
+  .rating-invitation p { font-size: 12px; line-height: 1.45; }
+  .rating-invitation button {
+    min-height: 44px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 560px) {
+  .side-menu {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .shop-topbar {
+    gap: 12px;
+  }
+
+  .top-actions {
+    gap: 6px;
+  }
+
+  .hero-information h2 {
+    font-size: 32px;
+  }
+
+  .section-heading {
+    gap: 8px;
+  }
+  .section-heading h2 { font-size: 19px; }
+  .view-link { white-space: nowrap; }
+
+  .last-order-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .last-order-total,
+  .track-button {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .last-order-total span,
+  .last-order-total strong {
+    text-align: left;
+  }
+
+  .featured-product {
+    grid-template-columns: 54px minmax(0, 1fr) auto;
+  }
+  .featured-price {
+    grid-column: 2;
+  }
+  .add-product-button {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+
+  .rating-invitation {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .rating-invitation button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .whatsapp-help {
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    justify-content: center;
+  }
+  .whatsapp-help span { display: none; }
+  .whatsapp-help ion-icon { font-size: 28px; }
+}

@@ -23,6 +23,7 @@ export class MysticboxPage implements OnInit {
   cajas: any[] = [];
 
   idCategoria: number = 0;
+  tipoFiltro: '' | 'ofertas' | 'recomendadas' = '';
 
   cargando: boolean = true;
 
@@ -44,6 +45,12 @@ export class MysticboxPage implements OnInit {
 
       this.idCategoria =
         Number(params['idCategoria']) || 0;
+
+      const tipo = String(params['tipo'] ?? '').toLowerCase();
+      this.tipoFiltro =
+        tipo === 'ofertas' || tipo === 'recomendadas'
+          ? tipo
+          : '';
 
       console.log(
         'ID de categoría recibido:',
@@ -77,23 +84,28 @@ export class MysticboxPage implements OnInit {
             this.idCategoria
           );
 
-          if (!this.idCategoria) {
+          this.cajas = data.filter((caja: any) => {
+            if (!this.cajaEstaActiva(caja)) {
+              return false;
+            }
 
-            this.cajas = data.filter(
-              (caja: any) =>
-                this.cajaEstaActiva(caja)
-            );
+            if (
+              this.idCategoria &&
+              Number(caja.idCategoria) !== this.idCategoria
+            ) {
+              return false;
+            }
 
-          } else {
+            if (this.tipoFiltro === 'ofertas') {
+              return this.esVerdadero(caja.esOferta) && Number(caja.porcentajeOferta ?? 0) > 0;
+            }
 
-            this.cajas = data.filter(
-              (caja: any) =>
-                Number(caja.idCategoria) ===
-                this.idCategoria &&
-                this.cajaEstaActiva(caja)
-            );
+            if (this.tipoFiltro === 'recomendadas') {
+              return this.esVerdadero(caja.esRecomendada);
+            }
 
-          }
+            return true;
+          });
 
           console.log(
             'Cajas filtradas:',
@@ -120,6 +132,10 @@ export class MysticboxPage implements OnInit {
 
       });
 
+  }
+
+  private esVerdadero(valor: any): boolean {
+    return valor === true || valor === 1 || valor === '1' || String(valor).trim().toLowerCase() === 'true';
   }
 
   cajaEstaActiva(caja: any): boolean {

@@ -28,7 +28,7 @@
           <span>Cajas</span>
         </button>
 
-        <button type="button" class="menu-item" (click)="irAlCatalogo()">
+        <button type="button" class="menu-item" (click)="irAlCatalogo('ofertas')">
           <ion-icon name="pricetag-outline"></ion-icon>
           <span>Ofertas</span>
         </button>
@@ -115,7 +115,7 @@
           <ion-icon name="grid-outline"></ion-icon>
           Categorías
         </button>
-        <button type="button" (click)="irAlCatalogo()">
+        <button type="button" (click)="irAlCatalogo('ofertas')">
           <ion-icon name="pricetag-outline"></ion-icon>
           Ofertas
         </button>
@@ -200,7 +200,7 @@
             </h2>
           </div>
 
-          <button type="button" class="view-link" (click)="irAlCatalogo()">
+          <button type="button" class="view-link" (click)="irAlCatalogo('ofertas')">
             Ver todas
             <ion-icon name="arrow-forward-outline"></ion-icon>
           </button>
@@ -210,7 +210,7 @@
           <article
             class="offer-card"
             *ngFor="let producto of ofertas"
-            (click)="abrirProducto(producto)">
+            (click)="irAlCatalogo('ofertas')">
 
             <div class="offer-image">
               <img
@@ -258,7 +258,7 @@
         </ng-template>
       </section>
 
-      <section class="recommendation-card" *ngIf="productoRecomendado as recomendado" (click)="abrirProducto(recomendado)">
+      <section class="recommendation-card" *ngIf="productoRecomendado as recomendado" (click)="irAlCatalogo('recomendadas')">
         <div class="recommendation-content">
           <span class="recommendation-label">
             <ion-icon name="star-outline"></ion-icon>
@@ -272,7 +272,7 @@
             <strong>₡{{ recomendado.precio | number }}</strong>
             <button
               type="button"
-              (click)="abrirProducto(recomendado); $event.stopPropagation()">
+              (click)="irAlCatalogo('recomendadas'); $event.stopPropagation()">
               Ver recomendación
               <ion-icon name="arrow-forward-outline"></ion-icon>
             </button>
@@ -372,4 +372,9 @@
       </section>
     </main>
   </div>
+
+    <button type="button" class="whatsapp-help" (click)="abrirWhatsApp()" aria-label="Contactar por WhatsApp">
+      <ion-icon name="logo-whatsapp"></ion-icon>
+      <span>¿Necesitas ayuda? Contáctanos</span>
+    </button>
 </ion-content>

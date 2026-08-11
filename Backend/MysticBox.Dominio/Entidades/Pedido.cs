@@ -1,5 +1,4 @@
-﻿using MysticBox.Dominio.Entidades;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace MysticBox.Dominio.Entidades;
@@ -20,11 +19,19 @@ public partial class Pedido
 
     public decimal? Descuento { get; set; }
 
+    public decimal CostoEnvio { get; set; }
+
     public decimal Total { get; set; }
 
     public string? EstadoPedido { get; set; }
 
     public virtual ICollection<Calificacione> Calificaciones { get; set; } = new List<Calificacione>();
+
+    public string? TipoEntrega { get; set; }
+
+    public string? DireccionEntrega { get; set; }
+
+    public string? ProvinciaEntrega { get; set; }
 
     public virtual ICollection<DetallePedido> DetallePedidos { get; set; } = new List<DetallePedido>();
 

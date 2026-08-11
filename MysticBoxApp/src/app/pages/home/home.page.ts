@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ToastController } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   addOutline,
@@ -25,11 +25,13 @@ import {
   shieldCheckmarkOutline,
   sparklesOutline,
   starOutline,
-  storefrontOutline
+  storefrontOutline,
+  logoWhatsapp
 } from 'ionicons/icons';
 
 import { AuthService, UsuarioSesion } from '../../services/auth.service';
 import { PedidoService } from '../../services/pedido.service';
+import { CarritoService } from '../../services/carrito.service';
 import { Mysticbox, MysticBoxModel } from '../../services/mysticbox';
 
 interface ProductoHome {
@@ -75,6 +77,8 @@ export class HomePage implements OnInit {
     private authService: AuthService,
     private pedidoService: PedidoService,
     private mysticboxService: Mysticbox,
+    private carritoService: CarritoService,
+    private toastController: ToastController,
     private router: Router
   ) {
     addIcons({
@@ -82,7 +86,8 @@ export class HomePage implements OnInit {
       checkmarkCircleOutline, cubeOutline, flameOutline, giftOutline,
       gridOutline, heartOutline, homeOutline, locationOutline, logOutOutline,
       personOutline, pricetagOutline, receiptOutline, searchOutline,
-      shieldCheckmarkOutline, sparklesOutline, starOutline, storefrontOutline
+      shieldCheckmarkOutline, sparklesOutline, starOutline, storefrontOutline,
+      logoWhatsapp
     });
   }
 
@@ -113,8 +118,6 @@ export class HomePage implements OnInit {
           .slice(0, 3);
 
         this.productoRecomendado = productos.find(producto => producto.esRecomendada)
-          ?? productos.find(producto => producto.esDestacada)
-          ?? productos[0]
           ?? null;
 
         this.productosDestacados = productos
@@ -195,14 +198,42 @@ export class HomePage implements OnInit {
   }
 
   actualizarCantidadProductos(): void {
-    try {
-      const productos = JSON.parse(sessionStorage.getItem('productosCarrito') ?? '[]');
-      this.cantidadProductosCarrito = productos.reduce(
-        (total: number, producto: any) => total + Number(producto.cantidad ?? 0), 0
-      );
-    } catch {
+    const idUsuario = this.usuario?.idUsuario;
+
+    if (!idUsuario) {
       this.cantidadProductosCarrito = 0;
+      return;
     }
+
+    this.carritoService.obtenerCarritos().subscribe({
+      next: carritos => {
+        const carritoActivo = (carritos ?? []).find((carrito: any) =>
+          Number(carrito.idUsuario) === Number(idUsuario) &&
+          String(carrito.estado ?? '').trim().toLowerCase() === 'activo'
+        );
+
+        if (!carritoActivo) {
+          this.cantidadProductosCarrito = 0;
+          return;
+        }
+
+        this.carritoService.obtenerDetallesCarrito().subscribe({
+          next: detalles => {
+            this.cantidadProductosCarrito = (detalles ?? [])
+              .filter((detalle: any) =>
+                Number(detalle.idCarrito) === Number(carritoActivo.idCarrito)
+              )
+              .reduce(
+                (total: number, detalle: any) =>
+                  total + Number(detalle.cantidad ?? 1),
+                0
+              );
+          },
+          error: () => this.cantidadProductosCarrito = 0
+        });
+      },
+      error: () => this.cantidadProductosCarrito = 0
+    });
   }
 
   obtenerNumeroPedido(idPedido: number): string {
@@ -222,35 +253,109 @@ export class HomePage implements OnInit {
     this.router.navigate(['/mysticbox']);
   }
 
-  agregarAlCarrito(producto: ProductoHome, evento?: MouseEvent): void {
+  async agregarAlCarrito(producto: ProductoHome, evento?: MouseEvent): Promise<void> {
     evento?.stopPropagation();
-    let productos: any[] = [];
-    try {
-      productos = JSON.parse(sessionStorage.getItem('productosCarrito') ?? '[]');
-    } catch {
-      productos = [];
-    }
 
-    const existente = productos.find(item => Number(item.idCaja) === Number(producto.idCaja));
-    if (existente) {
-      existente.cantidad = Number(existente.cantidad ?? 0) + 1;
-    } else {
-      productos.push({
-        idCaja: producto.idCaja,
-        nombre: producto.nombre,
-        descripcion: producto.descripcion,
-        precio: producto.precio,
-        cantidad: 1,
-        imagen: producto.imagen ?? null
+    const idUsuario = this.usuario?.idUsuario;
+
+    if (!idUsuario) {
+      const toast = await this.toastController.create({
+        message: 'Debes iniciar sesión para agregar productos al carrito.',
+        duration: 2200,
+        position: 'bottom'
       });
+      await toast.present();
+      return;
     }
 
-    sessionStorage.setItem('productosCarrito', JSON.stringify(productos));
-    this.actualizarCantidadProductos();
+    this.carritoService.obtenerCarritos().subscribe({
+      next: carritos => {
+        const carritoActivo = (carritos ?? []).find((carrito: any) =>
+          Number(carrito.idUsuario) === Number(idUsuario) &&
+          String(carrito.estado ?? '').trim().toLowerCase() === 'activo'
+        );
+
+        if (carritoActivo) {
+          this.crearDetalleCarrito(carritoActivo.idCarrito, producto);
+          return;
+        }
+
+        this.carritoService.crearCarrito({
+          idCarrito: 0,
+          idUsuario,
+          fechaCreacion: null,
+          estado: 'Activo'
+        }).subscribe({
+          next: carritoCreado =>
+            this.crearDetalleCarrito(carritoCreado.idCarrito, producto),
+          error: error => {
+            console.error('Error al crear carrito:', error);
+            this.mostrarMensajeCarrito('No se pudo crear el carrito.');
+          }
+        });
+      },
+      error: error => {
+        console.error('Error consultando carritos:', error);
+        this.mostrarMensajeCarrito('No se pudo consultar el carrito.');
+      }
+    });
+  }
+
+  private crearDetalleCarrito(idCarrito: number, producto: ProductoHome): void {
+    const detalle = {
+      idDetalleCarrito: 0,
+      idCarrito,
+      idCaja: producto.idCaja,
+      idPersonalizacion: null,
+      cantidad: 1,
+      precioUnitario: producto.precio,
+      subtotal: producto.precio
+    };
+
+    this.carritoService.crearDetalleCarrito(detalle).subscribe({
+      next: () => {
+        this.actualizarCantidadProductos();
+        this.mostrarMensajeCarrito(`${producto.nombre} se agregó al carrito.`);
+      },
+      error: error => {
+        console.error('Error agregando producto al carrito:', error);
+        this.mostrarMensajeCarrito('No se pudo agregar el producto al carrito.');
+      }
+    });
+  }
+
+  private async mostrarMensajeCarrito(mensaje: string): Promise<void> {
+    const toast = await this.toastController.create({
+      message: mensaje,
+      duration: 2200,
+      position: 'bottom'
+    });
+    await toast.present();
   }
 
   irRuta(ruta: string): void { this.router.navigate([ruta]); }
-  irAlCatalogo(): void { sessionStorage.removeItem('busquedaMysticBox'); this.router.navigate(['/mysticbox']); }
+
+  irAlCatalogo(tipo?: 'ofertas' | 'recomendadas'): void {
+    sessionStorage.removeItem('busquedaMysticBox');
+    sessionStorage.removeItem('categoriaSeleccionada');
+    this.router.navigate(['/mysticbox'], {
+      queryParams: tipo ? { tipo } : {}
+    });
+  }
+
+  abrirWhatsApp(): void {
+    // Reemplazar por el número real de Mystic Box, incluyendo código de país.
+    const numeroWhatsApp = '506XXXXXXXX';
+
+    if (numeroWhatsApp.includes('X')) {
+      alert('Configura el número real de WhatsApp en home.page.ts.');
+      return;
+    }
+
+    const mensaje = encodeURIComponent('Hola, necesito ayuda con Mystic Box.');
+    window.open(`https://wa.me/${numeroWhatsApp}?text=${mensaje}`, '_blank');
+  }
+
   irAlCarrito(): void { this.router.navigate(['/carrito']); }
   irAEntregas(): void { this.router.navigate(['/entregas']); }
 

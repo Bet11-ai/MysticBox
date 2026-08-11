@@ -1,4 +1,4 @@
-﻿using MysticBox.Dominio.DTO;
+using MysticBox.Dominio.DTO;
 
 namespace MysticBox.Dominio.InterfacesLN;
 
@@ -14,5 +14,9 @@ public interface IAuthLN
 
     Task<LoginResponseDTO> CrearAdministradorInicial(
         RegistroDTO registroDTO
+    );
+
+    Task<bool> RecuperarContrasena(
+        RecuperarContrasenaDTO recuperarDTO
     );
 }

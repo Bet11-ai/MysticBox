@@ -16,7 +16,15 @@ public class PedidoDTO
 
     public decimal? Descuento { get; set; }
 
+    public decimal CostoEnvio { get; set; }
+
     public decimal Total { get; set; }
 
     public string? EstadoPedido { get; set; }
+
+    public string? TipoEntrega { get; set; }
+
+    public string? DireccionEntrega { get; set; }
+
+    public string? ProvinciaEntrega { get; set; }
 }
