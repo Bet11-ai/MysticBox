@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using MysticBox.Dominio.DTO;
 using MysticBox.Dominio.InterfacesLN;
 
@@ -122,6 +122,48 @@ public class AuthController : ControllerBase
                 }
             );
         }
+    }
+
+    [HttpPost("RecuperarContrasena")]
+    public async Task<IActionResult> RecuperarContrasena(
+        RecuperarContrasenaDTO recuperarDTO
+    )
+    {
+        if (
+            string.IsNullOrWhiteSpace(recuperarDTO.Correo) ||
+            string.IsNullOrWhiteSpace(recuperarDTO.Telefono) ||
+            string.IsNullOrWhiteSpace(recuperarDTO.NuevaContrasena)
+        )
+        {
+            return BadRequest(new
+            {
+                mensaje = "Correo, teléfono y nueva contraseña son obligatorios."
+            });
+        }
+
+        if (recuperarDTO.NuevaContrasena.Length < 6)
+        {
+            return BadRequest(new
+            {
+                mensaje = "La nueva contraseña debe tener al menos 6 caracteres."
+            });
+        }
+
+        var resultado = await _authLN
+            .RecuperarContrasena(recuperarDTO);
+
+        if (!resultado)
+        {
+            return BadRequest(new
+            {
+                mensaje = "El correo y el teléfono no coinciden con un usuario activo."
+            });
+        }
+
+        return Ok(new
+        {
+            mensaje = "Contraseña actualizada correctamente. Ya puedes iniciar sesión."
+        });
     }
 
     [HttpPost("CrearAdministradorInicial")]

@@ -1,4 +1,4 @@
-﻿using MysticBox.Dominio.DTO;
+using MysticBox.Dominio.DTO;
 using MysticBox.Dominio.InterfacesAD;
 using MysticBox.Dominio.InterfacesLN;
 
@@ -31,6 +31,8 @@ namespace MysticBox.LogicaNegocio.Implementaciones
 
         public async Task<MysticBox.Dominio.Entidades.MysticBox> CrearMysticBox(MysticBoxDTO mysticBoxDTO)
         {
+            ValidarPromocion(mysticBoxDTO);
+
             var caja = new MysticBox.Dominio.Entidades.MysticBox
             {
                 IdCategoria = mysticBoxDTO.IdCategoria,
@@ -39,7 +41,11 @@ namespace MysticBox.LogicaNegocio.Implementaciones
                 Precio = mysticBoxDTO.Precio,
                 Imagen = mysticBoxDTO.Imagen,
                 Stock = mysticBoxDTO.Stock,
-                Estado = mysticBoxDTO.Estado
+                Estado = mysticBoxDTO.Estado,
+                EsOferta = mysticBoxDTO.EsOferta ?? false,
+                PorcentajeOferta = (mysticBoxDTO.EsOferta ?? false) ? mysticBoxDTO.PorcentajeOferta : null,
+                EsRecomendada = mysticBoxDTO.EsRecomendada ?? false,
+                EsDestacada = mysticBoxDTO.EsDestacada ?? false
             };
 
             _unidadTrabajo.TMysticBox.Insertar(caja);
@@ -50,6 +56,8 @@ namespace MysticBox.LogicaNegocio.Implementaciones
 
         public async Task<bool> ActualizarMysticBox(int idCaja, MysticBoxDTO mysticBoxDTO)
         {
+            ValidarPromocion(mysticBoxDTO);
+
             var respuesta = _unidadTrabajo.TMysticBox.ObtenerEntidad(x => x.IdCaja == idCaja);
 
             if (respuesta.ValorRetorno == null)
@@ -64,6 +72,19 @@ namespace MysticBox.LogicaNegocio.Implementaciones
             caja.Imagen = mysticBoxDTO.Imagen;
             caja.Stock = mysticBoxDTO.Stock;
             caja.Estado = mysticBoxDTO.Estado;
+            if (mysticBoxDTO.EsOferta.HasValue)
+            {
+                caja.EsOferta = mysticBoxDTO.EsOferta.Value;
+                caja.PorcentajeOferta = mysticBoxDTO.EsOferta.Value
+                    ? mysticBoxDTO.PorcentajeOferta
+                    : null;
+            }
+
+            if (mysticBoxDTO.EsRecomendada.HasValue)
+                caja.EsRecomendada = mysticBoxDTO.EsRecomendada.Value;
+
+            if (mysticBoxDTO.EsDestacada.HasValue)
+                caja.EsDestacada = mysticBoxDTO.EsDestacada.Value;
 
             _unidadTrabajo.TMysticBox.Modificar(caja);
             _unidadTrabajo.Completar();
@@ -82,6 +103,20 @@ namespace MysticBox.LogicaNegocio.Implementaciones
             _unidadTrabajo.Completar();
 
             return true;
+        }
+
+        private static void ValidarPromocion(MysticBoxDTO dto)
+        {
+            if (dto.EsOferta != true)
+                return;
+
+            if (!dto.PorcentajeOferta.HasValue ||
+                dto.PorcentajeOferta.Value <= 0 ||
+                dto.PorcentajeOferta.Value >= 100)
+            {
+                throw new ArgumentException(
+                    "Cuando una caja está en oferta debe indicar un porcentaje mayor que 0 y menor que 100.");
+            }
         }
     }
 }

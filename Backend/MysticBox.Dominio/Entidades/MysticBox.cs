@@ -1,5 +1,3 @@
-﻿
-
 using System;
 using System.Collections.Generic;
 
@@ -21,8 +19,15 @@ public partial class MysticBox
 
     public int Stock { get; set; }
 
-
     public bool? Estado { get; set; }
+
+    public bool EsOferta { get; set; }
+
+    public decimal? PorcentajeOferta { get; set; }
+
+    public bool EsRecomendada { get; set; }
+
+    public bool EsDestacada { get; set; }
 
     public virtual ICollection<DetalleCarrito> DetalleCarritos { get; set; } = new List<DetalleCarrito>();
 

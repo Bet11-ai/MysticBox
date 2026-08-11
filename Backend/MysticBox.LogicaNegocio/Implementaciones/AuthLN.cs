@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using MysticBox.Dominio.DTO;
 using MysticBox.Dominio.Entidades;
 using MysticBox.Dominio.InterfacesAD;
@@ -244,6 +244,46 @@ public class AuthLN : IAuthLN
         );
 
         return await Task.FromResult(respuesta);
+    }
+
+    public async Task<bool> RecuperarContrasena(
+        RecuperarContrasenaDTO recuperarDTO
+    )
+    {
+        var correo = recuperarDTO.Correo
+            .Trim()
+            .ToLower();
+
+        var telefono = recuperarDTO.Telefono
+            .Trim();
+
+        var respuestaUsuario =
+            _unidadTrabajo
+                .TUsuario
+                .ObtenerEntidad(
+                    usuario =>
+                        usuario.Correo.ToLower() == correo &&
+                        usuario.Telefono == telefono &&
+                        usuario.Estado == true
+                );
+
+        var usuario = respuestaUsuario.ValorRetorno;
+
+        if (usuario == null)
+        {
+            return await Task.FromResult(false);
+        }
+
+        usuario.Contrasena =
+            _passwordHasher.HashPassword(
+                usuario,
+                recuperarDTO.NuevaContrasena
+            );
+
+        _unidadTrabajo.TUsuario.Modificar(usuario);
+        _unidadTrabajo.Completar();
+
+        return await Task.FromResult(true);
     }
 
     private static LoginResponseDTO CrearRespuestaLogin(

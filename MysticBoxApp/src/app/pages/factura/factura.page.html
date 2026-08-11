@@ -1,102 +1,171 @@
-<ion-header>
-  <ion-toolbar>
+<ion-content class="invoice-content">
 
-    <ion-buttons slot="start">
-      <ion-back-button
-        defaultHref="/carrito"
-        text=""
-      ></ion-back-button>
-    </ion-buttons>
+  <main class="invoice-shell">
 
-    <ion-title>Factura</ion-title>
+    <!-- ENCABEZADO SUPERIOR -->
 
-  </ion-toolbar>
-</ion-header>
+    <header class="page-header">
 
-<ion-content>
+      <button
+        type="button"
+        class="back-button"
+        (click)="volverAlInicio()">
 
-  <main class="factura-contenedor">
+        <ion-icon
+          name="arrow-back-outline">
+        </ion-icon>
+
+      </button>
+
+      <div>
+
+        <span class="eyebrow">
+          COMPRA COMPLETADA
+        </span>
+
+        <h1>
+          Tu factura
+        </h1>
+
+        <p>
+          Aquí tienes el detalle completo
+          de tu compra.
+        </p>
+
+      </div>
+
+    </header>
+
+
+    <!-- CARGANDO -->
 
     <section
-      *ngIf="factura; else facturaNoDisponible"
-      class="factura"
-    >
+      *ngIf="cargando"
+      class="state-card">
 
-      <div class="factura-encabezado">
+      <ion-spinner
+        name="crescent">
+      </ion-spinner>
 
-        <div>
-          <p class="marca">MysticBox</p>
-          <h1>Comprobante de compra</h1>
+      <strong>
+        Preparando tu factura...
+      </strong>
+
+    </section>
+
+
+    <!-- ERROR -->
+
+    <section
+      *ngIf="
+        !cargando &&
+        mensajeError &&
+        !factura
+      "
+      class="state-card">
+
+      <ion-icon
+        name="receipt-outline">
+      </ion-icon>
+
+      <h2>
+        Factura no disponible
+      </h2>
+
+      <p>
+        {{ mensajeError }}
+      </p>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="volverAlInicio()">
+
+        Volver al inicio
+
+      </button>
+
+    </section>
+
+
+    <!-- FACTURA -->
+
+    <section
+      *ngIf="
+        !cargando &&
+        factura
+      "
+      class="invoice-card">
+
+      <!-- CABECERA FACTURA -->
+
+      <div class="invoice-header">
+
+        <div class="brand-area">
+
+          <div class="brand-icon">
+
+            <ion-icon
+              name="bag-handle-outline">
+            </ion-icon>
+
+          </div>
+
+          <div>
+
+            <span>
+              MYSTIC BOX
+            </span>
+
+            <h2>
+              Comprobante de compra
+            </h2>
+
+            <p>
+              Gracias por elegir una sorpresa
+              pensada especialmente para ti.
+            </p>
+
+          </div>
+
         </div>
 
-        <div class="numero-factura">
-          <span>Número de factura</span>
+
+        <div class="invoice-number">
+
+          <span>
+            Número de factura
+          </span>
 
           <strong>
             {{ factura.numeroFactura }}
           </strong>
+
         </div>
 
       </div>
 
-      <div class="datos-factura">
 
-        <p>
-          <strong>Fecha:</strong>
+      <!-- DATOS GENERALES -->
 
-          {{
-            factura.fechaFactura
-              | date:'dd/MM/yyyy, h:mm a'
-          }}
-        </p>
+      <div class="invoice-meta">
 
-        <p>
-          <strong>Número de pedido:</strong>
+        <article>
 
-          MB-{{
-            factura.idPedido
-              | number:'6.0-0'
-          }}
-        </p>
+          <ion-icon
+            name="calendar-outline">
+          </ion-icon>
 
-      </div>
-
-      <section class="productos">
-
-        <h2>Productos comprados</h2>
-
-        <article
-          *ngFor="let producto of productos"
-          class="producto"
-        >
-
-          <div class="producto-informacion">
-
-            <h3>
-              {{ producto.nombre }}
-            </h3>
-
-            <p *ngIf="producto.descripcion">
-              {{ producto.descripcion }}
-            </p>
+          <div>
 
             <span>
-              Cantidad:
-              {{ producto.cantidad }}
-            </span>
-
-          </div>
-
-          <div class="producto-precio">
-
-            <span>
-              Precio unitario
+              Fecha
             </span>
 
             <strong>
-              ₡{{
-                producto.precio
-                  | number:'1.0-0'
+              {{
+                factura.fechaFactura
+                  | date:'dd/MM/yyyy, h:mm a'
               }}
             </strong>
 
@@ -104,92 +173,338 @@
 
         </article>
 
-      </section>
 
-      <section class="resumen">
+        <article>
 
-        <div class="resumen-fila">
-          <span>Subtotal</span>
+          <ion-icon
+            name="receipt-outline">
+          </ion-icon>
 
-          <strong>
-            ₡{{
-              factura.subtotal
-                | number:'1.0-0'
-            }}
-          </strong>
-        </div>
+          <div>
 
-        <div class="resumen-fila">
-          <span>Descuento</span>
+            <span>
+              Número de pedido
+            </span>
 
-          <strong>
-            - ₡{{
-              factura.descuento
-                | number:'1.0-0'
-            }}
-          </strong>
-        </div>
+            <strong>
+              {{ obtenerNumeroPedido() }}
+            </strong>
 
-        <div class="resumen-fila total">
-          <span>Total final</span>
+          </div>
 
-          <strong>
-            ₡{{
-              factura.total
-                | number:'1.0-0'
-            }}
-          </strong>
-        </div>
+        </article>
 
-      </section>
 
-      <p class="mensaje-final">
-        Gracias por comprar en MysticBox.
-      </p>
+        <article>
 
-      <div class="acciones">
+          <ion-icon
+            [name]="obtenerIconoEntrega()">
+          </ion-icon>
 
-        <button
-          type="button"
-          class="boton-secundario"
-          (click)="irAPedidos()"
-        >
-          Ver mis pedidos
-        </button>
+          <div>
 
-        <button
-          type="button"
-          class="boton-principal"
-          (click)="volverAlInicio()"
-        >
-          Volver al inicio
-        </button>
+            <span>
+              Entrega
+            </span>
+
+            <strong>
+              {{ obtenerTipoEntrega() }}
+            </strong>
+
+          </div>
+
+        </article>
 
       </div>
 
-    </section>
 
-    <ng-template #facturaNoDisponible>
+      <!-- DIRECCIÓN -->
 
-      <section class="factura-vacia">
+      <section
+        class="delivery-info"
+        *ngIf="esEnvio()">
 
-        <h1>Factura no disponible</h1>
+        <div class="delivery-icon">
 
-        <p>
-          No se encontró una factura generada para mostrar.
-        </p>
+          <ion-icon
+            name="location-outline">
+          </ion-icon>
 
-        <button
-          type="button"
-          class="boton-principal"
-          (click)="volverAlInicio()"
-        >
-          Volver al inicio
-        </button>
+        </div>
+
+        <div>
+
+          <span>
+            DIRECCIÓN DE ENTREGA
+          </span>
+
+          <strong
+            *ngIf="obtenerProvincia()">
+
+            {{ obtenerProvincia() }}
+
+          </strong>
+
+          <p>
+            {{ obtenerDireccion() }}
+          </p>
+
+        </div>
 
       </section>
 
-    </ng-template>
+
+      <!-- PRODUCTOS -->
+
+      <section class="products-section">
+
+        <div class="section-heading">
+
+          <div>
+
+            <span>
+              PRODUCTOS
+            </span>
+
+            <h3>
+              Tu compra
+            </h3>
+
+          </div>
+
+          <strong>
+            {{ productos.length }}
+            producto(s)
+          </strong>
+
+        </div>
+
+
+        <div class="products-list">
+
+          <article
+            class="product-item"
+            *ngFor="let producto of productos">
+
+            <div class="product-image">
+
+              <img
+                *ngIf="producto.imagen"
+                [src]="
+                  obtenerImagen(
+                    producto.imagen
+                  )
+                "
+                [alt]="producto.nombre" />
+
+              <ion-icon
+                *ngIf="!producto.imagen"
+                name="bag-handle-outline">
+              </ion-icon>
+
+            </div>
+
+
+            <div class="product-copy">
+
+              <h4>
+                {{ producto.nombre }}
+              </h4>
+
+              <p
+                *ngIf="
+                  producto.descripcion
+                ">
+
+                {{ producto.descripcion }}
+
+              </p>
+
+              <span>
+                Cantidad:
+                {{ producto.cantidad }}
+              </span>
+
+            </div>
+
+
+            <div class="product-price">
+
+              <span>
+                Precio unitario
+              </span>
+
+              <strong>
+                {{
+                  producto.precio
+                    | currency:'CRC':'symbol-narrow':'1.0-0'
+                }}
+              </strong>
+
+              <small>
+                Subtotal:
+                {{
+                  producto.subtotal
+                    | currency:'CRC':'symbol-narrow':'1.0-0'
+                }}
+              </small>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- RESUMEN -->
+
+      <section class="invoice-summary">
+
+        <div class="summary-row">
+
+          <span>
+            Subtotal
+          </span>
+
+          <strong>
+            {{
+              factura.subtotal
+                | currency:'CRC':'symbol-narrow':'1.0-0'
+            }}
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Descuento
+          </span>
+
+          <strong class="discount">
+
+            -
+            {{
+              (factura.descuento || 0)
+                | currency:'CRC':'symbol-narrow':'1.0-0'
+            }}
+
+          </strong>
+
+        </div>
+
+
+        <div class="summary-row">
+
+          <span>
+            Costo de envío
+          </span>
+
+          <strong>
+
+            {{
+              obtenerCostoEnvio()
+                | currency:'CRC':'symbol-narrow':'1.0-0'
+            }}
+
+          </strong>
+
+        </div>
+
+
+        <div class="summary-total">
+
+          <div>
+
+            <span>
+              Total pagado
+            </span>
+
+            <small>
+              Impuestos y cargos incluidos
+            </small>
+
+          </div>
+
+          <strong>
+
+            {{
+              factura.total
+                | currency:'CRC':'symbol-narrow':'1.0-0'
+            }}
+
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <!-- CONFIRMACIÓN -->
+
+      <section class="success-message">
+
+        <div>
+
+          <ion-icon
+            name="checkmark-circle-outline">
+          </ion-icon>
+
+        </div>
+
+        <div>
+
+          <strong>
+            ¡Compra realizada con éxito!
+          </strong>
+
+          <span>
+            Hemos registrado tu pedido correctamente.
+            Puedes consultar su avance desde Mis pedidos.
+          </span>
+
+        </div>
+
+      </section>
+
+
+      <!-- BOTONES -->
+
+      <footer class="invoice-actions">
+
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="irAPedidos()">
+
+          <ion-icon
+            name="receipt-outline">
+          </ion-icon>
+
+          Ver mis pedidos
+
+        </button>
+
+
+        <button
+          type="button"
+          class="primary-button"
+          (click)="volverAlInicio()">
+
+          <ion-icon
+            name="storefront-outline">
+          </ion-icon>
+
+          Seguir comprando
+
+        </button>
+
+      </footer>
+
+    </section>
 
   </main>
 

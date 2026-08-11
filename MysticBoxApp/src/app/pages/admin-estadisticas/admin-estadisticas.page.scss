@@ -9,7 +9,7 @@
   --blue: #359dff;
   --gold: #f5c747;
   --green: #40d890;
-  --purple: #b775ff;
+  --accent-blue: #3e9fff;
   --orange: #ff9e3d;
   --red: #ff6572;
 
@@ -494,7 +494,7 @@
 
   .metric-icon {
     color:
-      var(--purple);
+      var(--accent-blue);
 
     background:
       rgba(183, 117, 255, 0.11);
@@ -825,7 +825,7 @@
   .status-dot,
   .state-progress-fill {
     background:
-      var(--purple);
+      var(--accent-blue);
   }
 }
 

@@ -7,8 +7,8 @@
   --text: #f4f7fb;
   --muted: #8999ad;
 
-  --purple: #9b59f6;
-  --purple-light: #bc84ff;
+  --accent-blue: #9b59f6;
+  --accent-blue-light: #bc84ff;
 
   --blue: #429dff;
   --green: #3bd58a;
@@ -63,7 +63,7 @@
 }
 
 .task-label {
-  color: var(--purple-light);
+  color: var(--accent-blue-light);
 
   font-size: 10px;
   font-weight: 900;
@@ -82,7 +82,7 @@
 
   border-radius: 11px;
 
-  color: var(--purple-light);
+  color: var(--accent-blue-light);
 
   background:
     rgba(155, 89, 246, 0.05);
@@ -110,7 +110,7 @@
   background: var(--card-dark);
 
   ion-icon {
-    color: var(--purple-light);
+    color: var(--accent-blue-light);
   }
 
   select {
@@ -139,7 +139,7 @@
 
   border-radius: 10px;
 
-  color: var(--purple-light);
+  color: var(--accent-blue-light);
 
   background:
     rgba(155, 89, 246, 0.06);
@@ -222,7 +222,7 @@
     rgba(155, 89, 246, 0.3);
 
   .summary-icon {
-    color: var(--purple-light);
+    color: var(--accent-blue-light);
     background:
       rgba(155, 89, 246, 0.13);
   }
@@ -297,7 +297,7 @@
   }
 
   > div > span {
-    color: var(--purple-light);
+    color: var(--accent-blue-light);
 
     font-size: 9px;
     font-weight: 900;
@@ -319,7 +319,7 @@
   }
 
   > ion-icon {
-    color: var(--purple-light);
+    color: var(--accent-blue-light);
     font-size: 27px;
   }
 }
@@ -645,7 +645,7 @@
 }
 
 .client-total {
-  color: var(--purple-light);
+  color: var(--accent-blue-light);
 
   font-size: 10px;
 
@@ -698,7 +698,7 @@
 
     border-radius: 9px;
 
-    color: var(--purple-light);
+    color: var(--accent-blue-light);
 
     background:
       rgba(155, 89, 246, 0.08);
@@ -723,7 +723,7 @@
   color: var(--muted);
 
   ion-spinner {
-    color: var(--purple-light);
+    color: var(--accent-blue-light);
   }
 }
 

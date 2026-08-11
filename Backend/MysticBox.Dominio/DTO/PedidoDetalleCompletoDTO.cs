@@ -14,18 +14,26 @@ public class PedidoDetalleCompletoDTO
 
     public decimal Descuento { get; set; }
 
+    public decimal CostoEnvio { get; set; }
+
     public decimal Total { get; set; }
 
-    public ClientePedidoDTO Cliente { get; set; } =
-        new ClientePedidoDTO();
+    public string? TipoEntrega { get; set; }
 
-    public MetodoPagoPedidoDTO MetodoPago { get; set; } =
-        new MetodoPagoPedidoDTO();
+    public string? DireccionEntrega { get; set; }
+
+    public string? ProvinciaEntrega { get; set; }
+
+    public ClientePedidoDTO Cliente { get; set; }
+        = new ClientePedidoDTO();
+
+    public MetodoPagoPedidoDTO MetodoPago { get; set; }
+        = new MetodoPagoPedidoDTO();
 
     public CuponPedidoDTO? Cupon { get; set; }
 
-    public List<ProductoPedidoDTO> Productos { get; set; } =
-        new List<ProductoPedidoDTO>();
+    public List<ProductoPedidoDTO> Productos { get; set; }
+        = new List<ProductoPedidoDTO>();
 }
 
 public class ClientePedidoDTO

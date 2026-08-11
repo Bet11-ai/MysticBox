@@ -1,8 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { Router, RouterLink } from '@angular/router';
+
+import {
+  Router,
+  RouterLink
+} from '@angular/router';
 
 import {
   CrearPedidoRequest,
@@ -50,7 +58,9 @@ interface DatosCompra {
 @Component({
   selector: 'app-proceso-compra',
   templateUrl: './proceso-compra.page.html',
-  styleUrls: ['./proceso-compra.page.scss'],
+  styleUrls: [
+    './proceso-compra.page.scss'
+  ],
   standalone: true,
   imports: [
     CommonModule,
@@ -59,32 +69,55 @@ interface DatosCompra {
     RouterLink
   ]
 })
-export class ProcesoCompraPage implements OnInit {
+export class ProcesoCompraPage
+  implements OnInit {
 
-  datosCompra: DatosCompra = {
+  datosCompra:
+    DatosCompra = {
+
     productos: [],
+
     subtotal: 0,
+
     descuento: 0,
+
     totalFinal: 0,
+
     cupon: null
   };
 
   direccionEntrega = '';
 
+  provinciaEntrega = '';
+
+  tipoEntrega:
+    'retiro' |
+    'envio' = 'retiro';
+
+  costoEnvio = 0;
+
   idMetodoPago = 1;
 
-  procesandoCompra = false;
+  procesandoCompra =
+    false;
 
   mensajeError = '';
 
-  compraRealizada = false;
+  compraRealizada =
+    false;
 
-  pedidoCreado: PedidoCreadoResponse | null = null;
+  pedidoCreado:
+    PedidoCreadoResponse |
+    null = null;
 
   constructor(
-    private pedidoService: PedidoService,
-    private router: Router
+    private pedidoService:
+      PedidoService,
+
+    private router:
+      Router
   ) {
+
     addIcons({
       arrowBackOutline,
       cardOutline,
@@ -100,15 +133,21 @@ export class ProcesoCompraPage implements OnInit {
   }
 
   ngOnInit(): void {
+
     this.cargarDatosCompra();
+
     this.cargarDireccionUsuario();
   }
 
   cargarDatosCompra(): void {
+
     const datosGuardados =
-      sessionStorage.getItem('datosCompra');
+      sessionStorage.getItem(
+        'datosCompra'
+      );
 
     if (!datosGuardados) {
+
       this.mensajeError =
         'No se encontraron productos para procesar la compra.';
 
@@ -116,21 +155,53 @@ export class ProcesoCompraPage implements OnInit {
     }
 
     try {
-      const datos = JSON.parse(datosGuardados);
+
+      const datos =
+        JSON.parse(
+          datosGuardados
+        );
 
       this.datosCompra = {
-        productos: datos.productos ?? [],
-        subtotal: Number(datos.subtotal ?? 0),
-        descuento: Number(datos.descuento ?? 0),
-        totalFinal: Number(datos.totalFinal ?? 0),
-        cupon: datos.cupon ?? null
+
+        productos:
+          datos.productos ??
+          [],
+
+        subtotal:
+          Number(
+            datos.subtotal ??
+            0
+          ),
+
+        descuento:
+          Number(
+            datos.descuento ??
+            0
+          ),
+
+        totalFinal:
+          Number(
+            datos.totalFinal ??
+            0
+          ),
+
+        cupon:
+          datos.cupon ??
+          null
       };
 
-      if (this.datosCompra.productos.length === 0) {
+      if (
+        this.datosCompra
+          .productos
+          .length === 0
+      ) {
+
         this.mensajeError =
           'El carrito no contiene productos.';
       }
+
     } catch (error) {
+
       console.error(
         'Error al leer los datos de la compra:',
         error
@@ -141,22 +212,36 @@ export class ProcesoCompraPage implements OnInit {
     }
   }
 
-  cargarDireccionUsuario(): void {
+  cargarDireccionUsuario():
+    void {
+
     const usuarioGuardado =
-      sessionStorage.getItem('usuario');
+      sessionStorage.getItem(
+        'usuario'
+      )
+      ??
+      localStorage.getItem(
+        'usuario'
+      );
 
     if (!usuarioGuardado) {
       return;
     }
 
     try {
-      const usuario = JSON.parse(usuarioGuardado);
+
+      const usuario =
+        JSON.parse(
+          usuarioGuardado
+        );
 
       this.direccionEntrega =
-        usuario.direccionEntrega ??
         usuario.direccion ??
+        usuario.direccionEntrega ??
         '';
+
     } catch (error) {
+
       console.error(
         'No fue posible cargar la dirección:',
         error
@@ -165,29 +250,55 @@ export class ProcesoCompraPage implements OnInit {
   }
 
   calcularSubtotalProducto(
-    producto: ProductoCompra
+    producto:
+      ProductoCompra
   ): number {
-    return producto.precio * producto.cantidad;
+
+    return (
+      producto.precio *
+      producto.cantidad
+    );
   }
 
-  obtenerIdUsuario(): number {
+  obtenerIdUsuario():
+    number {
+
     const usuarioGuardado =
-      sessionStorage.getItem('usuario');
+      localStorage.getItem(
+        'usuario'
+      )
+      ??
+      sessionStorage.getItem(
+        'usuario'
+      );
 
-    if (usuarioGuardado) {
+    if (
+      usuarioGuardado
+    ) {
+
       try {
-        const usuario = JSON.parse(usuarioGuardado);
 
-        const idUsuario = Number(
-          usuario.idUsuario ??
-          usuario.usuarioId ??
-          usuario.id
-        );
+        const usuario =
+          JSON.parse(
+            usuarioGuardado
+          );
 
-        if (idUsuario > 0) {
+        const idUsuario =
+          Number(
+            usuario.idUsuario ??
+            usuario.usuarioId ??
+            usuario.id
+          );
+
+        if (
+          idUsuario > 0
+        ) {
+
           return idUsuario;
         }
+
       } catch (error) {
+
         console.error(
           'No fue posible leer el usuario:',
           error
@@ -195,121 +306,238 @@ export class ProcesoCompraPage implements OnInit {
       }
     }
 
-    /*
-     * Se usa temporalmente el usuario 1,
-     * porque fue confirmado en Swagger.
-     */
-    return 1;
+    return 0;
   }
 
   confirmarCompra(): void {
-    this.mensajeError = '';
 
-    if (this.datosCompra.productos.length === 0) {
+    this.mensajeError =
+      '';
+
+    if (
+      this.datosCompra
+        .productos
+        .length === 0
+    ) {
+
       this.mensajeError =
         'Debe tener productos en el carrito.';
 
       return;
     }
 
-    if (!this.direccionEntrega.trim()) {
+    const idUsuario =
+      this.obtenerIdUsuario();
+
+    if (
+      idUsuario <= 0
+    ) {
+
       this.mensajeError =
-        'Debe ingresar la dirección de entrega.';
+        'Debes iniciar sesión para realizar la compra.';
 
       return;
     }
 
-    if (this.idMetodoPago <= 0) {
+    if (
+      this.idMetodoPago <= 0
+    ) {
+
       this.mensajeError =
         'Debe seleccionar un método de pago.';
 
       return;
     }
 
-    if (this.datosCompra.totalFinal <= 0) {
+    /*
+     * Esta pantalla pertenece al flujo anterior.
+     * Se deja como RETIRO EN TIENDA para que
+     * siga siendo compatible con Pedido.
+     *
+     * La selección real retiro/envío se hará
+     * en el carrito nuevo.
+     */
+
+    this.tipoEntrega =
+      'retiro';
+
+    this.costoEnvio =
+      0;
+
+    this.provinciaEntrega =
+      '';
+
+    this.direccionEntrega =
+      '';
+
+    const total =
+      Math.max(
+        this.datosCompra.subtotal
+        -
+        this.datosCompra.descuento
+        +
+        this.costoEnvio,
+        0
+      );
+
+    if (
+      total <= 0
+    ) {
+
       this.mensajeError =
         'El total de la compra no es válido.';
 
       return;
     }
 
-    const pedido: CrearPedidoRequest = {
-      
-      idUsuario: this.obtenerIdUsuario(),
+    const pedido:
+      CrearPedidoRequest = {
+
+      idUsuario,
+
       idCupon:
-        this.datosCompra.cupon?.idCupon ?? null,
-      idMetodoPago: this.idMetodoPago,
-      fechaPedido: null,
-      subtotal: this.datosCompra.subtotal,
-      descuento: this.datosCompra.descuento,
-      total: this.datosCompra.totalFinal,
-      estadoPedido: 'Pendiente'
+        this.datosCompra
+          .cupon
+          ?.idCupon
+        ??
+        null,
+
+      idMetodoPago:
+        this.idMetodoPago,
+
+      fechaPedido:
+        null,
+
+      subtotal:
+        this.datosCompra
+          .subtotal,
+
+      descuento:
+        this.datosCompra
+          .descuento,
+
+      costoEnvio:
+        this.costoEnvio,
+
+      total,
+
+      estadoPedido:
+        'Pendiente',
+
+      tipoEntrega:
+        this.tipoEntrega,
+
+      direccionEntrega:
+        null,
+
+      provinciaEntrega:
+        null
     };
 
-    this.procesandoCompra = true;
+    this.procesandoCompra =
+      true;
 
     this.pedidoService
-      .crearPedido(pedido)
+      .crearPedido(
+        pedido
+      )
       .subscribe({
-        next: (respuesta) => {
-          this.procesandoCompra = false;
-          this.compraRealizada = true;
-          this.pedidoCreado = respuesta;
 
-          /*
-           * Se guarda el pedido completo para:
-           * - Seguimiento de entrega.
-           * - Calificación de experiencia.
-           * - Consulta del pedido más reciente.
-           */
+        next: (
+          respuesta
+        ) => {
+
+          this.procesandoCompra =
+            false;
+
+          this.compraRealizada =
+            true;
+
+          this.pedidoCreado =
+            respuesta;
+
           const ultimoPedido = {
-            idPedido: respuesta.idPedido,
-            numeroPedido: respuesta.numeroPedido,
-            fechaPedido: respuesta.fechaPedido,
+
+            idPedido:
+              respuesta.idPedido,
+
+            numeroPedido:
+              respuesta.numeroPedido,
+
+            fechaPedido:
+              respuesta.fechaPedido,
+
             fechaEstimadaEntrega:
               respuesta.fechaEstimadaEntrega,
-            estadoPedido: respuesta.estadoPedido,
-            subtotal: respuesta.subtotal,
-            descuento: respuesta.descuento,
-            total: respuesta.total,
-            idCupon: respuesta.idCupon,
-            idMetodoPago: respuesta.idMetodoPago,
-            productos: this.datosCompra.productos,
+
+            estadoPedido:
+              respuesta.estadoPedido,
+
+            subtotal:
+              respuesta.subtotal,
+
+            descuento:
+              respuesta.descuento,
+
+            costoEnvio:
+              respuesta.costoEnvio,
+
+            total:
+              respuesta.total,
+
+            idCupon:
+              respuesta.idCupon,
+
+            idMetodoPago:
+              respuesta.idMetodoPago,
+
+            tipoEntrega:
+              respuesta.tipoEntrega,
+
             direccionEntrega:
-              this.direccionEntrega.trim(),
-            cupon: this.datosCompra.cupon
+              respuesta.direccionEntrega,
+
+            provinciaEntrega:
+              respuesta.provinciaEntrega,
+
+            productos:
+              this.datosCompra
+                .productos,
+
+            cupon:
+              this.datosCompra
+                .cupon
           };
 
           sessionStorage.setItem(
             'ultimoPedido',
-            JSON.stringify(ultimoPedido)
+            JSON.stringify(
+              ultimoPedido
+            )
           );
 
-          /*
-           * También lo guardamos en localStorage.
-           * Así no se pierde al cerrar la pestaña
-           * o reiniciar Ionic.
-           */
           localStorage.setItem(
             'ultimoPedido',
-            JSON.stringify(ultimoPedido)
+            JSON.stringify(
+              ultimoPedido
+            )
           );
 
-          sessionStorage.removeItem('datosCompra');
-          sessionStorage.removeItem('productosCarrito');
-
-          console.log(
-            'Pedido creado correctamente:',
-            respuesta
+          sessionStorage.removeItem(
+            'datosCompra'
           );
 
-          console.log(
-            'Último pedido guardado:',
-            ultimoPedido
+          sessionStorage.removeItem(
+            'productosCarrito'
           );
         },
-        error: (error) => {
-          this.procesandoCompra = false;
+
+        error: (
+          error
+        ) => {
+
+          this.procesandoCompra =
+            false;
 
           this.mensajeError =
             error.error?.mensaje ??
@@ -320,14 +548,21 @@ export class ProcesoCompraPage implements OnInit {
             error
           );
         }
+
       });
   }
 
   irAMisPedidos(): void {
-    this.router.navigate(['/pedidos']);
+
+    this.router.navigate([
+      '/pedidos'
+    ]);
   }
 
   volverAlInicio(): void {
-    this.router.navigate(['/home']);
+
+    this.router.navigate([
+      '/home'
+    ]);
   }
 }

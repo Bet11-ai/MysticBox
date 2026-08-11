@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MysticBox.Dominio.Entidades;
 using System.Reflection.Emit;
 
@@ -257,6 +257,14 @@ public partial class MysticBoxContext : DbContext
                 .IsUnicode(false);
 
             entity.Property(e => e.Precio).HasColumnType("decimal(10, 2)");
+
+            entity.Property(e => e.EsOferta).HasDefaultValue(false);
+
+            entity.Property(e => e.PorcentajeOferta).HasColumnType("decimal(5, 2)");
+
+            entity.Property(e => e.EsRecomendada).HasDefaultValue(false);
+
+            entity.Property(e => e.EsDestacada).HasDefaultValue(false);
 
             entity.HasOne(d => d.IdCategoriaNavigation).WithMany(p => p.MysticBoxes)
                 .HasForeignKey(d => d.IdCategoria)

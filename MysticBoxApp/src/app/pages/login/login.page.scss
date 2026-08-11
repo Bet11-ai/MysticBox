@@ -131,3 +131,15 @@ ion-icon {
   color: white;
 
 }
+
+.subtitle { text-align:center; color:#bfc8d8; margin-bottom:35px; font-size:16px; }
+.password-item { position: relative; }
+.password-toggle { background: transparent; border: 0; padding: 10px; cursor: pointer; display:flex; align-items:center; justify-content:center; }
+.forgot-link { align-self:flex-end; background:transparent; border:0; color:#60a5fa; cursor:pointer; margin:-6px 0 14px; font-weight:600; }
+.recovery-card { background:#0f172a; border:1px solid rgba(59,130,246,.35); border-radius:16px; padding:16px; margin-bottom:16px; }
+.recovery-title { display:flex; gap:12px; align-items:center; color:white; margin-bottom:14px; }
+.recovery-title div { display:flex; flex-direction:column; gap:3px; }
+.recovery-title span { color:#94a3b8; font-size:13px; }
+.input-item.compact { margin-bottom:10px; }
+.register-container { margin-top:24px; text-align:center; color:#c6d0df; }
+.btn-registro { background:transparent; border:0; color:#60a5fa; cursor:pointer; font-weight:700; margin-left:5px; }

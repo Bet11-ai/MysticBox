@@ -1,47 +1,69 @@
 <ion-content fullscreen class="login-content">
-
   <div class="login-container">
-
     <img src="assets/img/logo-mysticbox.png" alt="MysticBox" class="logo">
 
     <h1>Bienvenida</h1>
-
     <p class="subtitle">Inicia sesión para continuar</p>
 
     <ion-item class="input-item">
-      <ion-input
-        [(ngModel)]="correo"
-        type="email"
-        placeholder="Correo electrónico">
-      </ion-input>
+      <ion-input [(ngModel)]="correo" type="email" placeholder="Correo electrónico"></ion-input>
     </ion-item>
 
-    <ion-item class="input-item">
+    <ion-item class="input-item password-item">
       <ion-input
         [(ngModel)]="contrasena"
-        type="password"
+        [type]="mostrarContrasena ? 'text' : 'password'"
         placeholder="Contraseña">
       </ion-input>
+      <button type="button" class="password-toggle" (click)="alternarContrasena()" aria-label="Mostrar u ocultar contraseña">
+        <ion-icon [name]="mostrarContrasena ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+      </button>
     </ion-item>
 
-    <ion-button
-      expand="block"
-      class="login-button"
-      [disabled]="cargando"
-      (click)="login()">
+    <button type="button" class="forgot-link" (click)="abrirRecuperacion()">
+      ¿Olvidaste tu contraseña?
+    </button>
 
+    <section class="recovery-card" *ngIf="mostrarRecuperacion">
+      <div class="recovery-title">
+        <ion-icon name="key-outline"></ion-icon>
+        <div>
+          <strong>Recuperar contraseña</strong>
+          <span>Confirma el correo y teléfono registrados.</span>
+        </div>
+      </div>
+
+      <ion-item class="input-item compact">
+        <ion-input [(ngModel)]="correoRecuperacion" type="email" placeholder="Correo registrado"></ion-input>
+      </ion-item>
+
+      <ion-item class="input-item compact">
+        <ion-input [(ngModel)]="telefonoRecuperacion" type="tel" placeholder="Teléfono registrado"></ion-input>
+      </ion-item>
+
+      <ion-item class="input-item compact password-item">
+        <ion-input [(ngModel)]="nuevaContrasena" [type]="mostrarNuevaContrasena ? 'text' : 'password'" placeholder="Nueva contraseña"></ion-input>
+        <button type="button" class="password-toggle" (click)="mostrarNuevaContrasena = !mostrarNuevaContrasena">
+          <ion-icon [name]="mostrarNuevaContrasena ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </button>
+      </ion-item>
+
+      <ion-item class="input-item compact">
+        <ion-input [(ngModel)]="confirmarContrasena" [type]="mostrarNuevaContrasena ? 'text' : 'password'" placeholder="Confirmar nueva contraseña"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" fill="outline" [disabled]="recuperando" (click)="recuperarContrasena()">
+        {{ recuperando ? 'Actualizando...' : 'Cambiar contraseña' }}
+      </ion-button>
+    </section>
+
+    <ion-button expand="block" class="login-button" [disabled]="cargando" (click)="login()">
       {{ cargando ? 'Ingresando...' : 'Iniciar sesión' }}
-
     </ion-button>
 
     <div class="register-container">
       <span class="texto">¿No tienes cuenta?</span>
-
-      <button class="btn-registro" (click)="irRegistro()">
-        Regístrate
-      </button>
+      <button class="btn-registro" (click)="irRegistro()">Regístrate</button>
     </div>
-
   </div>
-
 </ion-content>

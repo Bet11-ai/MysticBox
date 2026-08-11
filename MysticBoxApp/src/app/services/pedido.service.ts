@@ -7,50 +7,86 @@ import { environment } from '../../environments/environment';
 export interface Pedido {
   idPedido: number;
   numeroPedido?: string;
+
   idUsuario: number;
   idCupon: number | null;
   idMetodoPago: number;
+
   fechaPedido: string | null;
   fechaEstimadaEntrega?: string | null;
+
   subtotal: number;
   descuento: number | null;
+  costoEnvio: number;
   total: number;
+
   estadoPedido: string | null;
+
+  tipoEntrega: string | null;
+  direccionEntrega: string | null;
+  provinciaEntrega: string | null;
 }
 
 export interface CrearPedidoRequest {
   idUsuario: number;
   idCupon: number | null;
   idMetodoPago: number;
+
   fechaPedido: string | null;
+
   subtotal: number;
   descuento: number;
+  costoEnvio: number;
   total: number;
+
   estadoPedido: string;
+
+  tipoEntrega: string;
+  direccionEntrega: string | null;
+  provinciaEntrega: string | null;
 }
 
 export interface ActualizarPedidoRequest {
   idPedido: number;
+
   idUsuario: number;
   idCupon: number | null;
   idMetodoPago: number;
+
   fechaPedido: string | null;
+
   subtotal: number;
   descuento: number | null;
+  costoEnvio: number;
   total: number;
+
   estadoPedido: string;
+
+  tipoEntrega: string | null;
+  direccionEntrega: string | null;
+  provinciaEntrega: string | null;
 }
 
 export interface PedidoCreadoResponse {
   mensaje: string;
+
   idPedido: number;
   numeroPedido: string;
+
   fechaPedido: string;
   fechaEstimadaEntrega: string;
+
   estadoPedido: string;
+
   subtotal: number;
   descuento: number;
+  costoEnvio: number;
   total: number;
+
+  tipoEntrega: string | null;
+  direccionEntrega: string | null;
+  provinciaEntrega: string | null;
+
   idCupon: number | null;
   idMetodoPago: number;
 }
@@ -82,30 +118,40 @@ export interface ProductoPedidoDetalle {
   nombreCaja: string;
   descripcion: string | null;
   imagen: string | null;
+
   cantidad: number;
   precioUnitario: number;
   subtotal: number;
+
   idPersonalizacion: number | null;
   tamanoCaja: string | null;
   preferencias: string | null;
   exclusiones: string | null;
   mensajePersonalizado: string | null;
 
-  // Se usa únicamente en el frontend para ocultar una imagen que no pudo cargar.
   errorImagen?: boolean;
 }
 
 export interface PedidoDetalleCompleto {
   idPedido: number;
   numeroPedido: string;
+
   fechaPedido: string | null;
   estadoPedido: string;
+
   subtotal: number;
   descuento: number;
+  costoEnvio: number;
   total: number;
+
+  tipoEntrega: string | null;
+  direccionEntrega: string | null;
+  provinciaEntrega: string | null;
+
   cliente: ClientePedidoDetalle;
   metodoPago: MetodoPagoPedidoDetalle;
   cupon: CuponPedidoDetalle | null;
+
   productos: ProductoPedidoDetalle[];
 }
 
@@ -122,6 +168,7 @@ export class PedidoService {
   ) {}
 
   obtenerPedidos(): Observable<Pedido[]> {
+
     return this.http.get<Pedido[]>(
       this.apiUrl
     );
@@ -130,6 +177,7 @@ export class PedidoService {
   obtenerPedidoPorId(
     idPedido: number
   ): Observable<Pedido> {
+
     return this.http.get<Pedido>(
       `${this.apiUrl}/${idPedido}`
     );
@@ -138,6 +186,7 @@ export class PedidoService {
   obtenerDetalleCompleto(
     idPedido: number
   ): Observable<PedidoDetalleCompleto> {
+
     return this.http.get<PedidoDetalleCompleto>(
       `${this.apiUrl}/${idPedido}/detalle-completo`
     );
@@ -146,6 +195,7 @@ export class PedidoService {
   crearPedido(
     pedido: CrearPedidoRequest
   ): Observable<PedidoCreadoResponse> {
+
     return this.http.post<PedidoCreadoResponse>(
       this.apiUrl,
       pedido
@@ -156,6 +206,7 @@ export class PedidoService {
     idPedido: number,
     pedido: ActualizarPedidoRequest
   ): Observable<unknown> {
+
     return this.http.put<unknown>(
       `${this.apiUrl}/${idPedido}`,
       pedido
@@ -165,6 +216,7 @@ export class PedidoService {
   eliminarPedido(
     idPedido: number
   ): Observable<unknown> {
+
     return this.http.delete<unknown>(
       `${this.apiUrl}/${idPedido}`
     );

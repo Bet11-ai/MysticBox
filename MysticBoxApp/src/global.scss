@@ -35,3 +35,138 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+/* =========================================================
+   MYSTIC BOX - TEMA GLOBAL
+   ========================================================= */
+
+:root {
+
+  /* FONDOS */
+  --mystic-bg: #07111f;
+  --mystic-bg-deep: #040b14;
+
+  --mystic-surface: #0d1a2b;
+  --mystic-surface-soft: #122238;
+  --mystic-surface-hover: #172a43;
+
+  /* AZULES */
+  --mystic-primary: #4ea7ff;
+  --mystic-primary-strong: #268df4;
+  --mystic-primary-soft: #7ec1ff;
+  --mystic-primary-dark: #1264ad;
+
+  /* TEXTOS */
+  --mystic-text: #f7f9fc;
+  --mystic-text-secondary: #a7b5c7;
+  --mystic-text-muted: #71839a;
+
+  /* BORDES */
+  --mystic-border: rgba(111, 164, 214, 0.22);
+  --mystic-border-strong: rgba(78, 167, 255, 0.42);
+
+  /* ESTADOS */
+  --mystic-success: #36d991;
+  --mystic-warning: #f4c95d;
+  --mystic-danger: #ff6676;
+
+  /* SOMBRAS */
+  --mystic-shadow:
+    0 20px 55px rgba(0, 0, 0, 0.26);
+
+  --mystic-blue-glow:
+    0 0 28px rgba(78, 167, 255, 0.14);
+
+  /* RADIOS */
+  --mystic-radius-sm: 10px;
+  --mystic-radius-md: 14px;
+  --mystic-radius-lg: 20px;
+}
+
+
+/* =========================================================
+   BASE GENERAL
+   ========================================================= */
+
+html,
+body,
+ion-app {
+  background:
+    var(--mystic-bg-deep);
+}
+
+ion-content {
+  --background:
+    radial-gradient(
+      circle at 50% -12%,
+      rgba(38, 141, 244, 0.12),
+      transparent 34%
+    ),
+    var(--mystic-bg);
+}
+
+ion-toolbar {
+  --background:
+    rgba(7, 17, 31, 0.96);
+
+  --color:
+    var(--mystic-text);
+
+  --border-color:
+    var(--mystic-border);
+}
+
+
+/* =========================================================
+   ELEMENTOS BASE
+   ========================================================= */
+
+button,
+input,
+select,
+textarea {
+  font-family:
+    inherit;
+}
+
+input,
+select,
+textarea {
+
+  color:
+    var(--mystic-text);
+
+  background:
+    var(--mystic-bg-deep);
+
+  border:
+    1px solid
+    var(--mystic-border);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background:
+    var(--mystic-bg-deep);
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius:
+    10px;
+
+  background:
+    rgba(78, 167, 255, 0.32);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background:
+    rgba(78, 167, 255, 0.5);
+}

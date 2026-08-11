@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MysticBox.Dominio.DTO
 {
     public class MysticBoxDTO
@@ -21,5 +15,13 @@ namespace MysticBox.Dominio.DTO
         public int Stock { get; set; }
 
         public bool? Estado { get; set; }
+
+        public bool? EsOferta { get; set; }
+
+        public decimal? PorcentajeOferta { get; set; }
+
+        public bool? EsRecomendada { get; set; }
+
+        public bool? EsDestacada { get; set; }
     }
 }

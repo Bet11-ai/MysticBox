@@ -17,6 +17,8 @@ public partial class Factura
 
     public decimal? Descuento { get; set; }
 
+    public decimal CostoEnvio { get; set; }
+
     public decimal Total { get; set; }
 
     public virtual Pedido IdPedidoNavigation { get; set; } = null!;
