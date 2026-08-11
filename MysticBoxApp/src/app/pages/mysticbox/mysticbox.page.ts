@@ -23,7 +23,8 @@ export class MysticboxPage implements OnInit {
   cajas: any[] = [];
 
   idCategoria: number = 0;
-  tipoFiltro: '' | 'ofertas' | 'recomendadas' = '';
+  
+  idCaja: number = 0;
 
   cargando: boolean = true;
 
@@ -39,29 +40,19 @@ export class MysticboxPage implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+ ngOnInit(): void {
+  this.route.queryParams.subscribe(params => {
 
-    this.route.queryParams.subscribe(params => {
+    this.idCategoria =
+      Number(params['idCategoria']) || 0;
 
-      this.idCategoria =
-        Number(params['idCategoria']) || 0;
+    this.idCaja =
+      Number(params['idCaja']) || 0;
 
-      const tipo = String(params['tipo'] ?? '').toLowerCase();
-      this.tipoFiltro =
-        tipo === 'ofertas' || tipo === 'recomendadas'
-          ? tipo
-          : '';
+    this.cargarCajas();
 
-      console.log(
-        'ID de categoría recibido:',
-        this.idCategoria
-      );
-
-      this.cargarCajas();
-
-    });
-
-  }
+  });
+}
 
   cargarCajas(): void {
 
@@ -84,28 +75,30 @@ export class MysticboxPage implements OnInit {
             this.idCategoria
           );
 
-          this.cajas = data.filter((caja: any) => {
-            if (!this.cajaEstaActiva(caja)) {
-              return false;
-            }
+         if (this.idCaja) {
 
-            if (
-              this.idCategoria &&
-              Number(caja.idCategoria) !== this.idCategoria
-            ) {
-              return false;
-            }
+  this.cajas = data.filter(
+    (caja: any) =>
+      Number(caja.idCaja) === this.idCaja &&
+      this.cajaEstaActiva(caja)
+  );
 
-            if (this.tipoFiltro === 'ofertas') {
-              return this.esVerdadero(caja.esOferta) && Number(caja.porcentajeOferta ?? 0) > 0;
-            }
+} else if (!this.idCategoria) {
 
-            if (this.tipoFiltro === 'recomendadas') {
-              return this.esVerdadero(caja.esRecomendada);
-            }
+  this.cajas = data.filter(
+    (caja: any) =>
+      this.cajaEstaActiva(caja)
+  );
 
-            return true;
-          });
+} else {
+
+  this.cajas = data.filter(
+    (caja: any) =>
+      Number(caja.idCategoria) === this.idCategoria &&
+      this.cajaEstaActiva(caja)
+  );
+
+}
 
           console.log(
             'Cajas filtradas:',
@@ -132,10 +125,6 @@ export class MysticboxPage implements OnInit {
 
       });
 
-  }
-
-  private esVerdadero(valor: any): boolean {
-    return valor === true || valor === 1 || valor === '1' || String(valor).trim().toLowerCase() === 'true';
   }
 
   cajaEstaActiva(caja: any): boolean {
@@ -188,100 +177,123 @@ export class MysticboxPage implements OnInit {
 
   }
 
-personalizarCaja(caja: any): void {
+ personalizarCaja(caja: any): void {
 
-  console.log('========== CAJA ==========');
-  console.log(caja);
-  console.log('==========================');
+    let imagen = '';
 
-  console.log('PROPIEDADES:');
-  console.log(Object.keys(caja));
+    imagen =
+      caja.imagen ||
+      caja.imagenCaja ||
+      caja.nombreImagen ||
+      caja.rutaImagen ||
+      '';
 
-  console.log('IMAGEN:', caja.imagen);
-  console.log('IMAGEN CAJA:', caja.imagenCaja);
-  console.log('NOMBRE IMAGEN:', caja.nombreImagen);
-  console.log('RUTA IMAGEN:', caja.rutaImagen);
+    if (!imagen) {
 
-  let imagen = '';
+      const nombre =
+        String(caja.nombreCaja || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
 
-  imagen =
-    caja.imagen ||
-    caja.imagenCaja ||
-    caja.nombreImagen ||
-    caja.rutaImagen ||
-    '';
+      if (
+        nombre.includes('gamer') &&
+        nombre.includes('deluxe')
+      ) {
 
-  /*
-   * Si la caja no trae imagen desde el backend,
-   * buscamos la imagen según el nombre de la caja.
-   */
+        imagen = 'Gamer-Box-deluxe.png';
 
-  if (!imagen) {
+      } else if (
+        nombre.includes('gamer') &&
+        nombre.includes('premium')
+      ) {
 
-    const nombre =
-      String(caja.nombreCaja || '')
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
+        imagen = 'Gamer-Box-Premium.png';
 
-    if (
-      nombre.includes('gamer') &&
-      nombre.includes('deluxe')
-    ) {
+      } else if (
+        nombre.includes('gamer') &&
+        nombre.includes('basica')
+      ) {
 
-      imagen = 'Gamer-Box-deluxe.png';
+        imagen = 'Gamer-Box-Basica.png';
 
-    }
-
-    else if (
-      nombre.includes('gamer') &&
-      nombre.includes('premium')
-    ) {
-
-      imagen = 'Gamer-Box-Premium.png';
+      }
 
     }
 
-    else if (
-      nombre.includes('gamer') &&
-      nombre.includes('basica')
-    ) {
+    console.log('IMAGEN FINAL:', imagen);
 
-      imagen = 'Gamer-Box-Basica.png';
+    const precioRegular =
+      Number(caja.precio ?? 0);
 
-    }
+    const esOferta =
+      caja.esOferta === true ||
+      caja.esOferta === 'true' ||
+      caja.esOferta === 1 ||
+      caja.esOferta === '1';
+
+    const porcentajeOferta =
+      esOferta
+        ? Number(caja.porcentajeOferta ?? 0)
+        : 0;
+
+    const precioFinal =
+      porcentajeOferta > 0
+        ? Math.round(
+            precioRegular *
+            (1 - porcentajeOferta / 100)
+          )
+        : precioRegular;
+
+    console.log(
+      'Precio normal:',
+      precioRegular
+    );
+
+    console.log(
+      'Es oferta:',
+      esOferta
+    );
+
+    console.log(
+      'Porcentaje:',
+      porcentajeOferta
+    );
+
+    console.log(
+      'Precio final:',
+      precioFinal
+    );
+
+    this.router.navigate(
+      ['/personalizacion'],
+      {
+        queryParams: {
+
+          idCaja:
+            caja.idCaja,
+
+          idCategoria:
+            caja.idCategoria ||
+            this.idCategoria,
+
+          nombreCaja:
+            caja.nombreCaja,
+
+          nombreCategoria:
+            caja.nombreCategoria ||
+            '',
+
+          precio:
+            precioFinal,
+
+          imagen:
+            imagen
+
+        }
+      }
+    );
 
   }
 
-  console.log('IMAGEN FINAL:', imagen);
-
-  this.router.navigate(
-    ['/personalizacion'],
-    {
-      queryParams: {
-
-        idCaja:
-          caja.idCaja,
-
-        idCategoria:
-          caja.idCategoria ||
-          this.idCategoria,
-
-        nombreCaja:
-          caja.nombreCaja,
-
-        nombreCategoria:
-          caja.nombreCategoria || '',
-
-        precio:
-          caja.precio,
-
-        imagen:
-          imagen
-
-      }
-    }
-  );
-
-}
 }

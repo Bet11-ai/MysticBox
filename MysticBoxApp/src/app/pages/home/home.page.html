@@ -206,48 +206,74 @@
           </button>
         </div>
 
-        <div class="offers-grid" *ngIf="ofertas.length > 0; else noOffers">
-          <article
-            class="offer-card"
-            *ngFor="let producto of ofertas"
-            (click)="irAlCatalogo('ofertas')">
+      <div class="offers-grid" *ngIf="ofertas.length > 0; else noOffers">
 
-            <div class="offer-image">
-              <img
-                *ngIf="producto.imagen"
-                [src]="producto.imagen"
-                [alt]="producto.nombre" />
+  <article
+    class="offer-card"
+    *ngFor="let producto of ofertas"
+    (click)="abrirProducto(producto)">
 
-              <div class="image-fallback">
-                <ion-icon name="gift-outline"></ion-icon>
-              </div>
+    <div class="offer-image">
 
-              <span class="offer-label">{{ producto.etiqueta || 'Oferta' }}</span>
-              <span class="discount-badge" *ngIf="producto.descuento">-{{ producto.descuento }}%</span>
-            </div>
+      <img
+        *ngIf="producto.imagen"
+        [src]="producto.imagen"
+        [alt]="producto.nombre" />
 
-            <div class="offer-information">
-              <h3>{{ producto.nombre }}</h3>
-              <p>{{ producto.descripcion }}</p>
+      <div class="image-fallback">
+        <ion-icon name="gift-outline"></ion-icon>
+      </div>
 
-              <div class="price-container">
-                <div>
-                  <span class="previous-price" *ngIf="producto.precioAnterior">
-                    ₡{{ producto.precioAnterior | number }}
-                  </span>
-                  <strong>₡{{ producto.precio | number }}</strong>
-                </div>
+      <span class="offer-label">
+        {{ producto.etiqueta || 'Oferta' }}
+      </span>
 
-                <button
-                  type="button"
-                  class="small-add-button"
-                  (click)="agregarAlCarrito(producto, $event)">
-                  <ion-icon name="add-outline"></ion-icon>
-                </button>
-              </div>
-            </div>
-          </article>
+      <span
+        class="discount-badge"
+        *ngIf="producto.descuento">
+        -{{ producto.descuento }}%
+      </span>
+
+    </div>
+
+    <div class="offer-information">
+
+      <h3>{{ producto.nombre }}</h3>
+
+      <p>{{ producto.descripcion }}</p>
+
+      <div class="price-container">
+
+        <div>
+
+          <span
+            class="previous-price"
+            *ngIf="producto.precioAnterior">
+            ₡{{ producto.precioAnterior | number }}
+          </span>
+
+          <strong>
+            ₡{{ producto.precio | number }}
+          </strong>
+
         </div>
+
+        <button
+          type="button"
+          class="small-add-button"
+          (click)="agregarAlCarrito(producto, $event)">
+
+          <ion-icon name="add-outline"></ion-icon>
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </article>
+
+</div>
 
         <ng-template #noOffers>
           <div class="empty-offers">

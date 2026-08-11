@@ -115,7 +115,7 @@ export class HomePage implements OnInit {
 
         this.ofertas = productos
           .filter(producto => producto.esOferta && Number(producto.descuento ?? 0) > 0)
-          .slice(0, 3);
+          .slice(0, 4);
 
         this.productoRecomendado = productos.find(producto => producto.esRecomendada)
           ?? null;
@@ -248,10 +248,13 @@ export class HomePage implements OnInit {
     this.router.navigate(['/mysticbox']);
   }
 
-  abrirProducto(producto: ProductoHome): void {
-    sessionStorage.setItem('productoSeleccionado', JSON.stringify(producto));
-    this.router.navigate(['/mysticbox']);
-  }
+abrirProducto(producto: ProductoHome): void {
+  this.router.navigate(['/mysticbox'], {
+    queryParams: {
+      idCaja: producto.idCaja
+    }
+  });
+}
 
   async agregarAlCarrito(producto: ProductoHome, evento?: MouseEvent): Promise<void> {
     evento?.stopPropagation();
@@ -302,6 +305,8 @@ export class HomePage implements OnInit {
   }
 
   private crearDetalleCarrito(idCarrito: number, producto: ProductoHome): void {
+    console.log('PRODUCTO AGREGADO:', producto);
+console.log('PRECIO QUE VA AL CARRITO:', producto.precio);
     const detalle = {
       idDetalleCarrito: 0,
       idCarrito,

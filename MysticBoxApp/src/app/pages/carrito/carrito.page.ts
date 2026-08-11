@@ -319,7 +319,7 @@ export class CarritoPage
         detalles,
         cajas
       }) => {
-
+      
         const detallesDelCarrito =
           (detalles ?? [])
             .filter(
@@ -451,17 +451,50 @@ export class CarritoPage
   }
 
 
-  eliminarProducto(
-    index: number
-  ): void {
+eliminarProducto(index: number): void {
 
-    this.productosCarrito.splice(
-      index,
-      1
+  const producto =
+    this.productosCarrito[index];
+
+  if (!producto?.idDetalleCarrito) {
+    console.error(
+      'No se encontró el ID del detalle del carrito.'
     );
-
-    this.reiniciarCuponSiCambioCarrito();
+    return;
   }
+
+  this.carritoService
+    .eliminarDetalleCarrito(
+      Number(
+        producto.idDetalleCarrito
+      )
+    )
+    .subscribe({
+
+      next: () => {
+
+        this.productosCarrito.splice(
+          index,
+          1
+        );
+
+        this.reiniciarCuponSiCambioCarrito();
+
+      },
+
+      error: error => {
+
+        console.error(
+          'Error eliminando producto del carrito:',
+          error
+        );
+
+        this.mensajeCompra =
+          'No fue posible eliminar el producto del carrito.';
+      }
+
+    });
+}
 
 
   calcularSubtotal(): number {

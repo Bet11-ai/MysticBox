@@ -32,7 +32,10 @@ public class DetalleCarritoLN : IDetalleCarritoLN
         {
             IdCarrito = detalleDTO.IdCarrito,
             IdCaja = detalleDTO.IdCaja,
-            Cantidad = detalleDTO.Cantidad
+            IdPersonalizacion = detalleDTO.IdPersonalizacion,
+            Cantidad = detalleDTO.Cantidad,
+            PrecioUnitario = detalleDTO.PrecioUnitario,
+            Subtotal = detalleDTO.Subtotal
         };
 
         _unidadTrabajo.TDetalleCarrito.Insertar(detalle);

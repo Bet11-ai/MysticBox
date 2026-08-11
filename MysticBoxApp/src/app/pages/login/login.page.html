@@ -14,8 +14,14 @@
         [(ngModel)]="contrasena"
         [type]="mostrarContrasena ? 'text' : 'password'"
         placeholder="Contraseña">
+         
+
       </ion-input>
-      <button type="button" class="password-toggle" (click)="alternarContrasena()" aria-label="Mostrar u ocultar contraseña">
+
+      <button type="button" 
+      class="password-toggle" 
+      (click)="alternarContrasena()" 
+      aria-label="Mostrar u ocultar contraseña">
         <ion-icon [name]="mostrarContrasena ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
       </button>
     </ion-item>
