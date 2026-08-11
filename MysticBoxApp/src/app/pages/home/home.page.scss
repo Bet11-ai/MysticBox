@@ -34,13 +34,24 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  min-height: 100vh;
+  box-sizing: border-box;
+
   padding: 22px 16px 18px;
   display: flex;
   flex-direction: column;
+
   border-right: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(8, 25, 44, 0.98), rgba(3, 13, 24, 0.99));
+  background: linear-gradient(
+    180deg,
+    rgba(8, 25, 44, 0.98),
+    rgba(3, 13, 24, 0.99)
+  );
+
   box-shadow: 18px 0 60px rgba(0, 0, 0, 0.18);
   z-index: 5;
+
+  overflow-y: auto;
 }
 
 .side-brand {

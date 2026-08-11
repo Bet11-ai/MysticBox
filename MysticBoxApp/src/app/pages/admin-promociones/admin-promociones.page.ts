@@ -46,8 +46,7 @@ interface FormularioCupon {
   imports: [CommonModule, FormsModule, IonicModule]
 })
 export class AdminPromocionesPage implements OnInit {
-  seccionActiva: 'productos' | 'cupones' = 'productos';
-
+ seccionActiva: 'productos' | 'cupones' | 'activas' = 'productos';
   cajas: MysticBoxModel[] = [];
   cajasFiltradas: MysticBoxModel[] = [];
   textoBusquedaCaja = '';
@@ -55,6 +54,8 @@ export class AdminPromocionesPage implements OnInit {
 
   cupones: Cupon[] = [];
   cuponesFiltrados: Cupon[] = [];
+  promocionesActivas: MysticBoxModel[] = [];
+  cuponesActivos: Cupon[] = [];
   textoBusquedaCupon = '';
   mostrarFormulario = false;
   modoEdicion = false;
@@ -64,6 +65,10 @@ export class AdminPromocionesPage implements OnInit {
   cargando = true;
   mensajeError = '';
   mensajeExito = '';
+  mostrarConfirmacion = false;
+ promocionAConfirmar: MysticBoxModel | null = null;
+ mostrarConfirmacionCupon = false;
+ cuponAConfirmar: Cupon | null = null;
 
   formulario: FormularioCupon = this.crearFormularioVacio();
 
@@ -113,6 +118,7 @@ export class AdminPromocionesPage implements OnInit {
       next: respuesta => {
         this.cajas = (respuesta ?? []).map(caja => this.normalizarCaja(caja));
         this.aplicarFiltroCajas();
+        this.actualizarPromocionesActivas();
         this.cargando = false;
       },
       error: error => {
@@ -139,12 +145,30 @@ export class AdminPromocionesPage implements OnInit {
     };
   }
 
-  aplicarFiltroCajas(): void {
-    const texto = this.textoBusquedaCaja.trim().toLowerCase();
-    this.cajasFiltradas = this.cajas.filter(caja =>
-      !texto || caja.nombreCaja.toLowerCase().includes(texto)
-    );
-  }
+ aplicarFiltroCajas(): void {
+  const texto = this.textoBusquedaCaja.trim().toLowerCase();
+  this.cajasFiltradas = this.cajas.filter(caja =>
+    !texto || caja.nombreCaja.toLowerCase().includes(texto)
+  );
+}
+
+actualizarPromocionesActivas(): void {
+  this.promocionesActivas = this.cajas.filter(
+    caja => caja.esOferta
+  );
+
+  const hoy = this.obtenerFechaActual();
+
+  this.cuponesActivos = this.cupones.filter(cupon => {
+    const inicio = this.formatearFechaInput(cupon.fechaInicio);
+    const fin = this.formatearFechaInput(cupon.fechaFin);
+
+    return Boolean(cupon.activo) &&
+           inicio <= hoy &&
+           fin >= hoy;
+  });
+}
+  
 
   alternarOferta(caja: MysticBoxModel): void {
     caja.esOferta = !caja.esOferta;
@@ -182,16 +206,79 @@ export class AdminPromocionesPage implements OnInit {
 
     this.guardandoCaja = caja.idCaja;
     this.mysticboxService.actualizarCaja(caja.idCaja, request).subscribe({
-      next: () => {
-        this.guardandoCaja = null;
-        this.mensajeExito = `${caja.nombreCaja} se actualizó correctamente.`;
-      },
+     next: () => {
+  this.guardandoCaja = null;
+
+  // se actualizan las ofertas activas de inmediato. 
+  this.actualizarPromocionesActivas();
+
+  this.mensajeExito = `${caja.nombreCaja} se actualizó correctamente.`;
+},
       error: error => {
         this.guardandoCaja = null;
         this.mensajeError = error.error?.mensaje ?? error.error?.title ?? 'No fue posible actualizar la caja.';
       }
     });
   }
+   desactivarPromocion(caja: MysticBoxModel): void {
+  this.promocionAConfirmar = caja;
+  this.mostrarConfirmacion = true;
+}
+
+confirmarDesactivacion(): void {
+  if (!this.promocionAConfirmar) {
+    return;
+  }
+
+  const caja = this.promocionAConfirmar;
+
+  this.mensajeError = '';
+  this.mensajeExito = '';
+
+  const request: MysticBoxRequest = {
+    idCategoria: caja.idCategoria,
+    nombreCaja: caja.nombreCaja,
+    descripcion: caja.descripcion,
+    precio: caja.precio,
+    imagen: caja.imagen,
+    stock: caja.stock,
+    estado: caja.estado,
+    esOferta: false,
+    porcentajeOferta: null,
+    esRecomendada: caja.esRecomendada,
+    esDestacada: caja.esDestacada
+  };
+
+  this.guardandoCaja = caja.idCaja;
+
+  this.mysticboxService.actualizarCaja(caja.idCaja, request).subscribe({
+    next: () => {
+      caja.esOferta = false;
+      caja.porcentajeOferta = null;
+
+      this.guardandoCaja = null;
+      this.mostrarConfirmacion = false;
+      this.promocionAConfirmar = null;
+
+      this.actualizarPromocionesActivas();
+
+      this.mensajeExito =
+        `La promoción de "${caja.nombreCaja}" fue desactivada correctamente.`;
+    },
+    error: error => {
+      this.guardandoCaja = null;
+
+      this.mensajeError =
+        error.error?.mensaje ??
+        error.error?.title ??
+        'No fue posible desactivar la promoción.';
+    }
+  });
+}
+cancelarDesactivacion(): void {
+  this.mostrarConfirmacion = false;
+  this.promocionAConfirmar = null;
+}
 
   obtenerPrecioOferta(caja: MysticBoxModel): number {
     if (!caja.esOferta || !caja.porcentajeOferta) return caja.precio;
@@ -218,6 +305,7 @@ export class AdminPromocionesPage implements OnInit {
           activo: cupon.activo ?? cupon.Activo ?? false
         }));
         this.aplicarFiltroCupones();
+        this.actualizarPromocionesActivas();
       },
       error: error => {
         this.mensajeError = error.error?.mensaje ?? 'No fue posible cargar los cupones.';
@@ -364,6 +452,59 @@ export class AdminPromocionesPage implements OnInit {
       }
     });
   }
+
+   desactivarCupon(cupon: Cupon): void {
+  this.cuponAConfirmar = cupon;
+  this.mostrarConfirmacionCupon = true;
+}
+cancelarDesactivacionCupon(): void {
+  this.mostrarConfirmacionCupon = false;
+  this.cuponAConfirmar = null;
+}
+
+confirmarDesactivacionCupon(): void {
+  if (!this.cuponAConfirmar) {
+    return;
+  }
+
+  const cupon = this.cuponAConfirmar;
+
+  this.mensajeError = '';
+  this.mensajeExito = '';
+  this.guardandoCupon = true;
+
+  const request: CuponRequest = {
+    codigo: cupon.codigo,
+    descripcion: cupon.descripcion,
+    porcentajeDescuento: cupon.porcentajeDescuento,
+    montoDescuento: cupon.montoDescuento,
+    fechaInicio: cupon.fechaInicio,
+    fechaFin: cupon.fechaFin,
+    activo: false
+  };
+
+  this.cuponService.actualizarCupon(cupon.idCupon, request).subscribe({
+    next: () => {
+      cupon.activo = false;
+
+      this.guardandoCupon = false;
+      this.mostrarConfirmacionCupon = false;
+      this.cuponAConfirmar = null;
+
+      this.actualizarPromocionesActivas();
+
+      this.mensajeExito =
+        `El cupón "${cupon.codigo}" fue desactivado correctamente.`;
+    },
+    error: error => {
+      this.guardandoCupon = false;
+
+      this.mensajeError =
+        error.error?.mensaje ??
+        'No fue posible desactivar el cupón.';
+    }
+  });
+}
 
   obtenerDescuentoCupon(cupon: Cupon): string {
     if (Number(cupon.porcentajeDescuento ?? 0) > 0) {

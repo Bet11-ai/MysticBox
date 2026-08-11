@@ -5,13 +5,9 @@
     <!-- ENCABEZADO -->
     <header class="cart-header">
 
-      <button
-        type="button"
-        class="back-button"
-        (click)="volverAlInicio()">
+      <button type="button" class="back-button" (click)="volverAlInicio()">
 
-        <ion-icon
-          name="arrow-back-outline">
+        <ion-icon name="arrow-back-outline">
         </ion-icon>
 
       </button>
@@ -35,8 +31,7 @@
 
       <div class="cart-badge">
 
-        <ion-icon
-          name="cart-outline">
+        <ion-icon name="cart-outline">
         </ion-icon>
 
         <span>
@@ -49,12 +44,9 @@
 
 
     <!-- CARGANDO -->
-    <section
-      *ngIf="cargando"
-      class="state-card">
+    <section *ngIf="cargando" class="state-card">
 
-      <ion-spinner
-        name="crescent">
+      <ion-spinner name="crescent">
       </ion-spinner>
 
       <strong>
@@ -67,14 +59,11 @@
     <ng-container *ngIf="!cargando">
 
       <!-- CARRITO VACÍO -->
-      <section
-        *ngIf="productosCarrito.length === 0"
-        class="empty-cart">
+      <section *ngIf="productosCarrito.length === 0" class="empty-cart">
 
         <div class="empty-icon">
 
-          <ion-icon
-            name="cart-outline">
+          <ion-icon name="cart-outline">
           </ion-icon>
 
         </div>
@@ -87,13 +76,9 @@
           Explora nuestras cajas y agrega tus favoritas.
         </p>
 
-        <button
-          type="button"
-          class="primary-button"
-          (click)="volverAlInicio()">
+        <button type="button" class="primary-button" (click)="volverAlInicio()">
 
-          <ion-icon
-            name="storefront-outline">
+          <ion-icon name="storefront-outline">
           </ion-icon>
 
           Explorar productos
@@ -104,9 +89,7 @@
 
 
       <!-- CONTENIDO DEL CARRITO -->
-      <div
-        *ngIf="productosCarrito.length > 0"
-        class="cart-layout">
+      <div *ngIf="productosCarrito.length > 0" class="cart-layout">
 
         <!-- COLUMNA IZQUIERDA -->
         <section class="cart-main">
@@ -138,29 +121,21 @@
 
             <div class="products-list">
 
-              <article
-                class="product-row"
-                *ngFor="
+              <article class="product-row" *ngFor="
                   let producto of productosCarrito;
                   let i = index
                 ">
 
                 <div class="product-image">
 
-                  <img
-                    *ngIf="producto.imagen"
-                    [src]="
-                      'assets/img/' +
-                      producto.imagen
-                    "
-                    [alt]="producto.nombre" />
+                  <img *ngIf="producto.imagen" [src]="producto.imagen?.startsWith('assets/') 
+                   ? producto.imagen 
+                 : 'assets/img/' + producto.imagen" 
+                       [alt]="producto.nombre" />
 
-                  <div
-                    *ngIf="!producto.imagen"
-                    class="image-placeholder">
+                  <div *ngIf="!producto.imagen" class="image-placeholder">
 
-                    <ion-icon
-                      name="bag-check-outline">
+                    <ion-icon name="bag-check-outline">
                     </ion-icon>
 
                   </div>
@@ -180,8 +155,8 @@
 
                   <strong>
                     {{
-                      producto.precio
-                        | currency:'CRC':'symbol-narrow':'1.0-0'
+                    producto.precio
+                    | currency:'CRC':'symbol-narrow':'1.0-0'
                     }}
                   </strong>
 
@@ -190,16 +165,13 @@
 
                 <div class="quantity-box">
 
-                  <button
-                    type="button"
-                    (click)="
+                  <button type="button" (click)="
                       disminuirCantidad(
                         producto
                       )
                     ">
 
-                    <ion-icon
-                      name="remove-outline">
+                    <ion-icon name="remove-outline">
                     </ion-icon>
 
                   </button>
@@ -208,16 +180,13 @@
                     {{ producto.cantidad }}
                   </span>
 
-                  <button
-                    type="button"
-                    (click)="
+                  <button type="button" (click)="
                       aumentarCantidad(
                         producto
                       )
                     ">
 
-                    <ion-icon
-                      name="add-outline">
+                    <ion-icon name="add-outline">
                     </ion-icon>
 
                   </button>
@@ -229,23 +198,19 @@
 
                   <strong>
                     {{
-                      (
-                        producto.precio *
-                        producto.cantidad
-                      )
-                        | currency:'CRC':'symbol-narrow':'1.0-0'
+                    (
+                    producto.precio *
+                    producto.cantidad
+                    )
+                    | currency:'CRC':'symbol-narrow':'1.0-0'
                     }}
                   </strong>
 
-                  <button
-                    type="button"
-                    class="delete-button"
-                    (click)="
+                  <button type="button" class="delete-button" (click)="
                       eliminarProducto(i)
                     ">
 
-                    <ion-icon
-                      name="trash-outline">
+                    <ion-icon name="trash-outline">
                     </ion-icon>
 
                   </button>
@@ -281,13 +246,9 @@
 
             <div class="delivery-options">
 
-              <button
-                type="button"
-                class="delivery-option"
-                [class.selected]="
+              <button type="button" class="delivery-option" [class.selected]="
                   tipoEntrega === 'retiro'
-                "
-                (click)="
+                " (click)="
                   seleccionarTipoEntrega(
                     'retiro'
                   )
@@ -295,8 +256,7 @@
 
                 <div class="delivery-icon">
 
-                  <ion-icon
-                    name="storefront-outline">
+                  <ion-icon name="storefront-outline">
                   </ion-icon>
 
                 </div>
@@ -313,24 +273,17 @@
 
                 </div>
 
-                <ion-icon
-                  *ngIf="
+                <ion-icon *ngIf="
                     tipoEntrega === 'retiro'
-                  "
-                  class="selected-check"
-                  name="checkmark-circle-outline">
+                  " class="selected-check" name="checkmark-circle-outline">
                 </ion-icon>
 
               </button>
 
 
-              <button
-                type="button"
-                class="delivery-option"
-                [class.selected]="
+              <button type="button" class="delivery-option" [class.selected]="
                   tipoEntrega === 'envio'
-                "
-                (click)="
+                " (click)="
                   seleccionarTipoEntrega(
                     'envio'
                   )
@@ -338,8 +291,7 @@
 
                 <div class="delivery-icon">
 
-                  <ion-icon
-                    name="car-outline">
+                  <ion-icon name="car-outline">
                   </ion-icon>
 
                 </div>
@@ -356,12 +308,9 @@
 
                 </div>
 
-                <ion-icon
-                  *ngIf="
+                <ion-icon *ngIf="
                     tipoEntrega === 'envio'
-                  "
-                  class="selected-check"
-                  name="checkmark-circle-outline">
+                  " class="selected-check" name="checkmark-circle-outline">
                 </ion-icon>
 
               </button>
@@ -369,9 +318,7 @@
             </div>
 
 
-            <div
-              class="shipping-form"
-              *ngIf="
+            <div class="shipping-form" *ngIf="
                 tipoEntrega === 'envio'
               ">
 
@@ -383,12 +330,10 @@
 
                 <div class="field-box">
 
-                  <ion-icon
-                    name="location-outline">
+                  <ion-icon name="location-outline">
                   </ion-icon>
 
-                  <select
-                    [(ngModel)]="
+                  <select [(ngModel)]="
                       provinciaEntrega
                     ">
 
@@ -396,11 +341,9 @@
                       Selecciona una provincia
                     </option>
 
-                    <option
-                      *ngFor="
+                    <option *ngFor="
                         let provincia of provincias
-                      "
-                      [value]="provincia">
+                      " [value]="provincia">
 
                       {{ provincia }}
 
@@ -421,16 +364,12 @@
 
                 <div class="field-box address-box">
 
-                  <ion-icon
-                    name="location-outline">
+                  <ion-icon name="location-outline">
                   </ion-icon>
 
-                  <textarea
-                    [(ngModel)]="
+                  <textarea [(ngModel)]="
                       direccionEntrega
-                    "
-                    rows="3"
-                    placeholder="Ejemplo: Guápiles centro, 200 metros norte del parque...">
+                    " rows="3" placeholder="Ejemplo: Guápiles centro, 200 metros norte del parque...">
                   </textarea>
 
                 </div>
@@ -440,8 +379,7 @@
 
               <div class="shipping-note">
 
-                <ion-icon
-                  name="location-outline">
+                <ion-icon name="location-outline">
                 </ion-icon>
 
                 <p>
@@ -475,33 +413,24 @@
 
               </div>
 
-              <ion-icon
-                name="ticket-outline">
+              <ion-icon name="ticket-outline">
               </ion-icon>
 
             </header>
 
 
-            <div
-              class="coupon-input"
-              *ngIf="!cuponAplicado">
+            <div class="coupon-input" *ngIf="!cuponAplicado">
 
-              <input
-                type="text"
-                [(ngModel)]="
+              <input type="text" [(ngModel)]="
                   codigoCupon
-                "
-                placeholder="Ingresa tu código" />
+                " placeholder="Ingresa tu código" />
 
-              <button
-                type="button"
-                [disabled]="validandoCupon"
-                (click)="aplicarCupon()">
+              <button type="button" [disabled]="validandoCupon" (click)="aplicarCupon()">
 
                 {{
-                  validandoCupon
-                    ? 'Validando...'
-                    : 'Aplicar'
+                validandoCupon
+                ? 'Validando...'
+                : 'Aplicar'
                 }}
 
               </button>
@@ -509,14 +438,11 @@
             </div>
 
 
-            <div
-              class="coupon-applied"
-              *ngIf="cuponAplicado">
+            <div class="coupon-applied" *ngIf="cuponAplicado">
 
               <div>
 
-                <ion-icon
-                  name="checkmark-circle-outline">
+                <ion-icon name="checkmark-circle-outline">
                 </ion-icon>
 
                 <div>
@@ -533,9 +459,7 @@
 
               </div>
 
-              <button
-                type="button"
-                (click)="quitarCupon()">
+              <button type="button" (click)="quitarCupon()">
 
                 Quitar
 
@@ -544,18 +468,13 @@
             </div>
 
 
-            <div
-              *ngIf="mensajeCupon"
-              class="coupon-message"
-              [class.success]="
+            <div *ngIf="mensajeCupon" class="coupon-message" [class.success]="
                 tipoMensajeCupon === 'exito'
-              "
-              [class.error]="
+              " [class.error]="
                 tipoMensajeCupon === 'error'
               ">
 
-              <ion-icon
-                [name]="
+              <ion-icon [name]="
                   tipoMensajeCupon === 'exito'
                     ? 'checkmark-circle-outline'
                     : 'close-circle-outline'
@@ -586,8 +505,7 @@
 
               </div>
 
-              <ion-icon
-                name="wallet-outline">
+              <ion-icon name="wallet-outline">
               </ion-icon>
 
             </header>
@@ -595,30 +513,22 @@
 
             <div class="payment-options">
 
-              <label
-                class="payment-option"
-                *ngFor="
+              <label class="payment-option" *ngFor="
                   let metodo of metodosPago
-                "
-                [class.selected]="
+                " [class.selected]="
                   idMetodoPagoSeleccionado ===
                   metodo.idMetodoPago
                 ">
 
-                <input
-                  type="radio"
-                  name="metodoPago"
-                  [value]="
+                <input type="radio" name="metodoPago" [value]="
                     metodo.idMetodoPago
-                  "
-                  [(ngModel)]="
+                  " [(ngModel)]="
                     idMetodoPagoSeleccionado
                   " />
 
                 <div class="payment-icon">
 
-                  <ion-icon
-                    name="card-outline">
+                  <ion-icon name="card-outline">
                   </ion-icon>
 
                 </div>
@@ -660,8 +570,8 @@
 
                 <strong>
                   {{
-                    calcularSubtotal()
-                      | currency:'CRC':'symbol-narrow':'1.0-0'
+                  calcularSubtotal()
+                  | currency:'CRC':'symbol-narrow':'1.0-0'
                   }}
                 </strong>
 
@@ -677,8 +587,8 @@
                 <strong class="discount-value">
                   -
                   {{
-                    calcularDescuento()
-                      | currency:'CRC':'symbol-narrow':'1.0-0'
+                  calcularDescuento()
+                  | currency:'CRC':'symbol-narrow':'1.0-0'
                   }}
                 </strong>
 
@@ -693,8 +603,8 @@
 
                 <strong>
                   {{
-                    calcularCostoEnvio()
-                      | currency:'CRC':'symbol-narrow':'1.0-0'
+                  calcularCostoEnvio()
+                  | currency:'CRC':'symbol-narrow':'1.0-0'
                   }}
                 </strong>
 
@@ -711,20 +621,17 @@
 
               <strong>
                 {{
-                  calcularTotal()
-                    | currency:'CRC':'symbol-narrow':'1.0-0'
+                calcularTotal()
+                | currency:'CRC':'symbol-narrow':'1.0-0'
                 }}
               </strong>
 
             </div>
 
 
-            <div
-              *ngIf="mensajeCompra"
-              class="purchase-message">
+            <div *ngIf="mensajeCompra" class="purchase-message">
 
-              <ion-icon
-                name="close-circle-outline">
+              <ion-icon name="close-circle-outline">
               </ion-icon>
 
               {{ mensajeCompra }}
@@ -732,20 +639,15 @@
             </div>
 
 
-            <button
-              type="button"
-              class="checkout-button"
-              [disabled]="procesandoCompra"
-              (click)="continuarCompra()">
+            <button type="button" class="checkout-button" [disabled]="procesandoCompra" (click)="continuarCompra()">
 
-              <ion-icon
-                name="bag-check-outline">
+              <ion-icon name="bag-check-outline">
               </ion-icon>
 
               {{
-                procesandoCompra
-                  ? 'Procesando...'
-                  : 'Finalizar compra'
+              procesandoCompra
+              ? 'Procesando...'
+              : 'Finalizar compra'
               }}
 
             </button>
@@ -753,8 +655,7 @@
 
             <div class="secure-note">
 
-              <ion-icon
-                name="checkmark-circle-outline">
+              <ion-icon name="checkmark-circle-outline">
               </ion-icon>
 
               <span>

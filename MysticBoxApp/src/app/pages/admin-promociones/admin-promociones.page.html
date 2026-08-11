@@ -23,6 +23,7 @@
       </button>
     </div>
 
+
     <div class="message success" *ngIf="mensajeExito">
       <ion-icon name="checkmark-circle-outline"></ion-icon>{{ mensajeExito }}
     </div>
@@ -40,7 +41,8 @@
       <section class="toolbar-card">
         <div class="search-box">
           <ion-icon name="search-outline"></ion-icon>
-          <input [(ngModel)]="textoBusquedaCaja" (input)="aplicarFiltroCajas()" placeholder="Buscar caja por nombre..." />
+          <input [(ngModel)]="textoBusquedaCaja" (input)="aplicarFiltroCajas()"
+            placeholder="Buscar caja por nombre..." />
         </div>
         <span>{{ cajasFiltradas.length }} cajas</span>
       </section>
@@ -54,13 +56,17 @@
 
           <div class="product-copy">
             <div class="product-title-row">
-              <div><h2>{{ caja.nombreCaja }}</h2><p>{{ caja.descripcion }}</p></div>
+              <div>
+                <h2>{{ caja.nombreCaja }}</h2>
+                <p>{{ caja.descripcion }}</p>
+              </div>
               <span class="stock">Stock {{ caja.stock }}</span>
             </div>
 
             <div class="price-row">
               <div><span>Precio regular</span><strong>₡{{ caja.precio | number:'1.0-0' }}</strong></div>
-              <div *ngIf="caja.esOferta"><span>Precio con oferta</span><strong class="offer-price">₡{{ obtenerPrecioOferta(caja) | number:'1.0-0' }}</strong></div>
+              <div *ngIf="caja.esOferta"><span>Precio con oferta</span><strong class="offer-price">₡{{
+                  obtenerPrecioOferta(caja) | number:'1.0-0' }}</strong></div>
             </div>
 
             <div class="switch-grid">
@@ -83,7 +89,8 @@
               <div><input type="number" min="1" max="99" [(ngModel)]="caja.porcentajeOferta" /><b>%</b></div>
             </label>
 
-            <button class="save-product" type="button" [disabled]="guardandoCaja === caja.idCaja" (click)="guardarConfiguracionCaja(caja)">
+            <button class="save-product" type="button" [disabled]="guardandoCaja === caja.idCaja"
+              (click)="guardarConfiguracionCaja(caja)">
               <ion-icon name="save-outline"></ion-icon>
               {{ guardandoCaja === caja.idCaja ? 'Guardando...' : 'Guardar configuración' }}
             </button>
@@ -107,7 +114,10 @@
         <article class="coupon-card" *ngFor="let cupon of cuponesFiltrados">
           <div class="coupon-icon"><ion-icon name="ticket-outline"></ion-icon></div>
           <div class="coupon-copy">
-            <div class="coupon-head"><h2>{{ cupon.codigo }}</h2><span [class.inactive]="!cupon.activo">{{ cupon.activo ? 'Activo' : 'Inactivo' }}</span></div>
+            <div class="coupon-head">
+              <h2>{{ cupon.codigo }}</h2><span [class.inactive]="!cupon.activo">{{ cupon.activo ? 'Activo' : 'Inactivo'
+                }}</span>
+            </div>
             <p>{{ cupon.descripcion || 'Sin descripción' }}</p>
             <div class="coupon-meta">
               <strong>{{ obtenerDescuentoCupon(cupon) }}</strong>
@@ -115,28 +125,236 @@
             </div>
           </div>
           <div class="coupon-actions">
-            <button type="button" (click)="abrirFormularioEditar(cupon)"><ion-icon name="create-outline"></ion-icon></button>
-            <button type="button" class="danger" (click)="eliminarCupon(cupon)"><ion-icon name="trash-outline"></ion-icon></button>
+            <button type="button" (click)="abrirFormularioEditar(cupon)"><ion-icon
+                name="create-outline"></ion-icon></button>
+            <button type="button" class="danger" (click)="eliminarCupon(cupon)"><ion-icon
+                name="trash-outline"></ion-icon></button>
           </div>
         </article>
       </section>
     </ng-container>
+
+     <section class="active-promotions" *ngIf="promocionesActivas.length || cuponesActivos.length">
+
+      <div class="active-promotions-header">
+        <div>
+          <span class="eyebrow">ACTIVAS AHORA</span>
+          <h2>Ofertas activas</h2>
+          <p>Administra las promociones que actualmente están disponibles para los clientes.</p>
+        </div>
+
+        <div class="active-count">
+          {{ promocionesActivas.length + cuponesActivos.length }} activas
+        </div>
+      </div>
+
+
+      <!-- OFERTAS DE PRODUCTOS -->
+      <div class="active-section" *ngIf="promocionesActivas.length">
+
+        <div class="active-section-title">
+          <ion-icon name="pricetag-outline"></ion-icon>
+          <span>Ofertas de productos</span>
+        </div>
+
+        <div class="active-list">
+
+          <article class="active-promotion" *ngFor="let caja of promocionesActivas">
+
+            <div class="active-promotion-icon">
+              <ion-icon name="cube-outline"></ion-icon>
+            </div>
+
+            <div class="active-promotion-info">
+              <h3>{{ caja.nombreCaja }}</h3>
+
+              <p>
+                {{ caja.porcentajeOferta }}% de descuento
+              </p>
+
+              <span>
+                Precio actual:
+                ₡{{ obtenerPrecioOferta(caja) | number:'1.0-0' }}
+              </span>
+            </div>
+
+            <button type="button" class="deactivate-button" (click)="desactivarPromocion(caja)">
+              <ion-icon name="close-outline"></ion-icon>
+              Desactivar
+            </button>
+
+          </article>
+
+        </div>
+      </div>
+    
+
+    <!-- CUPONES -->
+    <div class="active-section" *ngIf="cuponesActivos.length">
+
+      <div class="active-section-title">
+        <ion-icon name="ticket-outline"></ion-icon>
+        <span>Cupones activos</span>
+      </div>
+
+      <div class="active-list">
+
+        <article class="active-promotion" *ngFor="let cupon of cuponesActivos">
+
+          <div class="active-promotion-icon">
+            <ion-icon name="ticket-outline"></ion-icon>
+          </div>
+
+          <div class="active-promotion-info">
+            <h3>{{ cupon.codigo }}</h3>
+
+            <p>
+              {{ obtenerDescuentoCupon(cupon) }}
+            </p>
+
+            <span>
+              {{ cupon.fechaInicio | date:'dd/MM/yyyy' }}
+              -
+              {{ cupon.fechaFin | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
+
+          <button type="button" class="deactivate-button" (click)="desactivarCupon(cupon)">
+            <ion-icon name="close-outline"></ion-icon>
+            Desactivar
+          </button>
+
+        </article>
+
+      </div>
+    </div>
+
+    </section>
+
+     
   </main>
 
   <div class="modal-overlay" *ngIf="mostrarFormulario" (click)="cerrarFormulario()">
     <section class="coupon-form" (click)="$event.stopPropagation()">
-      <header><div><span class="eyebrow">CUPÓN</span><h2>{{ modoEdicion ? 'Editar cupón' : 'Crear cupón' }}</h2></div><button type="button" (click)="cerrarFormulario()"><ion-icon name="close-outline"></ion-icon></button></header>
+      <header>
+        <div><span class="eyebrow">CUPÓN</span>
+          <h2>{{ modoEdicion ? 'Editar cupón' : 'Crear cupón' }}</h2>
+        </div><button type="button" (click)="cerrarFormulario()"><ion-icon name="close-outline"></ion-icon></button>
+      </header>
       <div class="form-grid">
         <label><span>Código</span><input [(ngModel)]="formulario.codigo" placeholder="MYSTIC10" /></label>
-        <label><span>Tipo de descuento</span><select [(ngModel)]="formulario.tipoDescuento" (change)="cambiarTipoDescuento()"><option value="porcentaje">Porcentaje</option><option value="monto">Monto fijo</option></select></label>
-        <label *ngIf="formulario.tipoDescuento === 'porcentaje'"><span>Porcentaje</span><input type="number" min="1" max="100" [(ngModel)]="formulario.porcentajeDescuento" /></label>
-        <label *ngIf="formulario.tipoDescuento === 'monto'"><span>Monto</span><input type="number" min="1" [(ngModel)]="formulario.montoDescuento" /></label>
+        <label><span>Tipo de descuento</span><select [(ngModel)]="formulario.tipoDescuento"
+            (change)="cambiarTipoDescuento()">
+            <option value="porcentaje">Porcentaje</option>
+            <option value="monto">Monto fijo</option>
+          </select></label>
+        <label *ngIf="formulario.tipoDescuento === 'porcentaje'"><span>Porcentaje</span><input type="number" min="1"
+            max="100" [(ngModel)]="formulario.porcentajeDescuento" /></label>
+        <label *ngIf="formulario.tipoDescuento === 'monto'"><span>Monto</span><input type="number" min="1"
+            [(ngModel)]="formulario.montoDescuento" /></label>
         <label><span>Fecha inicio</span><input type="date" [(ngModel)]="formulario.fechaInicio" /></label>
         <label><span>Fecha fin</span><input type="date" [(ngModel)]="formulario.fechaFin" /></label>
-        <label class="full"><span>Descripción</span><textarea rows="3" [(ngModel)]="formulario.descripcion"></textarea></label>
-        <label class="active-check full"><input type="checkbox" [(ngModel)]="formulario.activo" /><div><strong>Cupón activo</strong><span>Disponible para los clientes durante su vigencia.</span></div></label>
+        <label class="full"><span>Descripción</span><textarea rows="3"
+            [(ngModel)]="formulario.descripcion"></textarea></label>
+        <label class="active-check full"><input type="checkbox" [(ngModel)]="formulario.activo" />
+          <div><strong>Cupón activo</strong><span>Disponible para los clientes durante su vigencia.</span></div>
+        </label>
       </div>
-      <footer><button type="button" class="secondary" (click)="cerrarFormulario()">Cancelar</button><button type="button" class="primary-action" [disabled]="guardandoCupon" (click)="guardarCupon()"><ion-icon name="save-outline"></ion-icon>{{ guardandoCupon ? 'Guardando...' : 'Guardar cupón' }}</button></footer>
+      <footer><button type="button" class="secondary" (click)="cerrarFormulario()">Cancelar</button><button
+          type="button" class="primary-action" [disabled]="guardandoCupon" (click)="guardarCupon()"><ion-icon
+            name="save-outline"></ion-icon>{{ guardandoCupon ? 'Guardando...' : 'Guardar cupón' }}</button></footer>
     </section>
   </div>
+
+  
+  <div class="confirmation-overlay" *ngIf="mostrarConfirmacion">
+
+  <div class="confirmation-modal">
+
+    <div class="confirmation-icon">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+    </div>
+
+    <div class="confirmation-content">
+
+     <h2>¿Desactivar oferta?</h2>
+
+      <p *ngIf="promocionAConfirmar">
+        ¿Deseas desactivar la promoción de
+<strong>"{{ promocionAConfirmar.nombreCaja }}"</strong>?
+      </p>
+
+      <span>
+        La caja dejará de mostrarse con descuento para los clientes.
+      </span>
+
+    </div>
+
+    <div class="confirmation-actions">
+
+      <button
+        type="button"
+        class="cancel-confirmation"
+        (click)="cancelarDesactivacion()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="confirm-confirmation"
+        (click)="confirmarDesactivacion()">
+        Desactivar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="confirmation-overlay" *ngIf="mostrarConfirmacionCupon">
+
+  <div class="confirmation-modal">
+
+    <div class="confirmation-icon">
+      <ion-icon name="alert-circle-outline"></ion-icon>
+    </div>
+
+    <div class="confirmation-content">
+
+      <h2>¿Desactivar cupón?</h2>
+
+      <p *ngIf="cuponAConfirmar">
+        ¿Deseas desactivar el cupón
+        <strong>"{{ cuponAConfirmar.codigo }}"</strong>?
+      </p>
+
+      <span>
+        El cupón dejará de estar disponible para los clientes.
+      </span>
+
+    </div>
+
+    <div class="confirmation-actions">
+
+      <button
+        type="button"
+        class="cancel-confirmation"
+        (click)="cancelarDesactivacionCupon()">
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="confirm-confirmation"
+        (click)="confirmarDesactivacionCupon()">
+        Desactivar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+  
 </ion-content>
