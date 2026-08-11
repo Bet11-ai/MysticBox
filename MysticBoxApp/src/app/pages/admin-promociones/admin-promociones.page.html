@@ -1,538 +1,142 @@
-<ion-content class="coupons-content">
-
-  <main class="coupons-container">
-
-    <header class="topbar">
-
-      <button
-        type="button"
-        class="back-button"
-        (click)="volverAlPanel()"
-      >
-        <ion-icon
-          name="arrow-back-outline"
-        ></ion-icon>
-
-        Volver al panel
+<ion-content class="promo-content">
+  <main class="promo-shell">
+    <header class="page-header">
+      <button class="back-button" type="button" (click)="volverAlPanel()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
       </button>
-
-      <button
-        type="button"
-        class="new-coupon-button"
-        (click)="abrirFormularioNuevo()"
-      >
-        <ion-icon
-          name="add-outline"
-        ></ion-icon>
-
-        Nuevo cupón
+      <div>
+        <span class="eyebrow">MARKETING</span>
+        <h1>Promociones y cupones</h1>
+        <p>Decide qué productos promocionar y administra los códigos de descuento de la tienda.</p>
+      </div>
+      <button class="refresh-button" type="button" (click)="cargarTodo()">
+        <ion-icon name="refresh-outline"></ion-icon> Actualizar
       </button>
-
     </header>
 
-    <section class="page-header">
-
-      <div>
-        <p>MB-74</p>
-
-        <h1>Promociones y cupones</h1>
-
-        <span>
-          Crea, edita, activa y administra
-          los descuentos de Mystic Box.
-        </span>
-      </div>
-
-      <div class="header-icon">
-        <ion-icon
-          name="pricetag-outline"
-        ></ion-icon>
-      </div>
-
-    </section>
-
-    <div
-      class="message success-message"
-      *ngIf="mensajeExito"
-    >
-      <ion-icon
-        name="checkmark-circle-outline"
-      ></ion-icon>
-
-      <span>{{ mensajeExito }}</span>
+    <div class="tabs">
+      <button type="button" [class.active]="seccionActiva === 'productos'" (click)="seccionActiva = 'productos'">
+        <ion-icon name="cube-outline"></ion-icon> Promociones de productos
+      </button>
+      <button type="button" [class.active]="seccionActiva === 'cupones'" (click)="seccionActiva = 'cupones'">
+        <ion-icon name="ticket-outline"></ion-icon> Cupones
+      </button>
     </div>
 
-    <div
-      class="message error-message"
-      *ngIf="
-        mensajeError &&
-        !mostrarFormulario
-      "
-    >
-      <ion-icon
-        name="alert-circle-outline"
-      ></ion-icon>
-
-      <span>{{ mensajeError }}</span>
+    <div class="message success" *ngIf="mensajeExito">
+      <ion-icon name="checkmark-circle-outline"></ion-icon>{{ mensajeExito }}
+    </div>
+    <div class="message error" *ngIf="mensajeError">
+      <ion-icon name="alert-circle-outline"></ion-icon>{{ mensajeError }}
     </div>
 
-    <section class="toolbar-card">
+    <ng-container *ngIf="seccionActiva === 'productos'">
+      <section class="summary-grid">
+        <article><span>En oferta</span><strong>{{ contarOfertas() }}</strong></article>
+        <article><span>Recomendadas</span><strong>{{ contarRecomendadas() }}</strong></article>
+        <article><span>Destacadas</span><strong>{{ contarDestacadas() }}</strong></article>
+      </section>
 
-      <div class="search-box">
+      <section class="toolbar-card">
+        <div class="search-box">
+          <ion-icon name="search-outline"></ion-icon>
+          <input [(ngModel)]="textoBusquedaCaja" (input)="aplicarFiltroCajas()" placeholder="Buscar caja por nombre..." />
+        </div>
+        <span>{{ cajasFiltradas.length }} cajas</span>
+      </section>
 
-        <ion-icon
-          name="search-outline"
-        ></ion-icon>
-
-        <input
-          type="text"
-          [(ngModel)]="textoBusqueda"
-          (input)="aplicarFiltro()"
-          placeholder="Buscar por código o descripción..."
-        />
-
-      </div>
-
-      <button
-        type="button"
-        class="refresh-button"
-        (click)="cargarCupones()"
-      >
-        <ion-icon
-          name="refresh-outline"
-        ></ion-icon>
-
-        Actualizar
-      </button>
-
-      <div class="results-count">
-        <strong>
-          {{ cuponesFiltrados.length }}
-        </strong>
-
-        <span>cupones encontrados</span>
-      </div>
-
-    </section>
-
-    <section
-      class="loading-card"
-      *ngIf="cargando"
-    >
-      <ion-spinner
-        name="crescent"
-      ></ion-spinner>
-
-      <p>Cargando cupones...</p>
-    </section>
-
-    <section
-      class="empty-card"
-      *ngIf="
-        !cargando &&
-        cuponesFiltrados.length === 0
-      "
-    >
-      <ion-icon
-        name="ticket-outline"
-      ></ion-icon>
-
-      <h2>No hay cupones registrados</h2>
-
-      <p>
-        Crea el primer cupón promocional
-        para Mystic Box.
-      </p>
-
-      <button
-        type="button"
-        (click)="abrirFormularioNuevo()"
-      >
-        Crear cupón
-      </button>
-    </section>
-
-    <section
-      class="coupons-grid"
-      *ngIf="
-        !cargando &&
-        cuponesFiltrados.length > 0
-      "
-    >
-
-      <article
-        class="coupon-card"
-        *ngFor="
-          let cupon of cuponesFiltrados
-        "
-      >
-
-        <div class="coupon-top">
-
-          <div class="coupon-icon">
-            <ion-icon
-              [name]="
-                obtenerIconoDescuento(
-                  cupon
-                )
-              "
-            ></ion-icon>
+      <section class="product-grid" *ngIf="!cargando">
+        <article class="product-card" *ngFor="let caja of cajasFiltradas">
+          <div class="product-image">
+            <img *ngIf="caja.imagen" [src]="obtenerImagen(caja.imagen)" [alt]="caja.nombreCaja" />
+            <ion-icon *ngIf="!caja.imagen" name="cube-outline"></ion-icon>
           </div>
 
-          <span
-            class="status-badge"
-            [ngClass]="
-              obtenerClaseEstado(cupon)
-            "
-          >
-            {{ obtenerEstadoCupon(cupon) }}
-          </span>
+          <div class="product-copy">
+            <div class="product-title-row">
+              <div><h2>{{ caja.nombreCaja }}</h2><p>{{ caja.descripcion }}</p></div>
+              <span class="stock">Stock {{ caja.stock }}</span>
+            </div>
 
-        </div>
+            <div class="price-row">
+              <div><span>Precio regular</span><strong>₡{{ caja.precio | number:'1.0-0' }}</strong></div>
+              <div *ngIf="caja.esOferta"><span>Precio con oferta</span><strong class="offer-price">₡{{ obtenerPrecioOferta(caja) | number:'1.0-0' }}</strong></div>
+            </div>
 
-        <span class="coupon-label">
-          Código promocional
-        </span>
+            <div class="switch-grid">
+              <label class="switch-card">
+                <input type="checkbox" [checked]="caja.esOferta" (change)="alternarOferta(caja)" />
+                <div><strong>Oferta</strong><span>Mostrar con descuento</span></div>
+              </label>
+              <label class="switch-card">
+                <input type="checkbox" [(ngModel)]="caja.esRecomendada" />
+                <div><strong>Recomendada</strong><span>Selección del día</span></div>
+              </label>
+              <label class="switch-card">
+                <input type="checkbox" [(ngModel)]="caja.esDestacada" />
+                <div><strong>Destacada</strong><span>Mostrar en favoritos</span></div>
+              </label>
+            </div>
 
-        <h2>{{ cupon.codigo }}</h2>
+            <label class="discount-field" *ngIf="caja.esOferta">
+              <span>Porcentaje de descuento</span>
+              <div><input type="number" min="1" max="99" [(ngModel)]="caja.porcentajeOferta" /><b>%</b></div>
+            </label>
 
-        <p>
-          {{
-            cupon.descripcion ||
-            'Sin descripción.'
-          }}
-        </p>
-
-        <div class="discount-box">
-
-          <span>Descuento</span>
-
-          <strong>
-            {{ obtenerTipoDescuento(cupon) }}
-          </strong>
-
-        </div>
-
-        <div class="dates-grid">
-
-          <div>
-            <ion-icon
-              name="calendar-outline"
-            ></ion-icon>
-
-            <span>Inicio</span>
-
-            <strong>
-              {{
-                cupon.fechaInicio
-                  | date:'dd/MM/yyyy'
-              }}
-            </strong>
+            <button class="save-product" type="button" [disabled]="guardandoCaja === caja.idCaja" (click)="guardarConfiguracionCaja(caja)">
+              <ion-icon name="save-outline"></ion-icon>
+              {{ guardandoCaja === caja.idCaja ? 'Guardando...' : 'Guardar configuración' }}
+            </button>
           </div>
+        </article>
+      </section>
+    </ng-container>
 
-          <div>
-            <ion-icon
-              name="time-outline"
-            ></ion-icon>
+    <ng-container *ngIf="seccionActiva === 'cupones'">
+      <section class="toolbar-card coupon-toolbar">
+        <div class="search-box">
+          <ion-icon name="search-outline"></ion-icon>
+          <input [(ngModel)]="textoBusquedaCupon" (input)="aplicarFiltroCupones()" placeholder="Buscar cupón..." />
+        </div>
+        <button class="primary-action" type="button" (click)="abrirFormularioNuevo()">
+          <ion-icon name="add-outline"></ion-icon> Nuevo cupón
+        </button>
+      </section>
 
-            <span>Finaliza</span>
-
-            <strong>
-              {{
-                cupon.fechaFin
-                  | date:'dd/MM/yyyy'
-              }}
-            </strong>
+      <section class="coupon-grid">
+        <article class="coupon-card" *ngFor="let cupon of cuponesFiltrados">
+          <div class="coupon-icon"><ion-icon name="ticket-outline"></ion-icon></div>
+          <div class="coupon-copy">
+            <div class="coupon-head"><h2>{{ cupon.codigo }}</h2><span [class.inactive]="!cupon.activo">{{ cupon.activo ? 'Activo' : 'Inactivo' }}</span></div>
+            <p>{{ cupon.descripcion || 'Sin descripción' }}</p>
+            <div class="coupon-meta">
+              <strong>{{ obtenerDescuentoCupon(cupon) }}</strong>
+              <span>{{ cupon.fechaInicio | date:'dd/MM/yyyy' }} - {{ cupon.fechaFin | date:'dd/MM/yyyy' }}</span>
+            </div>
           </div>
-
-        </div>
-
-        <div class="coupon-actions">
-
-          <button
-            type="button"
-            class="edit-button"
-            (click)="
-              abrirFormularioEditar(
-                cupon
-              )
-            "
-          >
-            <ion-icon
-              name="create-outline"
-            ></ion-icon>
-
-            Editar
-          </button>
-
-          <button
-            type="button"
-            class="delete-button"
-            (click)="eliminarCupon(cupon)"
-          >
-            <ion-icon
-              name="trash-outline"
-            ></ion-icon>
-
-            Eliminar
-          </button>
-
-        </div>
-
-      </article>
-
-    </section>
-
+          <div class="coupon-actions">
+            <button type="button" (click)="abrirFormularioEditar(cupon)"><ion-icon name="create-outline"></ion-icon></button>
+            <button type="button" class="danger" (click)="eliminarCupon(cupon)"><ion-icon name="trash-outline"></ion-icon></button>
+          </div>
+        </article>
+      </section>
+    </ng-container>
   </main>
 
-  <div
-    class="modal-overlay"
-    *ngIf="mostrarFormulario"
-    (click)="cerrarFormulario()"
-  >
-
-    <section
-      class="form-modal"
-      (click)="$event.stopPropagation()"
-    >
-
-      <header class="form-header">
-
-        <div>
-          <p>
-            {{
-              modoEdicion
-                ? 'Editar promoción'
-                : 'Nueva promoción'
-            }}
-          </p>
-
-          <h2>
-            {{
-              modoEdicion
-                ? 'Editar cupón'
-                : 'Crear cupón'
-            }}
-          </h2>
-        </div>
-
-        <button
-          type="button"
-          class="close-button"
-          (click)="cerrarFormulario()"
-        >
-          <ion-icon
-            name="close-outline"
-          ></ion-icon>
-        </button>
-
-      </header>
-
-      <div
-        class="message error-message"
-        *ngIf="mensajeError"
-      >
-        <ion-icon
-          name="alert-circle-outline"
-        ></ion-icon>
-
-        <span>{{ mensajeError }}</span>
-      </div>
-
+  <div class="modal-overlay" *ngIf="mostrarFormulario" (click)="cerrarFormulario()">
+    <section class="coupon-form" (click)="$event.stopPropagation()">
+      <header><div><span class="eyebrow">CUPÓN</span><h2>{{ modoEdicion ? 'Editar cupón' : 'Crear cupón' }}</h2></div><button type="button" (click)="cerrarFormulario()"><ion-icon name="close-outline"></ion-icon></button></header>
       <div class="form-grid">
-
-        <label class="form-field">
-
-          <span>Código del cupón *</span>
-
-          <input
-            type="text"
-            [(ngModel)]="formulario.codigo"
-            placeholder="Ejemplo: MYSTIC10"
-            maxlength="50"
-          />
-
-        </label>
-
-        <label class="form-field">
-
-          <span>Tipo de descuento *</span>
-
-          <select
-            [(ngModel)]="
-              formulario.tipoDescuento
-            "
-            (change)="
-              cambiarTipoDescuento()
-            "
-          >
-            <option
-              value="porcentaje"
-            >
-              Porcentaje
-            </option>
-
-            <option value="monto">
-              Monto fijo
-            </option>
-          </select>
-
-        </label>
-
-        <label
-          class="form-field"
-          *ngIf="
-            formulario.tipoDescuento ===
-            'porcentaje'
-          "
-        >
-          <span>Porcentaje *</span>
-
-          <div class="input-with-icon">
-
-            <ion-icon
-              name="percent-outline"
-            ></ion-icon>
-
-            <input
-              type="number"
-              min="1"
-              max="100"
-              [(ngModel)]="
-                formulario
-                  .porcentajeDescuento
-              "
-              placeholder="10"
-            />
-
-          </div>
-        </label>
-
-        <label
-          class="form-field"
-          *ngIf="
-            formulario.tipoDescuento ===
-            'monto'
-          "
-        >
-          <span>Monto de descuento *</span>
-
-          <div class="input-with-icon">
-
-            <ion-icon
-              name="cash-outline"
-            ></ion-icon>
-
-            <input
-              type="number"
-              min="1"
-              [(ngModel)]="
-                formulario
-                  .montoDescuento
-              "
-              placeholder="2500"
-            />
-
-          </div>
-        </label>
-
-        <label class="form-field">
-
-          <span>Fecha de inicio *</span>
-
-          <input
-            type="date"
-            [(ngModel)]="
-              formulario.fechaInicio
-            "
-          />
-
-        </label>
-
-        <label class="form-field">
-
-          <span>Fecha final *</span>
-
-          <input
-            type="date"
-            [(ngModel)]="
-              formulario.fechaFin
-            "
-          />
-
-        </label>
-
-        <label class="form-field full-width">
-
-          <span>Descripción</span>
-
-          <textarea
-            rows="4"
-            [(ngModel)]="
-              formulario.descripcion
-            "
-            placeholder="Descripción o condiciones del cupón..."
-          ></textarea>
-
-        </label>
-
-        <label class="status-field full-width">
-
-          <input
-            type="checkbox"
-            [(ngModel)]="
-              formulario.activo
-            "
-          />
-
-          <div>
-            <strong>Cupón activo</strong>
-
-            <span>
-              Los cupones activos pueden
-              ser utilizados por los clientes
-              durante su vigencia.
-            </span>
-          </div>
-
-        </label>
-
+        <label><span>Código</span><input [(ngModel)]="formulario.codigo" placeholder="MYSTIC10" /></label>
+        <label><span>Tipo de descuento</span><select [(ngModel)]="formulario.tipoDescuento" (change)="cambiarTipoDescuento()"><option value="porcentaje">Porcentaje</option><option value="monto">Monto fijo</option></select></label>
+        <label *ngIf="formulario.tipoDescuento === 'porcentaje'"><span>Porcentaje</span><input type="number" min="1" max="100" [(ngModel)]="formulario.porcentajeDescuento" /></label>
+        <label *ngIf="formulario.tipoDescuento === 'monto'"><span>Monto</span><input type="number" min="1" [(ngModel)]="formulario.montoDescuento" /></label>
+        <label><span>Fecha inicio</span><input type="date" [(ngModel)]="formulario.fechaInicio" /></label>
+        <label><span>Fecha fin</span><input type="date" [(ngModel)]="formulario.fechaFin" /></label>
+        <label class="full"><span>Descripción</span><textarea rows="3" [(ngModel)]="formulario.descripcion"></textarea></label>
+        <label class="active-check full"><input type="checkbox" [(ngModel)]="formulario.activo" /><div><strong>Cupón activo</strong><span>Disponible para los clientes durante su vigencia.</span></div></label>
       </div>
-
-      <footer class="form-actions">
-
-        <button
-          type="button"
-          class="cancel-button"
-          (click)="cerrarFormulario()"
-          [disabled]="guardando"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          class="save-button"
-          (click)="guardarCupon()"
-          [disabled]="guardando"
-        >
-          <ion-icon
-            name="save-outline"
-          ></ion-icon>
-
-          {{
-            guardando
-              ? 'Guardando...'
-              : modoEdicion
-                ? 'Guardar cambios'
-                : 'Crear cupón'
-          }}
-        </button>
-
-      </footer>
-
+      <footer><button type="button" class="secondary" (click)="cerrarFormulario()">Cancelar</button><button type="button" class="primary-action" [disabled]="guardandoCupon" (click)="guardarCupon()"><ion-icon name="save-outline"></ion-icon>{{ guardandoCupon ? 'Guardando...' : 'Guardar cupón' }}</button></footer>
     </section>
-
   </div>
-
 </ion-content>

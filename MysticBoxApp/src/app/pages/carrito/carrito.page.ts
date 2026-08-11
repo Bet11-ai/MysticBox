@@ -1,14 +1,39 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  OnInit
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { IonicModule } from '@ionic/angular';
-import { Router, RouterLink } from '@angular/router';
-import { Mysticbox } from 'src/app/services/mysticbox';
-import { CarritoService } from '../../services/carrito.service';
-import { PedidoService } from '../../services/pedido.service';
-import { DetallePedidoService } from 'src/app/services/detallePedido.service';
-import { FacturaService } from 'src/app/services/factura.service';
+
+import {
+  Router,
+  RouterLink
+} from '@angular/router';
+
 import { forkJoin } from 'rxjs';
+
+import { Mysticbox } from 'src/app/services/mysticbox';
+
+import {
+  CarritoService
+} from '../../services/carrito.service';
+
+import {
+  CrearPedidoRequest,
+  PedidoService
+} from '../../services/pedido.service';
+
+import {
+  DetallePedidoService
+} from 'src/app/services/detallePedido.service';
+
+import {
+  CrearFacturaRequest,
+  FacturaService
+} from 'src/app/services/factura.service';
 
 import {
   CuponService,
@@ -16,17 +41,31 @@ import {
 } from '../../services/cupon.service';
 
 import { addIcons } from 'ionicons';
+
 import {
-  arrowBackOutline,
-  cartOutline,
-  trashOutline,
   addOutline,
-  removeOutline,
+  arrowBackOutline,
   bagCheckOutline,
-  ticketOutline,
+  cardOutline,
+  cartOutline,
   checkmarkCircleOutline,
-  closeCircleOutline
+  closeCircleOutline,
+  homeOutline,
+  locationOutline,
+  removeOutline,
+  storefrontOutline,
+  ticketOutline,
+  trashOutline,
+  carOutline,
+  walletOutline
 } from 'ionicons/icons';
+
+
+type TipoEntrega =
+  'retiro' |
+  'envio' |
+  '';
+
 
 @Component({
   selector: 'app-carrito',
@@ -40,272 +79,536 @@ import {
     RouterLink
   ]
 })
-export class CarritoPage implements OnInit {
+export class CarritoPage
+  implements OnInit {
 
   carritos: any[] = [];
+
   cargando = true;
 
+  productosCarrito: any[] = [];
+
+  carritoActivo:
+    any = null;
+
+
+  /* CUPÓN */
+
   codigoCupon = '';
-  cuponAplicado: ValidacionCupon | null = null;
+
+  cuponAplicado:
+    ValidacionCupon | null = null;
+
   mensajeCupon = '';
-  tipoMensajeCupon: 'exito' | 'error' | '' = '';
+
+  tipoMensajeCupon:
+    'exito' |
+    'error' |
+    '' = '';
+
   validandoCupon = false;
 
-  productosCarrito: any[] = [];
-  carritoActivo: any
+
+  /* PAGO */
 
   metodosPago = [
     {
-      idMetodoPago: 1, nombre: 'Tarjeta'
+      idMetodoPago: 1,
+      nombre: 'Tarjeta'
     },
     {
-      idMetodoPago: 2, nombre: 'SINPE Móvil'
+      idMetodoPago: 2,
+      nombre: 'SINPE Móvil'
     },
     {
-      idMetodoPago: 3, nombre: 'Transferencia Bancaria'
+      idMetodoPago: 3,
+      nombre: 'Transferencia bancaria'
     }
   ];
 
-  idMetodoPagoSeleccionado: number | null = null;
+  idMetodoPagoSeleccionado:
+    number | null = null;
+
+
+  /* ENTREGA */
+
+  tipoEntrega:
+    TipoEntrega = '';
+
+  provinciaEntrega = '';
+
+  direccionEntrega = '';
+
+  provincias = [
+    'San José',
+    'Alajuela',
+    'Cartago',
+    'Heredia',
+    'Guanacaste',
+    'Puntarenas',
+    'Limón'
+  ];
+
+
+  /* COMPRA */
+
   procesandoCompra = false;
+
   mensajeCompra = '';
 
 
   constructor(
-    private carritoService: CarritoService,
-    private cuponService: CuponService,
-    private mysticboxService: Mysticbox,
-    private pedidoService: PedidoService,
-    private facturaService: FacturaService,
-    private detallePedidoService: DetallePedidoService,
-    private router: Router
+    private carritoService:
+      CarritoService,
+
+    private cuponService:
+      CuponService,
+
+    private mysticboxService:
+      Mysticbox,
+
+    private pedidoService:
+      PedidoService,
+
+    private facturaService:
+      FacturaService,
+
+    private detallePedidoService:
+      DetallePedidoService,
+
+    private router:
+      Router
   ) {
+
     addIcons({
-      arrowBackOutline,
-      cartOutline,
-      trashOutline,
       addOutline,
-      removeOutline,
+      arrowBackOutline,
       bagCheckOutline,
-      ticketOutline,
+      cardOutline,
+      cartOutline,
       checkmarkCircleOutline,
-      closeCircleOutline
+      closeCircleOutline,
+      homeOutline,
+      locationOutline,
+      removeOutline,
+      storefrontOutline,
+      ticketOutline,
+      trashOutline,
+    carOutline,
+      walletOutline
     });
   }
 
+
   ngOnInit(): void {
+
     this.obtenerCarritos();
   }
 
+
+  ionViewWillEnter(): void {
+
+    this.obtenerCarritos();
+  }
+
+
   obtenerCarritos(): void {
 
-    let idUsuario =
-      Number(localStorage.getItem('idUsuario'));
+    this.cargando = true;
+
+    const idUsuario =
+      this.obtenerIdUsuario();
 
     if (!idUsuario) {
-      const usuarioGuardado =
-        localStorage.getItem('usuario');
 
-      if (usuarioGuardado) {
-        const usuario = JSON.parse(usuarioGuardado);
+      this.productosCarrito = [];
 
-        idUsuario = Number(
-          usuario.idUsuario
-        );
-      }
-    }
+      this.carritoActivo = null;
 
-    console.log(
-      'Id del usuario en el carrito:',
-      idUsuario
-    );
-    this.carritoService.obtenerCarritos()
-      .subscribe({
+      this.cargando = false;
 
-        next: carritos => {
-
-          this.carritos = carritos;
-
-          const carritoActivo = carritos.find(
-            (carrito: any) =>
-              Number(carrito.idUsuario) === idUsuario &&
-              String(carrito.estado).toLowerCase() === 'activo'
-          );
-          this.carritoActivo = carritoActivo ?? null;
-
-          if (!carritoActivo) {
-            this.productosCarrito = [];
-            this.cargando = false;
-            return;
-          }
-
-          this.carritoService
-            .obtenerDetallesCarrito()
-            .subscribe({
-
-              next: detalles => {
-
-                const detallesDelCarrito = detalles.filter(
-                  (detalle: any) =>
-                    Number(detalle.idCarrito) ===
-                    Number(carritoActivo.idCarrito)
-                );
-
-                this.mysticboxService
-                  .obtenerCajas()
-                  .subscribe({
-
-                    next: cajas => {
-                      console.log(
-                        'Detalles del carrito encontrados:',
-                        detallesDelCarrito
-                      );
-
-                      console.log(
-                        'Cajas recibidas desde backend:',
-                        cajas
-                      );
-
-                      this.productosCarrito =
-                        detallesDelCarrito.map(
-                          (detalle: any) => {
-
-                            const caja = cajas.find(
-                              (item: any) =>
-                                Number(item.idCaja) ===
-                                Number(detalle.idCaja)
-                            );
-
-                            return {
-                              idDetalleCarrito:
-                                detalle.idDetalleCarrito,
-                              idCarrito:
-                                detalle.idCarrito,
-                              idCaja:
-                                detalle.idCaja,
-                              idPersonalizacion:
-                                detalle.idPersonalizacion,
-                              nombre:
-                                caja?.nombreCaja ||
-                                'Mystic Box',
-                              descripcion:
-                                caja?.descripcion ||
-                                '',
-                              imagen:
-                                caja?.imagen ||
-                                '',
-                              precio:
-                                Number(detalle.precioUnitario) ||
-                                Number(caja?.precio) ||
-                                0,
-                              cantidad:
-                                Number(detalle.cantidad) || 1
-                            };
-                          }
-                        );
-
-                      this.cargando = false;
-
-                      console.log(
-                        'Productos reales del carrito:',
-                        this.productosCarrito
-                      );
-                    },
-
-                    error: errorCajas => {
-                      console.error(
-                        'Error al obtener las cajas:',
-                        errorCajas
-                      );
-
-                      this.cargando = false;
-                    }
-                  });
-              },
-
-              error: errorDetalles => {
-                console.error(
-                  'Error al obtener los detalles:',
-                  errorDetalles
-                );
-
-                this.cargando = false;
-              }
-            });
-        },
-
-        error: errorCarritos => {
-          console.error(
-            'Error al obtener los carritos:',
-            errorCarritos
-          );
-
-          this.cargando = false;
-        }
-      });
-  }
-
-  aumentarCantidad(producto: any): void {
-    producto.cantidad++;
-
-    this.reiniciarCuponSiCambioCarrito();
-  }
-
-  disminuirCantidad(producto: any): void {
-    if (producto.cantidad > 1) {
-      producto.cantidad--;
-
-      this.reiniciarCuponSiCambioCarrito();
-    }
-  }
-
-  eliminarProducto(index: number): void {
-    this.productosCarrito.splice(index, 1);
-
-    this.reiniciarCuponSiCambioCarrito();
-  }
-
-  calcularSubtotal(): number {
-    return this.productosCarrito.reduce(
-      (total, producto) =>
-        total + producto.precio * producto.cantidad,
-      0
-    );
-  }
-
-  calcularDescuento(): number {
-    return this.cuponAplicado?.descuento ?? 0;
-  }
-
-  calcularTotal(): number {
-    return Math.max(
-      this.calcularSubtotal() - this.calcularDescuento(),
-      0
-    );
-  }
-
-  aplicarCupon(): void {
-    const codigo = this.codigoCupon.trim();
-
-    this.mensajeCupon = '';
-    this.tipoMensajeCupon = '';
-
-    if (!codigo) {
-      this.mensajeCupon =
-        'Debe ingresar un código de cupón.';
-
-      this.tipoMensajeCupon = 'error';
+      this.mensajeCompra =
+        'Debes iniciar sesión para consultar tu carrito.';
 
       return;
     }
 
-    const subtotal = this.calcularSubtotal();
+    this.carritoService
+      .obtenerCarritos()
+      .subscribe({
 
-    if (subtotal <= 0) {
+        next: carritos => {
+
+          this.carritos =
+            carritos ?? [];
+
+          const carritoActivo =
+            this.carritos.find(
+              (carrito: any) =>
+                Number(
+                  carrito.idUsuario
+                ) ===
+                Number(
+                  idUsuario
+                )
+                &&
+                String(
+                  carrito.estado ?? ''
+                )
+                  .trim()
+                  .toLowerCase() ===
+                'activo'
+            );
+
+          this.carritoActivo =
+            carritoActivo ?? null;
+
+          if (!carritoActivo) {
+
+            this.productosCarrito = [];
+
+            this.cargando = false;
+
+            return;
+          }
+
+          this.cargarProductosCarrito(
+            carritoActivo
+          );
+        },
+
+        error: error => {
+
+          console.error(
+            'Error al obtener el carrito:',
+            error
+          );
+
+          this.productosCarrito = [];
+
+          this.carritoActivo = null;
+
+          this.cargando = false;
+
+          this.mensajeCompra =
+            'No fue posible cargar tu carrito.';
+        }
+
+      });
+  }
+
+
+  private cargarProductosCarrito(
+    carritoActivo: any
+  ): void {
+
+    forkJoin({
+
+      detalles:
+        this.carritoService
+          .obtenerDetallesCarrito(),
+
+      cajas:
+        this.mysticboxService
+          .obtenerCajas()
+
+    })
+    .subscribe({
+
+      next: ({
+        detalles,
+        cajas
+      }) => {
+
+        const detallesDelCarrito =
+          (detalles ?? [])
+            .filter(
+              (detalle: any) =>
+                Number(
+                  detalle.idCarrito
+                ) ===
+                Number(
+                  carritoActivo.idCarrito
+                )
+            );
+
+        this.productosCarrito =
+          detallesDelCarrito
+            .map(
+              (detalle: any) => {
+
+                const caja =
+                  (cajas ?? [])
+                    .find(
+                      (item: any) =>
+                        Number(
+                          item.idCaja
+                        ) ===
+                        Number(
+                          detalle.idCaja
+                        )
+                    );
+
+                return {
+
+                  idDetalleCarrito:
+                    detalle.idDetalleCarrito,
+
+                  idCarrito:
+                    detalle.idCarrito,
+
+                  idCaja:
+                    detalle.idCaja,
+
+                  idPersonalizacion:
+                    detalle.idPersonalizacion,
+
+                  nombre:
+                    caja?.nombreCaja ??
+                    'Mystic Box',
+
+                  descripcion:
+                    caja?.descripcion ??
+                    '',
+
+                  imagen:
+                    caja?.imagen ??
+                    '',
+
+                  precio:
+                    Number(
+                      detalle.precioUnitario
+                    )
+                    ||
+                    Number(
+                      caja?.precio
+                    )
+                    ||
+                    0,
+
+                  cantidad:
+                    Number(
+                      detalle.cantidad
+                    )
+                    ||
+                    1
+                };
+              }
+            );
+
+        this.cargando = false;
+      },
+
+      error: error => {
+
+        console.error(
+          'Error cargando productos del carrito:',
+          error
+        );
+
+        this.productosCarrito = [];
+
+        this.cargando = false;
+
+        this.mensajeCompra =
+          'No fue posible cargar los productos del carrito.';
+      }
+
+    });
+  }
+
+
+  aumentarCantidad(
+    producto: any
+  ): void {
+
+    producto.cantidad =
+      Number(
+        producto.cantidad ?? 0
+      ) + 1;
+
+    this.reiniciarCuponSiCambioCarrito();
+  }
+
+
+  disminuirCantidad(
+    producto: any
+  ): void {
+
+    const cantidad =
+      Number(
+        producto.cantidad ?? 1
+      );
+
+    if (cantidad <= 1) {
+      return;
+    }
+
+    producto.cantidad =
+      cantidad - 1;
+
+    this.reiniciarCuponSiCambioCarrito();
+  }
+
+
+  eliminarProducto(
+    index: number
+  ): void {
+
+    this.productosCarrito.splice(
+      index,
+      1
+    );
+
+    this.reiniciarCuponSiCambioCarrito();
+  }
+
+
+  calcularSubtotal(): number {
+
+    return this.productosCarrito
+      .reduce(
+        (
+          total,
+          producto
+        ) =>
+          total
+          +
+          (
+            Number(
+              producto.precio ?? 0
+            )
+            *
+            Number(
+              producto.cantidad ?? 0
+            )
+          ),
+        0
+      );
+  }
+
+
+  calcularDescuento(): number {
+
+    return Number(
+      this.cuponAplicado
+        ?.descuento ??
+      0
+    );
+  }
+
+
+  calcularCostoEnvio(): number {
+
+    if (
+      this.tipoEntrega !==
+      'envio'
+    ) {
+      return 0;
+    }
+
+    const provincia =
+      this.normalizarTexto(
+        this.provinciaEntrega
+      );
+
+    const direccion =
+      this.normalizarTexto(
+        this.direccionEntrega
+      );
+
+    /*
+     * Según la regla definida:
+     *
+     * Guápiles o Limón = ₡2.000
+     * San José u otras provincias = ₡3.500
+     */
+    const esLimon =
+      provincia === 'limon';
+
+    const esGuapiles =
+      direccion.includes(
+        'guapiles'
+      );
+
+    if (
+      esLimon ||
+      esGuapiles
+    ) {
+      return 2000;
+    }
+
+    return 3500;
+  }
+
+
+  calcularTotal(): number {
+
+    return Math.max(
+      this.calcularSubtotal()
+      -
+      this.calcularDescuento()
+      +
+      this.calcularCostoEnvio(),
+      0
+    );
+  }
+
+
+  seleccionarTipoEntrega(
+    tipo:
+      'retiro' |
+      'envio'
+  ): void {
+
+    this.tipoEntrega = tipo;
+
+    this.mensajeCompra = '';
+
+    if (
+      tipo === 'retiro'
+    ) {
+
+      this.provinciaEntrega = '';
+
+      this.direccionEntrega = '';
+    }
+  }
+
+
+  aplicarCupon(): void {
+
+    const codigo =
+      this.codigoCupon
+        .trim();
+
+    this.mensajeCupon = '';
+
+    this.tipoMensajeCupon = '';
+
+    if (!codigo) {
+
       this.mensajeCupon =
-        'Debe agregar productos antes de aplicar un cupón.';
+        'Ingresa tu código promocional.';
 
-      this.tipoMensajeCupon = 'error';
+      this.tipoMensajeCupon =
+        'error';
+
+      return;
+    }
+
+    const subtotal =
+      this.calcularSubtotal();
+
+    if (
+      subtotal <= 0
+    ) {
+
+      this.mensajeCupon =
+        'Agrega productos antes de aplicar un cupón.';
+
+      this.tipoMensajeCupon =
+        'error';
 
       return;
     }
@@ -313,126 +616,217 @@ export class CarritoPage implements OnInit {
     this.validandoCupon = true;
 
     this.cuponService
-      .validarCupon(codigo, subtotal)
+      .validarCupon(
+        codigo,
+        subtotal
+      )
       .subscribe({
-        next: (respuesta) => {
-          this.cuponAplicado = respuesta;
-          this.codigoCupon = respuesta.codigo;
+
+        next: respuesta => {
+
+          if (!respuesta.valido) {
+
+            this.cuponAplicado =
+              null;
+
+            this.mensajeCupon =
+              respuesta.mensaje ??
+              'El cupón no es válido.';
+
+            this.tipoMensajeCupon =
+              'error';
+
+            this.validandoCupon =
+              false;
+
+            return;
+          }
+
+          this.cuponAplicado =
+            respuesta;
+
+          this.codigoCupon =
+            respuesta.codigo;
 
           this.mensajeCupon =
-            respuesta.mensaje;
+            respuesta.mensaje ??
+            'Cupón aplicado correctamente.';
 
-          this.tipoMensajeCupon = 'exito';
-          this.validandoCupon = false;
+          this.tipoMensajeCupon =
+            'exito';
 
-          console.log(
-            'Cupón aplicado:',
-            respuesta
-          );
+          this.validandoCupon =
+            false;
         },
-        error: (error) => {
-          this.cuponAplicado = null;
+
+        error: error => {
+
+          this.cuponAplicado =
+            null;
 
           this.mensajeCupon =
             error.error?.mensaje ??
-            'No fue posible validar el cupón.';
+            'El código ingresado no pudo aplicarse.';
 
-          this.tipoMensajeCupon = 'error';
-          this.validandoCupon = false;
+          this.tipoMensajeCupon =
+            'error';
+
+          this.validandoCupon =
+            false;
 
           console.error(
-            'Error al validar el cupón:',
+            'Error validando cupón:',
             error
           );
         }
+
       });
   }
 
+
   quitarCupon(): void {
+
     this.cuponAplicado = null;
+
     this.codigoCupon = '';
+
     this.mensajeCupon = '';
+
     this.tipoMensajeCupon = '';
   }
 
-  reiniciarCuponSiCambioCarrito(): void {
-    if (this.cuponAplicado) {
-      this.cuponAplicado = null;
 
-      this.mensajeCupon =
-        'El carrito cambió. Vuelva a aplicar el cupón.';
+  reiniciarCuponSiCambioCarrito():
+    void {
 
-      this.tipoMensajeCupon = 'error';
+    if (!this.cuponAplicado) {
+      return;
     }
+
+    this.cuponAplicado = null;
+
+    this.mensajeCupon =
+      'El carrito cambió. Aplica nuevamente el código promocional.';
+
+    this.tipoMensajeCupon =
+      'error';
   }
 
-  seleccionarMetodoPago(evento: Event): void {
-    const selector = evento.target as HTMLSelectElement;
 
-    this.idMetodoPagoSeleccionado = selector.value
-      ? Number(selector.value) : null;
+  seleccionarMetodoPago(
+    evento: Event
+  ): void {
 
+    const selector =
+      evento.target as
+      HTMLSelectElement;
+
+    this.idMetodoPagoSeleccionado =
+      selector.value
+        ?
+        Number(
+          selector.value
+        )
+        :
+        null;
+
+    this.mensajeCompra = '';
   }
+
+
   continuarCompra(): void {
 
-    if (this.productosCarrito.length === 0) {
+    this.mensajeCompra = '';
+
+    if (
+      this.productosCarrito
+        .length === 0
+    ) {
+
       this.mensajeCompra =
-        'El carrito no tiene productos.';
+        'Tu carrito está vacío.';
 
       return;
     }
 
-    if (!this.idMetodoPagoSeleccionado) {
+    if (!this.tipoEntrega) {
+
       this.mensajeCompra =
-        'Debe seleccionar un método de pago.';
+        'Selecciona cómo deseas recibir tu pedido.';
+
+      return;
+    }
+
+    if (
+      this.tipoEntrega ===
+      'envio'
+    ) {
+
+      if (
+        !this.provinciaEntrega
+          .trim()
+      ) {
+
+        this.mensajeCompra =
+          'Selecciona la provincia de entrega.';
+
+        return;
+      }
+
+      if (
+        !this.direccionEntrega
+          .trim()
+      ) {
+
+        this.mensajeCompra =
+          'Ingresa la dirección donde deseas recibir tu pedido.';
+
+        return;
+      }
+
+      if (
+        this.direccionEntrega
+          .trim()
+          .length < 8
+      ) {
+
+        this.mensajeCompra =
+          'Ingresa una dirección de entrega más detallada.';
+
+        return;
+      }
+    }
+
+    if (
+      !this.idMetodoPagoSeleccionado
+    ) {
+
+      this.mensajeCompra =
+        'Selecciona un método de pago.';
 
       return;
     }
 
     if (!this.carritoActivo) {
+
       this.mensajeCompra =
-        'No se encontró el carrito activo.';
+        'No se encontró un carrito activo.';
 
       return;
     }
 
-    let idUsuario =
-      Number(localStorage.getItem('idUsuario'));
+    const idUsuario =
+      this.obtenerIdUsuario();
 
     if (!idUsuario) {
 
-      const usuarioGuardado =
-        localStorage.getItem('usuario');
-
-      if (usuarioGuardado) {
-
-        try {
-
-          const usuario =
-            JSON.parse(usuarioGuardado);
-
-          idUsuario =
-            Number(usuario.idUsuario);
-
-        } catch (error) {
-
-          console.error(
-            'Error al leer el usuario guardado:',
-            error
-          );
-        }
-      }
-    }
-
-    if (!idUsuario) {
       this.mensajeCompra =
-        'No se encontró el usuario que inició sesión.';
+        'No se encontró la sesión del usuario.';
 
       return;
     }
 
     this.procesandoCompra = true;
-    this.mensajeCompra = '';
 
     const subtotal =
       this.calcularSubtotal();
@@ -440,240 +834,465 @@ export class CarritoPage implements OnInit {
     const descuento =
       this.calcularDescuento();
 
+    const costoEnvio =
+      this.calcularCostoEnvio();
+
     const total =
       this.calcularTotal();
 
     const idCupon =
       this.cuponAplicado
-        ? Number(
-          this.cuponAplicado.idCupon
-        ) || null
-        : null;
+        ?
+        Number(
+          this.cuponAplicado
+            .idCupon
+        )
+        ||
+        null
+        :
+        null;
 
-    const nuevoPedido = {
-      idUsuario: idUsuario,
-      idCupon: idCupon,
+
+    const nuevoPedido:
+      CrearPedidoRequest = {
+
+      idUsuario,
+
+      idCupon,
+
       idMetodoPago:
         this.idMetodoPagoSeleccionado,
-      fechaPedido: null,
-      subtotal: subtotal,
-      descuento: descuento,
-      total: total,
-      estadoPedido: 'Pendiente'
+
+      fechaPedido:
+        null,
+
+      subtotal,
+
+      descuento,
+
+      costoEnvio,
+
+      total,
+
+      estadoPedido:
+        'Pendiente',
+
+      tipoEntrega:
+        this.tipoEntrega,
+
+      provinciaEntrega:
+        this.tipoEntrega ===
+          'envio'
+          ?
+          this.provinciaEntrega
+            .trim()
+          :
+          null,
+
+      direccionEntrega:
+        this.tipoEntrega ===
+          'envio'
+          ?
+          this.direccionEntrega
+            .trim()
+          :
+          null
     };
 
+
     this.pedidoService
-      .crearPedido(nuevoPedido)
+      .crearPedido(
+        nuevoPedido
+      )
       .subscribe({
 
-        next: (pedidoCreado: any) => {
+        next:
+          pedidoCreado => {
 
-          const detallesPedido =
-            this.productosCarrito.map(
-              (producto: any) => {
-
-                const cantidad =
-                  Number(producto.cantidad) || 1;
-
-                const precioUnitario =
-                  Number(producto.precio) || 0;
-
-                return this.detallePedidoService
-                  .crearDetallePedido({
-
-                    idPedido:
-                      Number(
-                        pedidoCreado.idPedido
-                      ),
-
-                    idCaja:
-                      Number(producto.idCaja),
-
-                    idPersonalizacion:
-                      producto.idPersonalizacion
-                        ? Number(
-                          producto.idPersonalizacion
-                        )
-                        : null,
-
-                    cantidad:
-                      cantidad,
-
-                    precioUnitario:
-                      precioUnitario,
-
-                    subtotal:
-                      precioUnitario * cantidad
-                  });
-              }
+            this.crearDetallesPedido(
+              pedidoCreado,
+              idUsuario,
+              subtotal,
+              descuento,
+              costoEnvio,
+              total
             );
+          },
 
-          forkJoin(detallesPedido)
-            .subscribe({
+        error:
+          errorPedido => {
 
-              next: () => {
+            this.procesandoCompra =
+              false;
 
-                const nuevaFactura = {
+            this.mensajeCompra =
+              errorPedido
+                ?.error
+                ?.mensaje
+              ??
+              'No fue posible crear el pedido.';
 
-                  idPedido:
+            console.error(
+              'Error al crear pedido:',
+              errorPedido
+            );
+          }
+
+      });
+  }
+
+
+  private crearDetallesPedido(
+    pedidoCreado: any,
+    idUsuario: number,
+    subtotal: number,
+    descuento: number,
+    costoEnvio: number,
+    total: number
+  ): void {
+
+    const detallesPedido =
+      this.productosCarrito
+        .map(
+          producto => {
+
+            const cantidad =
+              Number(
+                producto.cantidad
+              )
+              ||
+              1;
+
+            const precioUnitario =
+              Number(
+                producto.precio
+              )
+              ||
+              0;
+
+            return this.detallePedidoService
+              .crearDetallePedido({
+
+                idPedido:
+                  Number(
+                    pedidoCreado
+                      .idPedido
+                  ),
+
+                idCaja:
+                  Number(
+                    producto.idCaja
+                  ),
+
+                idPersonalizacion:
+                  producto
+                    .idPersonalizacion
+                    ?
                     Number(
-                      pedidoCreado.idPedido
-                    ),
+                      producto
+                        .idPersonalizacion
+                    )
+                    :
+                    null,
 
-                  fechaFactura: null,
+                cantidad,
 
-                  subtotal:
-                    subtotal,
+                precioUnitario,
 
-                  descuento:
-                    descuento,
+                subtotal:
+                  precioUnitario
+                  *
+                  cantidad
+              });
+          }
+        );
 
-                  total:
-                    total
-                };
+    forkJoin(
+      detallesPedido
+    )
+    .subscribe({
 
-                this.facturaService
-                  .crearFactura(nuevaFactura)
-                  .subscribe({
+      next: () => {
 
-                    next: (
-                      facturaCreada: any
-                    ) => {
+        this.crearFactura(
+          pedidoCreado,
+          idUsuario,
+          subtotal,
+          descuento,
+          costoEnvio,
+          total
+        );
+      },
 
-                      const carritoFinalizado = {
-
-                        idCarrito:
-                          Number(
-                            this.carritoActivo
-                              .idCarrito
-                          ),
-
-                        idUsuario:
-                          idUsuario,
-
-                        fechaCreacion:
-                          this.carritoActivo
-                            .fechaCreacion,
-
-                        estado:
-                          'Finalizado'
-                      };
-
-                      this.carritoService
-                        .actualizarCarrito(
-                          carritoFinalizado
-                            .idCarrito,
-
-                          carritoFinalizado
-                        )
-                        .subscribe({
-
-                          next: () => {
-
-                            sessionStorage.setItem(
-                              'facturaGenerada',
-
-                              JSON.stringify({
-
-                                factura:
-                                  facturaCreada,
-
-                                pedido:
-                                  pedidoCreado,
-
-                                productos:
-                                  this.productosCarrito
-                              })
-                            );
-
-                            localStorage.removeItem(
-                              'idCarritoActual'
-                            );
-
-                            this.procesandoCompra =
-                              false;
-
-                            this.router.navigate(
-                              ['/factura'],
-                              {
-                                queryParams: {
-                                  idFactura:
-                                    facturaCreada.idFactura
-                                }
-                              }
-                            );
-                          },
-
-                          error: (
-                            errorCarrito: any
-                          ) => {
-
-                            this.procesandoCompra =
-                              false;
-
-                            this.mensajeCompra =
-                              'La factura se generó, pero no se pudo finalizar el carrito.';
-
-                            console.error(
-                              'Error al finalizar el carrito:',
-                              errorCarrito
-                            );
-                          }
-                        });
-                    },
-
-                    error: (
-                      errorFactura: any
-                    ) => {
-
-                      this.procesandoCompra =
-                        false;
-
-                      this.mensajeCompra =
-                        'El pedido se creó, pero no se pudo generar la factura.';
-
-                      console.error(
-                        'Error al generar la factura:',
-                        errorFactura
-                      );
-                    }
-                  });
-              },
-
-              error: (
-                errorDetalles: any
-              ) => {
-
-                this.procesandoCompra =
-                  false;
-
-                this.mensajeCompra =
-                  'El pedido se creó, pero no se pudieron guardar todos los productos.';
-
-                console.error(
-                  'Error al crear los detalles del pedido:',
-                  errorDetalles
-                );
-              }
-            });
-        },
-
-        error: (
-          errorPedido: any
-        ) => {
+      error:
+        errorDetalles => {
 
           this.procesandoCompra =
             false;
 
           this.mensajeCompra =
-            errorPedido?.error?.mensaje ||
-            'No fue posible crear el pedido.';
+            'El pedido se creó, pero no fue posible guardar todos los productos.';
 
           console.error(
-            'Error al crear el pedido:',
-            errorPedido
+            'Error creando detalles:',
+            errorDetalles
           );
         }
+
+    });
+  }
+
+
+  private crearFactura(
+    pedidoCreado: any,
+    idUsuario: number,
+    subtotal: number,
+    descuento: number,
+    costoEnvio: number,
+    total: number
+  ): void {
+
+    const nuevaFactura:
+      CrearFacturaRequest = {
+
+      idPedido:
+        Number(
+          pedidoCreado
+            .idPedido
+        ),
+
+      fechaFactura:
+        null,
+
+      subtotal,
+
+      descuento,
+
+      costoEnvio,
+
+      total
+    };
+
+
+    this.facturaService
+      .crearFactura(
+        nuevaFactura
+      )
+      .subscribe({
+
+        next:
+          facturaCreada => {
+
+            this.finalizarCarrito(
+              pedidoCreado,
+              facturaCreada,
+              idUsuario,
+              costoEnvio
+            );
+          },
+
+        error:
+          errorFactura => {
+
+            this.procesandoCompra =
+              false;
+
+            this.mensajeCompra =
+              'El pedido se creó, pero no fue posible generar la factura.';
+
+            console.error(
+              'Error generando factura:',
+              errorFactura
+            );
+          }
+
       });
+  }
+
+
+  private finalizarCarrito(
+    pedidoCreado: any,
+    facturaCreada: any,
+    idUsuario: number,
+    costoEnvio: number
+  ): void {
+
+    const carritoFinalizado = {
+
+      idCarrito:
+        Number(
+          this.carritoActivo
+            .idCarrito
+        ),
+
+      idUsuario,
+
+      fechaCreacion:
+        this.carritoActivo
+          .fechaCreacion,
+
+      estado:
+        'Finalizado'
+    };
+
+
+    this.carritoService
+      .actualizarCarrito(
+        carritoFinalizado
+          .idCarrito,
+
+        carritoFinalizado
+      )
+      .subscribe({
+
+        next: () => {
+
+          sessionStorage.setItem(
+            'facturaGenerada',
+
+            JSON.stringify({
+
+              factura:
+                facturaCreada,
+
+              pedido:
+                pedidoCreado,
+
+              productos:
+                this.productosCarrito,
+
+              entrega: {
+                tipoEntrega:
+                  this.tipoEntrega,
+
+                provinciaEntrega:
+                  this.provinciaEntrega,
+
+                direccionEntrega:
+                  this.direccionEntrega,
+
+                costoEnvio
+              }
+            })
+          );
+
+          localStorage.removeItem(
+            'idCarritoActual'
+          );
+
+          this.procesandoCompra =
+            false;
+
+          this.router.navigate(
+            ['/factura'],
+            {
+              queryParams: {
+                idFactura:
+                  facturaCreada
+                    .idFactura
+              }
+            }
+          );
+        },
+
+        error:
+          errorCarrito => {
+
+            this.procesandoCompra =
+              false;
+
+            this.mensajeCompra =
+              'La compra se completó, pero no fue posible cerrar el carrito.';
+
+            console.error(
+              'Error finalizando carrito:',
+              errorCarrito
+            );
+          }
+
+      });
+  }
+
+
+  volverAlInicio(): void {
+
+    this.router.navigate([
+      '/home'
+    ]);
+  }
+
+
+  private obtenerIdUsuario():
+    number | null {
+
+    const idDirecto =
+      Number(
+        localStorage.getItem(
+          'idUsuario'
+        )
+      );
+
+    if (idDirecto) {
+      return idDirecto;
+    }
+
+    const usuarioGuardado =
+      localStorage.getItem(
+        'usuario'
+      );
+
+    if (!usuarioGuardado) {
+      return null;
+    }
+
+    try {
+
+      const usuario =
+        JSON.parse(
+          usuarioGuardado
+        );
+
+      const idUsuario =
+        Number(
+          usuario.idUsuario
+          ??
+          usuario.IdUsuario
+        );
+
+      return idUsuario
+        ||
+        null;
+
+    } catch (error) {
+
+      console.error(
+        'No fue posible leer la sesión:',
+        error
+      );
+
+      return null;
+    }
+  }
+
+
+  private normalizarTexto(
+    valor:
+      string |
+      null |
+      undefined
+  ): string {
+
+    return (
+      valor ?? ''
+    )
+      .trim()
+      .toLowerCase()
+      .normalize(
+        'NFD'
+      )
+      .replace(
+        /[\u0300-\u036f]/g,
+        ''
+      );
   }
 }

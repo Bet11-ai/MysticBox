@@ -1,22 +1,35 @@
 :host {
-  --page-bg: #070d17;
-  --card: #111b2a;
-  --card-dark: #0b1421;
+
+  --page-bg:
+    var(--mystic-bg);
+
+  --card:
+    var(--mystic-surface);
+
+  --card-soft:
+    var(--mystic-surface-soft);
 
   --border:
-    rgba(113, 139, 174, 0.22);
+    var(--mystic-border);
 
-  --text: #f5f7fb;
-  --muted: #8b99ab;
+  --text:
+    var(--mystic-text);
 
-  --purple: #9857ef;
-  --purple-light: #be83ff;
+  --muted:
+    var(--mystic-text-secondary);
 
-  --blue: #3e9cf7;
-  --green: #3dd18b;
-  --red: #ff6877;
+  --primary:
+    var(--mystic-primary);
+
+  --primary-light:
+    var(--mystic-primary-soft);
+
+  --success:
+    var(--mystic-success);
+
+  --danger:
+    var(--mystic-danger);
 }
-
 .perfil-content {
 
   --background:
@@ -62,16 +75,16 @@
 
   border:
     1px solid
-    rgba(152, 87, 239, 0.35);
+    rgba(78, 167, 255, 0.35);
 
   border-radius:
     9px;
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   background:
-    rgba(152, 87, 239, 0.05);
+    rgba(78, 167, 255, 0.05);
 
   font-size:
     11px;
@@ -102,7 +115,7 @@
 
   border:
     1px solid
-    rgba(152, 87, 239, 0.3);
+    rgba(78, 167, 255, 0.3);
 
   border-radius:
     20px;
@@ -153,7 +166,7 @@
 
   box-shadow:
     0 0 30px
-    rgba(152, 87, 239, 0.22);
+    rgba(78, 167, 255, 0.22);
 }
 
 .perfil-title {
@@ -164,7 +177,7 @@
   span {
 
     color:
-      var(--purple-light);
+      var(--accent-blue-light);
 
     font-size:
       9px;
@@ -312,10 +325,10 @@
     11px;
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   background:
-    rgba(152, 87, 239, 0.12);
+    rgba(78, 167, 255, 0.12);
 
   font-size:
     20px;
@@ -399,7 +412,7 @@
   span {
 
     color:
-      var(--purple-light);
+      var(--accent-blue-light);
 
     font-size:
       9px;

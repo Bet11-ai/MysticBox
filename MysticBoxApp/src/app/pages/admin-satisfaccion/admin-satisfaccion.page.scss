@@ -10,8 +10,8 @@
   --text: #f4f7fb;
   --muted: #8999ad;
 
-  --purple: #a663ff;
-  --purple-light: #c18bff;
+  --accent-blue: #a663ff;
+  --accent-blue-light: #c18bff;
 
   --gold: #f4c542;
 
@@ -106,7 +106,7 @@
 .task-label {
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   font-size:
     10px;
@@ -140,7 +140,7 @@
     11px;
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   background:
     rgba(166, 99, 255, 0.05);
@@ -174,7 +174,7 @@
     10px;
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   background:
     rgba(166, 99, 255, 0.06);
@@ -394,7 +394,7 @@
     span {
 
       color:
-        var(--purple-light);
+        var(--accent-blue-light);
 
       font-size:
         9px;
@@ -728,7 +728,7 @@
   > div > span {
 
     color:
-      var(--purple-light);
+      var(--accent-blue-light);
 
     font-size:
       9px;
@@ -848,7 +848,7 @@
     11px;
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   font-size:
     11px;
@@ -955,7 +955,7 @@
       1px;
 
     color:
-      var(--purple-light);
+      var(--accent-blue-light);
 
     flex:
       0 0 auto;

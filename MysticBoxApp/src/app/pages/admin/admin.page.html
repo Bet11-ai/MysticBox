@@ -1,266 +1,664 @@
 <ion-content class="admin-content">
+  <div class="admin-layout">
 
-  <main class="admin-shell">
-
-    <!-- Barra superior -->
-    <header class="admin-navbar">
-
-      <div class="admin-brand">
-
-        <div class="brand-logo">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">
           <ion-icon name="cube-outline"></ion-icon>
         </div>
-
-        <div class="brand-copy">
+        <div>
           <strong>Mystic Box</strong>
           <span>Centro administrativo</span>
         </div>
-
       </div>
 
-      <div class="admin-user">
+      <nav class="sidebar-nav">
+        <span class="nav-label">GENERAL</span>
 
-        <div class="user-copy">
-          <strong>
-            {{ usuario?.nombre || 'Administradora' }}
-          </strong>
+        <button type="button" class="side-link active">
+          <ion-icon name="grid-outline"></ion-icon>
+          <span>Panel de control</span>
+        </button>
 
-          <span>Administrador</span>
-        </div>
+        <span class="nav-label">GESTIÓN DE LA TIENDA</span>
 
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[0])">
+          <ion-icon name="cube-outline"></ion-icon>
+          <span>Cajas</span>
+        </button>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[1])">
+          <ion-icon name="pricetag-outline"></ion-icon>
+          <span>Promociones</span>
+        </button>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[2])">
+          <ion-icon name="receipt-outline"></ion-icon>
+          <span>Pedidos</span>
+        </button>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[3])">
+          <ion-icon name="people-outline"></ion-icon>
+          <span>Clientes</span>
+        </button>
+
+        <span class="nav-label">ANÁLISIS</span>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[4])">
+          <ion-icon name="grid-outline"></ion-icon>
+          <span>Dashboard</span>
+        </button>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[5])">
+          <ion-icon name="stats-chart-outline"></ion-icon>
+          <span>Estadísticas</span>
+        </button>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[7])">
+          <ion-icon name="bar-chart-outline"></ion-icon>
+          <span>Reportes gráficos</span>
+        </button>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[6])">
+          <ion-icon name="star-outline"></ion-icon>
+          <span>Satisfacción</span>
+        </button>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[9])">
+          <ion-icon name="document-text-outline"></ion-icon>
+          <span>Reportes</span>
+        </button>
+
+        <span class="nav-label">HERRAMIENTAS</span>
+
+        <button type="button" class="side-link" (click)="abrirModulo(modulos[8])">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          <span>White List</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-user">
         <div class="user-avatar">
           <ion-icon name="person-circle-outline"></ion-icon>
         </div>
 
-        <button
-          type="button"
-          class="logout-button"
-          (click)="cerrarSesion()">
+        <div class="user-data">
+          <strong>{{ usuario?.nombre || 'Administradora' }}</strong>
+          <span>Administrador</span>
+        </div>
 
+        <button type="button" class="logout-icon" (click)="cerrarSesion()" aria-label="Cerrar sesión">
           <ion-icon name="log-out-outline"></ion-icon>
-
-          <span>Cerrar sesión</span>
-
         </button>
-
       </div>
+    </aside>
 
-    </header>
+    <main class="admin-main">
+      <header class="admin-topbar">
+        <div class="topbar-title">
+          <span>Panel administrativo</span>
+          <strong>Mystic Box</strong>
+        </div>
 
-    <!-- Banner principal -->
-    <section class="hero-admin">
-
-      <div class="hero-content">
-
-        <span class="eyebrow">
-          PANEL DE CONTROL
-        </span>
-
-        <h1>
-          Hola,
-          <strong>
-            {{ usuario?.nombre || 'Administradora' }}
-          </strong>
-
-          <ion-icon name="sparkles-outline"></ion-icon>
-        </h1>
-
-        <p>
-          Gestiona tu tienda, los pedidos y la experiencia
-          de tus clientes desde un solo lugar.
-        </p>
-
-        <div class="hero-information">
-
-          <div class="information-pill">
+        <div class="topbar-status">
+          <div class="status-pill">
             <ion-icon name="calendar-outline"></ion-icon>
             <span>{{ fechaActual }}</span>
           </div>
 
-          <div class="information-pill">
+          <div class="status-pill">
             <ion-icon name="time-outline"></ion-icon>
             <span>{{ horaActual }}</span>
           </div>
-
         </div>
+      </header>
 
-      </div>
+      <section class="admin-hero">
+        <div class="hero-copy">
+          <span class="eyebrow">BIENVENIDA</span>
 
-      <div class="hero-decoration">
+          <h1>
+            Hola,
+            <strong>{{ usuario?.nombre || 'Administradora' }}</strong>
+          </h1>
 
-        <div class="decoration-glow"></div>
+          <p>
+            Revisa el movimiento de la tienda, administra promociones,
+            pedidos, clientes y toda la operación desde un mismo lugar.
+          </p>
 
-        <div class="settings-platform">
+          <div class="hero-actions">
+            <button type="button" class="primary-action" (click)="abrirModulo(modulos[1])">
+              <ion-icon name="pricetag-outline"></ion-icon>
+              Gestionar promociones
+            </button>
 
-          <div class="settings-icon">
-            <ion-icon name="settings-outline"></ion-icon>
+            <button type="button" class="secondary-action" (click)="abrirModulo(modulos[2])">
+              <ion-icon name="receipt-outline"></ion-icon>
+              Ver pedidos
+            </button>
           </div>
-
-          <div class="platform-ring ring-one"></div>
-          <div class="platform-ring ring-two"></div>
-
         </div>
 
-      </div>
+<div class="hero-art hero-products" aria-hidden="true">
 
-    </section>
+  <div class="product-showcase product-gamer">
 
-    <!-- Accesos rápidos -->
-    <section class="quick-strip">
+    <div class="product-glow"></div>
 
-      <article class="quick-card featured">
+    <img
+      src="assets/img/Gamer-Box-Basica.png"
+      alt=""
+      class="hero-product-img"
+    />
 
-        <div class="quick-icon">
-          <ion-icon name="storefront-outline"></ion-icon>
+    <div class="product-mini-info">
+      <span>COLECCIÓN</span>
+      <strong>Gamer Box</strong>
+    </div>
+
+  </div>
+
+
+  <div class="product-showcase product-beauty">
+
+    <div class="product-glow beauty-glow"></div>
+
+    <img
+      src="assets/img/Beauty-Box-Deluxe.png"
+      alt=""
+      class="hero-product-img"
+    />
+
+    <div class="product-mini-info">
+      <span>DESTACADA</span>
+      <strong>Beauty Box</strong>
+    </div>
+
+  </div>
+
+
+  <div class="hero-product-orbit orbit-one"></div>
+  <div class="hero-product-orbit orbit-two"></div>
+
+  <div class="hero-spark spark-one"></div>
+  <div class="hero-spark spark-two"></div>
+  <div class="hero-spark spark-three"></div>
+
+</div>
+      </section>
+
+      <section class="summary-strip">
+        <article class="summary-card blue">
+          <div class="summary-icon">
+            <ion-icon name="storefront-outline"></ion-icon>
+          </div>
+          <div>
+            <strong>{{ modulos.length }}</strong>
+            <span>Módulos disponibles</span>
+            <small>Herramientas de administración</small>
+          </div>
+        </article>
+
+        <article class="summary-card cyan" (click)="abrirModulo(modulos[2])">
+          <div class="summary-icon">
+            <ion-icon name="receipt-outline"></ion-icon>
+          </div>
+          <div>
+            <strong>Pedidos</strong>
+            <span>Gestión operativa</span>
+            <small>Consulta y actualiza estados</small>
+          </div>
+        </article>
+
+        <article class="summary-card violet" (click)="abrirModulo(modulos[1])">
+          <div class="summary-icon">
+            <ion-icon name="pricetag-outline"></ion-icon>
+          </div>
+          <div>
+            <strong>Promociones</strong>
+            <span>Campañas activas</span>
+            <small>Ofertas, destacados y cupones</small>
+          </div>
+        </article>
+
+        <article class="summary-card green" (click)="abrirModulo(modulos[3])">
+          <div class="summary-icon">
+            <ion-icon name="people-outline"></ion-icon>
+          </div>
+          <div>
+            <strong>Clientes</strong>
+            <span>Comunidad Mystic</span>
+            <small>Administra cuentas registradas</small>
+          </div>
+        </article>
+      </section>
+
+      <section class="admin-section">
+        <div class="section-heading">
+          <div>
+            <span>GESTIÓN PRINCIPAL</span>
+            <h2>Herramientas principales</h2>
+          </div>
+          <p>Accesos directos para operar la tienda.</p>
         </div>
 
-        <div class="quick-number">
+        <div class="operations-grid">
+          <article
+            class="operation-card"
+            *ngFor="let modulo of modulos.slice(0, 4)"
+            (click)="abrirModulo(modulo)">
 
-        </div>
-
-        <div class="quick-copy">
-          <strong>Módulos disponibles</strong>
-          <span>Herramientas para gestionar tu negocio</span>
-        </div>
-
-        <ion-icon
-          class="quick-arrow"
-          name="chevron-forward-outline">
-        </ion-icon>
-
-      </article>
-
-      <article
-        class="quick-card"
-        (click)="abrirModulo(modulos[2])">
-
-        <div class="quick-icon blue">
-          <ion-icon name="receipt-outline"></ion-icon>
-        </div>
-
-        <div class="quick-copy">
-          <strong>Pedidos</strong>
-          <span>Consulta y actualiza estados</span>
-
-          <button type="button">
-            Ver pedidos recientes
-          </button>
-        </div>
-
-        <ion-icon
-          class="quick-arrow blue-arrow"
-          name="chevron-forward-outline">
-        </ion-icon>
-
-      </article>
-
-      <article
-        class="quick-card"
-        (click)="abrirModulo(modulos[3])">
-
-        <div class="quick-icon purple">
-          <ion-icon name="people-outline"></ion-icon>
-        </div>
-
-        <div class="quick-copy">
-          <strong>Clientes</strong>
-          <span>Administra las cuentas de tus clientes</span>
-
-          <button type="button" class="purple-link">
-            Ver clientes registrados
-          </button>
-        </div>
-
-        <ion-icon
-          class="quick-arrow purple-arrow"
-          name="chevron-forward-outline">
-        </ion-icon>
-
-      </article>
-
-    </section>
-
-    <!-- Módulos -->
-    <section class="modules-section">
-
-      <div class="section-title">
-
-        <div>
-
-          <span class="section-eyebrow">
-            <i></i>
-            GESTIÓN DE LA TIENDA
-          </span>
-
-          <h2>
-            ¿Qué deseas administrar?
-          </h2>
-
-        </div>
-
-        <p>
-          Selecciona un módulo para comenzar.
-          <ion-icon name="sparkles-outline"></ion-icon>
-        </p>
-
-      </div>
-
-      <div class="modules-grid">
-
-        <article
-          class="module-card"
-          *ngFor="let modulo of modulos"
-          [ngClass]="'theme-' + modulo.tema"
-          (click)="abrirModulo(modulo)">
-
-          <div class="card-glow"></div>
-
-          <div class="module-head">
-
-            <div class="module-icon">
+            <div class="operation-icon">
               <ion-icon [name]="modulo.icono"></ion-icon>
             </div>
 
-            <span class="task-badge">
-              {{ modulo.tarea }}
-            </span>
+            <div class="operation-copy">
+              <h3>{{ modulo.titulo }}</h3>
+              <p>{{ modulo.descripcion }}</p>
+            </div>
 
+            <div class="operation-arrow">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </article>
+
+          <article class="operation-card" (click)="abrirModulo(modulos[8])">
+            <div class="operation-icon">
+              <ion-icon name="shield-checkmark-outline"></ion-icon>
+            </div>
+
+            <div class="operation-copy">
+              <h3>White List</h3>
+              <p>Administra los usuarios autorizados dentro de la aplicación.</p>
+            </div>
+
+            <div class="operation-arrow">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="admin-section analytics-section">
+        <div class="section-heading">
+          <div>
+            <span>ANÁLISIS</span>
+            <h2>Información para tomar decisiones</h2>
           </div>
+          <p>Consulta indicadores, reportes y percepción de clientes.</p>
+        </div>
 
-          <div class="module-content">
+        <div class="analytics-grid">
 
-            <h3>
-              {{ modulo.titulo }}
-            </h3>
+          <!-- Dashboard -->
+          <article
+            class="analytics-card"
+            (click)="abrirModulo(modulos[4])"
+          >
+            <div class="analytics-card-glow"></div>
 
+            <div class="analytics-top">
+              <div class="analytics-icon">
+                <ion-icon [name]="modulos[4].icono"></ion-icon>
+              </div>
+
+              <div class="analytics-tag">
+                <span>GENERAL</span>
+              </div>
+
+              <ion-icon
+                class="analytics-arrow"
+                name="chevron-forward-outline"
+              ></ion-icon>
+            </div>
+
+            <h3>{{ modulos[4].titulo }}</h3>
+            <p>{{ modulos[4].descripcion }}</p>
+
+            <div class="analytics-visual" aria-hidden="true">
+              <div class="chart-grid"></div>
+
+              <svg
+                class="sparkline"
+                viewBox="0 0 240 78"
+                preserveAspectRatio="none"
+              >
+                <path
+                  class="spark-area"
+                  d="M0,66 C22,62 26,40 48,47
+                     C68,54 77,24 98,31
+                     C118,38 126,15 146,23
+                     C166,31 176,12 196,18
+                     C214,23 227,8 240,12
+                     L240,78 L0,78 Z"
+                ></path>
+
+                <path
+                  class="spark-path"
+                  d="M0,66 C22,62 26,40 48,47
+                     C68,54 77,24 98,31
+                     C118,38 126,15 146,23
+                     C166,31 176,12 196,18
+                     C214,23 227,8 240,12"
+                ></path>
+
+                <circle class="spark-dot" cx="48" cy="47" r="3"></circle>
+                <circle class="spark-dot" cx="98" cy="31" r="3"></circle>
+                <circle class="spark-dot" cx="146" cy="23" r="3"></circle>
+                <circle class="spark-dot" cx="196" cy="18" r="3"></circle>
+                <circle class="spark-dot dot-5" cx="240" cy="12" r="4"></circle>
+              </svg>
+
+              <div class="analytics-bottom">
+                <span class="trend-pill">
+                  <ion-icon name="stats-chart-outline"></ion-icon>
+                  Ver análisis
+                </span>
+
+                <div class="chart-legend">
+                  <i></i>
+                  <i></i>
+                  <i></i>
+                </div>
+              </div>
+            </div>
+
+          </article>
+
+          <!-- Estadísticas -->
+          <article
+            class="analytics-card"
+            (click)="abrirModulo(modulos[5])"
+          >
+            <div class="analytics-card-glow"></div>
+
+            <div class="analytics-top">
+              <div class="analytics-icon">
+                <ion-icon [name]="modulos[5].icono"></ion-icon>
+              </div>
+
+              <div class="analytics-tag">
+                <span>DATOS</span>
+              </div>
+
+              <ion-icon
+                class="analytics-arrow"
+                name="chevron-forward-outline"
+              ></ion-icon>
+            </div>
+
+            <h3>{{ modulos[5].titulo }}</h3>
+            <p>{{ modulos[5].descripcion }}</p>
+
+            <div class="analytics-visual" aria-hidden="true">
+              <div class="chart-grid"></div>
+
+              <svg
+                class="sparkline"
+                viewBox="0 0 240 78"
+                preserveAspectRatio="none"
+              >
+                <path
+                  class="spark-area"
+                  d="M0,66 C22,62 26,40 48,47
+                     C68,54 77,24 98,31
+                     C118,38 126,15 146,23
+                     C166,31 176,12 196,18
+                     C214,23 227,8 240,12
+                     L240,78 L0,78 Z"
+                ></path>
+
+                <path
+                  class="spark-path"
+                  d="M0,66 C22,62 26,40 48,47
+                     C68,54 77,24 98,31
+                     C118,38 126,15 146,23
+                     C166,31 176,12 196,18
+                     C214,23 227,8 240,12"
+                ></path>
+
+                <circle class="spark-dot" cx="48" cy="47" r="3"></circle>
+                <circle class="spark-dot" cx="98" cy="31" r="3"></circle>
+                <circle class="spark-dot" cx="146" cy="23" r="3"></circle>
+                <circle class="spark-dot" cx="196" cy="18" r="3"></circle>
+                <circle class="spark-dot dot-5" cx="240" cy="12" r="4"></circle>
+              </svg>
+
+              <div class="analytics-bottom">
+                <span class="trend-pill">
+                  <ion-icon name="stats-chart-outline"></ion-icon>
+                  Ver análisis
+                </span>
+
+                <div class="chart-legend">
+                  <i></i>
+                  <i></i>
+                  <i></i>
+                </div>
+              </div>
+            </div>
+
+          </article>
+
+          <!-- Reportes gráficos -->
+          <article
+            class="analytics-card"
+            (click)="abrirModulo(modulos[7])"
+          >
+            <div class="analytics-card-glow"></div>
+
+            <div class="analytics-top">
+              <div class="analytics-icon">
+                <ion-icon [name]="modulos[7].icono"></ion-icon>
+              </div>
+
+              <div class="analytics-tag">
+                <span>TENDENCIA</span>
+              </div>
+
+              <ion-icon
+                class="analytics-arrow"
+                name="chevron-forward-outline"
+              ></ion-icon>
+            </div>
+
+            <h3>{{ modulos[7].titulo }}</h3>
+            <p>{{ modulos[7].descripcion }}</p>
+
+            <div
+              class="analytics-visual report-preview"
+              aria-hidden="true"
+            >
+              <div class="report-preview-bars">
+                <div class="preview-month">
+                  <div class="preview-bar" style="height: 12%"></div>
+                  <span>ENE</span>
+                </div>
+
+                <div class="preview-month">
+                  <div class="preview-bar" style="height: 15%"></div>
+                  <span>FEB</span>
+                </div>
+
+                <div class="preview-month">
+                  <div class="preview-bar" style="height: 10%"></div>
+                  <span>MAR</span>
+                </div>
+
+                <div class="preview-month">
+                  <div class="preview-bar" style="height: 14%"></div>
+                  <span>ABR</span>
+                </div>
+
+                <div class="preview-month">
+                  <div class="preview-bar" style="height: 16%"></div>
+                  <span>MAY</span>
+                </div>
+
+                <div class="preview-month">
+                  <div class="preview-bar" style="height: 12%"></div>
+                  <span>JUN</span>
+                </div>
+
+                <div class="preview-month jul">
+                  <div class="preview-bar" style="height: 42%"></div>
+                  <span>JUL</span>
+                </div>
+
+                <div class="preview-month agosto">
+                  <div class="preview-bar" style="height: 94%"></div>
+                  <span>AGO</span>
+                </div>
+              </div>
+
+              <div class="preview-donut">
+                <div class="preview-donut-ring">
+                  <div class="preview-donut-center">
+                    <strong>6</strong>
+                    <small>pedidos</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="report-preview-footer">
+                <span>
+                  <ion-icon name="bar-chart-outline"></ion-icon>
+                  Ventas mensuales
+                </span>
+
+                <strong>₡105 500</strong>
+              </div>
+            </div>
+          </article>
+
+          <!-- Satisfacción -->
+          <article
+            class="analytics-card"
+            (click)="abrirModulo(modulos[6])"
+          >
+            <div class="analytics-card-glow"></div>
+
+            <div class="analytics-top">
+              <div class="analytics-icon">
+                <ion-icon [name]="modulos[6].icono"></ion-icon>
+              </div>
+
+              <div class="analytics-tag">
+                <span>CLIENTES</span>
+              </div>
+
+              <ion-icon
+                class="analytics-arrow"
+                name="chevron-forward-outline"
+              ></ion-icon>
+            </div>
+
+            <h3>{{ modulos[6].titulo }}</h3>
+            <p>{{ modulos[6].descripcion }}</p>
+
+            <div class="analytics-visual" aria-hidden="true">
+              <div class="chart-grid"></div>
+
+              <svg
+                class="sparkline"
+                viewBox="0 0 240 78"
+                preserveAspectRatio="none"
+              >
+                <path
+                  class="spark-area"
+                  d="M0,66 C22,62 26,40 48,47
+                     C68,54 77,24 98,31
+                     C118,38 126,15 146,23
+                     C166,31 176,12 196,18
+                     C214,23 227,8 240,12
+                     L240,78 L0,78 Z"
+                ></path>
+
+                <path
+                  class="spark-path"
+                  d="M0,66 C22,62 26,40 48,47
+                     C68,54 77,24 98,31
+                     C118,38 126,15 146,23
+                     C166,31 176,12 196,18
+                     C214,23 227,8 240,12"
+                ></path>
+
+                <circle class="spark-dot" cx="48" cy="47" r="3"></circle>
+                <circle class="spark-dot" cx="98" cy="31" r="3"></circle>
+                <circle class="spark-dot" cx="146" cy="23" r="3"></circle>
+                <circle class="spark-dot" cx="196" cy="18" r="3"></circle>
+                <circle class="spark-dot dot-5" cx="240" cy="12" r="4"></circle>
+              </svg>
+
+              <div class="analytics-bottom">
+                <span class="trend-pill">
+                  <ion-icon name="stats-chart-outline"></ion-icon>
+                  Ver análisis
+                </span>
+
+                <div class="chart-legend">
+                  <i></i>
+                  <i></i>
+                  <i></i>
+                </div>
+              </div>
+            </div>
+
+          </article>
+
+          <!-- Reportes generales -->
+          <article
+            class="analytics-card analytics-card-report"
+            (click)="abrirModulo(modulos[9])"
+          >
+            <div class="analytics-card-glow"></div>
+
+            <div class="analytics-top">
+              <div class="analytics-icon">
+                <ion-icon name="document-text-outline"></ion-icon>
+              </div>
+
+              <div class="analytics-tag">
+                <span>RESUMEN</span>
+              </div>
+
+              <ion-icon
+                class="analytics-arrow"
+                name="chevron-forward-outline"
+              ></ion-icon>
+            </div>
+
+            <h3>Reportes</h3>
             <p>
-              {{ modulo.descripcion }}
+              Genera un resumen consolidado de la operación de Mystic Box.
             </p>
 
-          </div>
+            <div
+              class="analytics-visual report-visual"
+              aria-hidden="true"
+            >
+              <div class="report-ring">
+                <div class="report-ring-inner">
+                  <ion-icon name="document-text-outline"></ion-icon>
+                </div>
+              </div>
 
-          <button
-            type="button"
-            class="module-button"
-            (click)="
-              abrirModulo(modulo);
-              $event.stopPropagation()
-            ">
+              <div class="report-lines">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
 
-            <span>Entrar al módulo</span>
+              <span class="trend-pill report-pill">
+                Abrir reportes
+              </span>
+            </div>
+          </article>
 
-            <ion-icon
-              name="chevron-forward-outline">
-            </ion-icon>
-
-          </button>
-
-        </article>
-
-      </div>
-
-    </section>
-
-  </main>
-
+        </div>
+      </section>
+    </main>
+  </div>
 </ion-content>

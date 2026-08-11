@@ -1,46 +1,36 @@
-import {
-  Component,
-  OnInit
-} from '@angular/core';
-
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
-
-import {
-  Cupon,
-  CuponRequest,
-  CuponService
-} from '../../services/cupon.service';
-
 import { addIcons } from 'ionicons';
-
 import {
-  arrowBackOutline,
   addOutline,
-  pricetagOutline,
-  searchOutline,
-  refreshOutline,
-  createOutline,
-  trashOutline,
-  closeOutline,
-  saveOutline,
-  checkmarkCircleOutline,
   alertCircleOutline,
+  arrowBackOutline,
   calendarOutline,
   cashOutline,
-
+  checkmarkCircleOutline,
+  closeOutline,
+  createOutline,
+  cubeOutline,
+  pricetagOutline,
+  refreshOutline,
+  saveOutline,
+  searchOutline,
+  sparklesOutline,
+  starOutline,
   ticketOutline,
-  timeOutline
+  trashOutline
 } from 'ionicons/icons';
+
+import { Cupon, CuponRequest, CuponService } from '../../services/cupon.service';
+import { Mysticbox, MysticBoxModel, MysticBoxRequest } from '../../services/mysticbox';
 
 interface FormularioCupon {
   codigo: string;
   descripcion: string;
-  tipoDescuento:
-    'porcentaje' |
-    'monto';
+  tipoDescuento: 'porcentaje' | 'monto';
   porcentajeDescuento: number | null;
   montoDescuento: number | null;
   fechaInicio: string;
@@ -50,83 +40,206 @@ interface FormularioCupon {
 
 @Component({
   selector: 'app-admin-promociones',
-  templateUrl:
-    './admin-promociones.page.html',
-  styleUrls: [
-    './admin-promociones.page.scss'
-  ],
+  templateUrl: './admin-promociones.page.html',
+  styleUrls: ['./admin-promociones.page.scss'],
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    IonicModule
-  ]
+  imports: [CommonModule, FormsModule, IonicModule]
 })
-export class AdminPromocionesPage
-implements OnInit {
+export class AdminPromocionesPage implements OnInit {
+  seccionActiva: 'productos' | 'cupones' = 'productos';
+
+  cajas: MysticBoxModel[] = [];
+  cajasFiltradas: MysticBoxModel[] = [];
+  textoBusquedaCaja = '';
+  guardandoCaja: number | null = null;
 
   cupones: Cupon[] = [];
   cuponesFiltrados: Cupon[] = [];
-
-  textoBusqueda = '';
-
-  cargando = true;
-  guardando = false;
-
+  textoBusquedaCupon = '';
   mostrarFormulario = false;
   modoEdicion = false;
+  idCuponEditando: number | null = null;
+  guardandoCupon = false;
 
-  idCuponEditando:
-    number | null = null;
-
+  cargando = true;
   mensajeError = '';
   mensajeExito = '';
 
-  formulario: FormularioCupon =
-    this.crearFormularioVacio();
+  formulario: FormularioCupon = this.crearFormularioVacio();
 
   constructor(
+    private mysticboxService: Mysticbox,
     private cuponService: CuponService,
     private router: Router
   ) {
     addIcons({
-      arrowBackOutline,
       addOutline,
-      pricetagOutline,
-      searchOutline,
-      refreshOutline,
-      createOutline,
-      trashOutline,
-      closeOutline,
-      saveOutline,
-      checkmarkCircleOutline,
       alertCircleOutline,
+      arrowBackOutline,
       calendarOutline,
       cashOutline,
-       
+      checkmarkCircleOutline,
+      closeOutline,
+      createOutline,
+      cubeOutline,
+      pricetagOutline,
+      refreshOutline,
+      saveOutline,
+      searchOutline,
+      sparklesOutline,
+      starOutline,
       ticketOutline,
-      timeOutline
+      trashOutline
     });
   }
 
   ngOnInit(): void {
-    this.cargarCupones();
+    this.cargarTodo();
   }
 
   ionViewWillEnter(): void {
+    this.cargarTodo();
+  }
+
+  cargarTodo(): void {
+    this.cargando = true;
+    this.mensajeError = '';
+    this.cargarCajas();
     this.cargarCupones();
   }
 
-  crearFormularioVacio():
-    FormularioCupon {
-    const hoy =
-      this.obtenerFechaActual();
+  cargarCajas(): void {
+    this.mysticboxService.obtenerCajas().subscribe({
+      next: respuesta => {
+        this.cajas = (respuesta ?? []).map(caja => this.normalizarCaja(caja));
+        this.aplicarFiltroCajas();
+        this.cargando = false;
+      },
+      error: error => {
+        this.cargando = false;
+        this.mensajeError = error.error?.mensaje ?? 'No fue posible cargar el catálogo.';
+      }
+    });
+  }
 
+  private normalizarCaja(caja: any): MysticBoxModel {
+    return {
+      idCaja: Number(caja.idCaja ?? caja.IdCaja ?? 0),
+      idCategoria: Number(caja.idCategoria ?? caja.IdCategoria ?? 0),
+      nombreCaja: caja.nombreCaja ?? caja.NombreCaja ?? '',
+      descripcion: caja.descripcion ?? caja.Descripcion ?? null,
+      precio: Number(caja.precio ?? caja.Precio ?? 0),
+      imagen: caja.imagen ?? caja.Imagen ?? null,
+      stock: Number(caja.stock ?? caja.Stock ?? 0),
+      estado: caja.estado ?? caja.Estado ?? true,
+      esOferta: Boolean(caja.esOferta ?? caja.EsOferta ?? false),
+      porcentajeOferta: caja.porcentajeOferta ?? caja.PorcentajeOferta ?? null,
+      esRecomendada: Boolean(caja.esRecomendada ?? caja.EsRecomendada ?? false),
+      esDestacada: Boolean(caja.esDestacada ?? caja.EsDestacada ?? false)
+    };
+  }
+
+  aplicarFiltroCajas(): void {
+    const texto = this.textoBusquedaCaja.trim().toLowerCase();
+    this.cajasFiltradas = this.cajas.filter(caja =>
+      !texto || caja.nombreCaja.toLowerCase().includes(texto)
+    );
+  }
+
+  alternarOferta(caja: MysticBoxModel): void {
+    caja.esOferta = !caja.esOferta;
+    if (caja.esOferta && (!caja.porcentajeOferta || caja.porcentajeOferta <= 0)) {
+      caja.porcentajeOferta = 10;
+    }
+    if (!caja.esOferta) {
+      caja.porcentajeOferta = null;
+    }
+  }
+
+  guardarConfiguracionCaja(caja: MysticBoxModel): void {
+    this.mensajeError = '';
+    this.mensajeExito = '';
+
+    const porcentaje = Number(caja.porcentajeOferta ?? 0);
+    if (caja.esOferta && (porcentaje <= 0 || porcentaje >= 100)) {
+      this.mensajeError = 'El porcentaje de oferta debe ser mayor que 0 y menor que 100.';
+      return;
+    }
+
+    const request: MysticBoxRequest = {
+      idCategoria: caja.idCategoria,
+      nombreCaja: caja.nombreCaja,
+      descripcion: caja.descripcion,
+      precio: caja.precio,
+      imagen: caja.imagen,
+      stock: caja.stock,
+      estado: caja.estado,
+      esOferta: caja.esOferta,
+      porcentajeOferta: caja.esOferta ? porcentaje : null,
+      esRecomendada: caja.esRecomendada,
+      esDestacada: caja.esDestacada
+    };
+
+    this.guardandoCaja = caja.idCaja;
+    this.mysticboxService.actualizarCaja(caja.idCaja, request).subscribe({
+      next: () => {
+        this.guardandoCaja = null;
+        this.mensajeExito = `${caja.nombreCaja} se actualizó correctamente.`;
+      },
+      error: error => {
+        this.guardandoCaja = null;
+        this.mensajeError = error.error?.mensaje ?? error.error?.title ?? 'No fue posible actualizar la caja.';
+      }
+    });
+  }
+
+  obtenerPrecioOferta(caja: MysticBoxModel): number {
+    if (!caja.esOferta || !caja.porcentajeOferta) return caja.precio;
+    return Math.round(caja.precio * (1 - Number(caja.porcentajeOferta) / 100));
+  }
+
+  obtenerImagen(imagen: string | null): string {
+    if (!imagen) return '';
+    if (imagen.startsWith('assets/')) return imagen;
+    return `assets/img/${imagen}`;
+  }
+
+  cargarCupones(): void {
+    this.cuponService.obtenerCupones().subscribe({
+      next: respuesta => {
+        this.cupones = (respuesta ?? []).map((cupon: any) => ({
+          idCupon: Number(cupon.idCupon ?? cupon.IdCupon ?? 0),
+          codigo: cupon.codigo ?? cupon.Codigo ?? '',
+          descripcion: cupon.descripcion ?? cupon.Descripcion ?? null,
+          porcentajeDescuento: cupon.porcentajeDescuento ?? cupon.PorcentajeDescuento ?? null,
+          montoDescuento: cupon.montoDescuento ?? cupon.MontoDescuento ?? null,
+          fechaInicio: cupon.fechaInicio ?? cupon.FechaInicio ?? '',
+          fechaFin: cupon.fechaFin ?? cupon.FechaFin ?? '',
+          activo: cupon.activo ?? cupon.Activo ?? false
+        }));
+        this.aplicarFiltroCupones();
+      },
+      error: error => {
+        this.mensajeError = error.error?.mensaje ?? 'No fue posible cargar los cupones.';
+      }
+    });
+  }
+
+  aplicarFiltroCupones(): void {
+    const texto = this.textoBusquedaCupon.trim().toLowerCase();
+    this.cuponesFiltrados = this.cupones.filter(cupon =>
+      !texto ||
+      cupon.codigo.toLowerCase().includes(texto) ||
+      (cupon.descripcion ?? '').toLowerCase().includes(texto)
+    );
+  }
+
+  crearFormularioVacio(): FormularioCupon {
+    const hoy = this.obtenerFechaActual();
     return {
       codigo: '',
       descripcion: '',
-      tipoDescuento:
-        'porcentaje',
+      tipoDescuento: 'porcentaje',
       porcentajeDescuento: 10,
       montoDescuento: null,
       fechaInicio: hoy,
@@ -135,554 +248,145 @@ implements OnInit {
     };
   }
 
-  obtenerFechaActual(): string {
+  private obtenerFechaActual(): string {
     const fecha = new Date();
-
-    const anio =
-      fecha.getFullYear();
-
-    const mes = String(
-      fecha.getMonth() + 1
-    ).padStart(2, '0');
-
-    const dia = String(
-      fecha.getDate()
-    ).padStart(2, '0');
-
+    const anio = fecha.getFullYear();
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
     return `${anio}-${mes}-${dia}`;
-  }
-
-  cargarCupones(): void {
-    this.cargando = true;
-    this.mensajeError = '';
-
-    this.cuponService
-      .obtenerCupones()
-      .subscribe({
-        next: (respuesta: any[]) => {
-          this.cupones =
-            (respuesta ?? []).map(
-              (cupon: any) => ({
-                idCupon: Number(
-                  cupon.idCupon ??
-                  cupon.IdCupon ??
-                  0
-                ),
-                codigo:
-                  cupon.codigo ??
-                  cupon.Codigo ??
-                  '',
-                descripcion:
-                  cupon.descripcion ??
-                  cupon.Descripcion ??
-                  null,
-                porcentajeDescuento:
-                  cupon.porcentajeDescuento ??
-                  cupon.PorcentajeDescuento ??
-                  null,
-                montoDescuento:
-                  cupon.montoDescuento ??
-                  cupon.MontoDescuento ??
-                  null,
-                fechaInicio:
-                  cupon.fechaInicio ??
-                  cupon.FechaInicio ??
-                  '',
-                fechaFin:
-                  cupon.fechaFin ??
-                  cupon.FechaFin ??
-                  '',
-                activo:
-                  cupon.activo ??
-                  cupon.Activo ??
-                  false
-              })
-            );
-
-          this.aplicarFiltro();
-          this.cargando = false;
-
-          console.log(
-            'Cupones obtenidos:',
-            respuesta
-          );
-        },
-        error: (error) => {
-          this.cargando = false;
-
-          this.mensajeError =
-            error.error?.mensaje ??
-            'No fue posible consultar los cupones.';
-
-          console.error(
-            'Error al consultar cupones:',
-            error
-          );
-        }
-      });
   }
 
   abrirFormularioNuevo(): void {
     this.modoEdicion = false;
     this.idCuponEditando = null;
-
-    this.formulario =
-      this.crearFormularioVacio();
-
-    this.mensajeError = '';
-    this.mensajeExito = '';
+    this.formulario = this.crearFormularioVacio();
     this.mostrarFormulario = true;
+    this.mensajeError = '';
   }
 
-  abrirFormularioEditar(
-    cupon: Cupon
-  ): void {
+  abrirFormularioEditar(cupon: Cupon): void {
+    const usaPorcentaje = Number(cupon.porcentajeDescuento ?? 0) > 0;
     this.modoEdicion = true;
-    this.idCuponEditando =
-      cupon.idCupon;
-
-    const usaPorcentaje =
-      cupon.porcentajeDescuento !==
-        null &&
-      Number(
-        cupon.porcentajeDescuento
-      ) > 0;
-
+    this.idCuponEditando = cupon.idCupon;
     this.formulario = {
       codigo: cupon.codigo,
-      descripcion:
-        cupon.descripcion ?? '',
-      tipoDescuento:
-        usaPorcentaje
-          ? 'porcentaje'
-          : 'monto',
-      porcentajeDescuento:
-        usaPorcentaje
-          ? Number(
-              cupon.porcentajeDescuento
-            )
-          : null,
-      montoDescuento:
-        !usaPorcentaje
-          ? Number(
-              cupon.montoDescuento ?? 0
-            )
-          : null,
-      fechaInicio:
-        cupon.fechaInicio,
-      fechaFin:
-        cupon.fechaFin,
-      activo:
-        cupon.activo ?? false
+      descripcion: cupon.descripcion ?? '',
+      tipoDescuento: usaPorcentaje ? 'porcentaje' : 'monto',
+      porcentajeDescuento: usaPorcentaje ? Number(cupon.porcentajeDescuento) : null,
+      montoDescuento: usaPorcentaje ? null : Number(cupon.montoDescuento ?? 0),
+      fechaInicio: this.formatearFechaInput(cupon.fechaInicio),
+      fechaFin: this.formatearFechaInput(cupon.fechaFin),
+      activo: Boolean(cupon.activo)
     };
-
-    this.mensajeError = '';
-    this.mensajeExito = '';
     this.mostrarFormulario = true;
   }
 
   cerrarFormulario(): void {
-    if (this.guardando) {
-      return;
-    }
-
+    if (this.guardandoCupon) return;
     this.mostrarFormulario = false;
-    this.modoEdicion = false;
-    this.idCuponEditando = null;
-
-    this.formulario =
-      this.crearFormularioVacio();
+    this.formulario = this.crearFormularioVacio();
   }
 
   cambiarTipoDescuento(): void {
-    if (
-      this.formulario
-        .tipoDescuento ===
-      'porcentaje'
-    ) {
-      this.formulario
-        .porcentajeDescuento =
-        this.formulario
-          .porcentajeDescuento ??
-        10;
-
-      this.formulario
-        .montoDescuento = null;
+    if (this.formulario.tipoDescuento === 'porcentaje') {
+      this.formulario.porcentajeDescuento = this.formulario.porcentajeDescuento ?? 10;
+      this.formulario.montoDescuento = null;
     } else {
-      this.formulario
-        .montoDescuento =
-        this.formulario
-          .montoDescuento ??
-        1000;
-
-      this.formulario
-        .porcentajeDescuento = null;
+      this.formulario.montoDescuento = this.formulario.montoDescuento ?? 1000;
+      this.formulario.porcentajeDescuento = null;
     }
-  }
-
-  validarFormulario(): boolean {
-    if (
-      !this.formulario.codigo.trim()
-    ) {
-      this.mensajeError =
-        'El código del cupón es obligatorio.';
-
-      return false;
-    }
-
-    if (
-      !this.formulario.fechaInicio
-    ) {
-      this.mensajeError =
-        'Debe indicar la fecha inicial.';
-
-      return false;
-    }
-
-    if (
-      !this.formulario.fechaFin
-    ) {
-      this.mensajeError =
-        'Debe indicar la fecha final.';
-
-      return false;
-    }
-
-    if (
-      this.formulario.fechaFin <
-      this.formulario.fechaInicio
-    ) {
-      this.mensajeError =
-        'La fecha final no puede ser anterior a la fecha inicial.';
-
-      return false;
-    }
-
-    if (
-      this.formulario
-        .tipoDescuento ===
-      'porcentaje'
-    ) {
-      const porcentaje = Number(
-        this.formulario
-          .porcentajeDescuento
-      );
-
-      if (
-        porcentaje <= 0 ||
-        porcentaje > 100
-      ) {
-        this.mensajeError =
-          'El porcentaje debe estar entre 1 y 100.';
-
-        return false;
-      }
-    }
-
-    if (
-      this.formulario
-        .tipoDescuento ===
-      'monto'
-    ) {
-      const monto = Number(
-        this.formulario
-          .montoDescuento
-      );
-
-      if (monto <= 0) {
-        this.mensajeError =
-          'El monto de descuento debe ser mayor que cero.';
-
-        return false;
-      }
-    }
-
-    return true;
   }
 
   guardarCupon(): void {
     this.mensajeError = '';
     this.mensajeExito = '';
 
-    if (!this.validarFormulario()) {
+    if (!this.formulario.codigo.trim() || !this.formulario.fechaInicio || !this.formulario.fechaFin) {
+      this.mensajeError = 'Completa el código y las fechas del cupón.';
+      return;
+    }
+    if (this.formulario.fechaFin < this.formulario.fechaInicio) {
+      this.mensajeError = 'La fecha final no puede ser anterior a la fecha inicial.';
       return;
     }
 
-    const usaPorcentaje =
-      this.formulario
-        .tipoDescuento ===
-      'porcentaje';
+    const usaPorcentaje = this.formulario.tipoDescuento === 'porcentaje';
+    const porcentaje = Number(this.formulario.porcentajeDescuento ?? 0);
+    const monto = Number(this.formulario.montoDescuento ?? 0);
 
-    const cupon:
-      CuponRequest = {
-        codigo:
-          this.formulario.codigo
-            .trim()
-            .toUpperCase(),
-        descripcion:
-          this.formulario.descripcion
-            .trim() || null,
-        porcentajeDescuento:
-          usaPorcentaje
-            ? Number(
-                this.formulario
-                  .porcentajeDescuento
-              )
-            : null,
-        montoDescuento:
-          !usaPorcentaje
-            ? Number(
-                this.formulario
-                  .montoDescuento
-              )
-            : null,
-        fechaInicio:
-          this.formulario
-            .fechaInicio,
-        fechaFin:
-          this.formulario
-            .fechaFin,
-        activo:
-          this.formulario.activo
-      };
-
-    this.guardando = true;
-
-    if (
-      this.modoEdicion &&
-      this.idCuponEditando !== null
-    ) {
-      this.actualizarCupon(
-        this.idCuponEditando,
-        cupon
-      );
-
+    if (usaPorcentaje && (porcentaje <= 0 || porcentaje > 100)) {
+      this.mensajeError = 'El porcentaje debe estar entre 1 y 100.';
+      return;
+    }
+    if (!usaPorcentaje && monto <= 0) {
+      this.mensajeError = 'El monto debe ser mayor que cero.';
       return;
     }
 
-    this.crearCupon(cupon);
+    const request: CuponRequest = {
+      codigo: this.formulario.codigo.trim().toUpperCase(),
+      descripcion: this.formulario.descripcion.trim() || null,
+      porcentajeDescuento: usaPorcentaje ? porcentaje : null,
+      montoDescuento: usaPorcentaje ? null : monto,
+      fechaInicio: this.formulario.fechaInicio,
+      fechaFin: this.formulario.fechaFin,
+      activo: this.formulario.activo
+    };
+
+    this.guardandoCupon = true;
+    const operacion = this.modoEdicion && this.idCuponEditando
+      ? this.cuponService.actualizarCupon(this.idCuponEditando, request)
+      : this.cuponService.crearCupon(request);
+
+    operacion.subscribe({
+      next: () => {
+        this.guardandoCupon = false;
+        this.mostrarFormulario = false;
+        this.mensajeExito = this.modoEdicion ? 'Cupón actualizado correctamente.' : 'Cupón creado correctamente.';
+        this.cargarCupones();
+      },
+      error: error => {
+        this.guardandoCupon = false;
+        this.mensajeError = error.error?.mensaje ?? 'No fue posible guardar el cupón.';
+      }
+    });
   }
 
-  crearCupon(
-    cupon: CuponRequest
-  ): void {
-    this.cuponService
-      .crearCupon(cupon)
-      .subscribe({
-        next: (respuesta) => {
-          this.guardando = false;
-          this.mostrarFormulario =
-            false;
-
-          this.mensajeExito =
-            'Cupón creado correctamente.';
-
-          this.formulario =
-            this.crearFormularioVacio();
-
-          this.cargarCupones();
-
-          console.log(
-            'Cupón creado:',
-            respuesta
-          );
-        },
-        error: (error) => {
-          this.guardando = false;
-
-          this.mensajeError =
-            error.error?.mensaje ??
-            error.error?.title ??
-            'No fue posible crear el cupón.';
-
-          console.error(
-            'Error al crear cupón:',
-            error
-          );
-        }
-      });
+  eliminarCupon(cupon: Cupon): void {
+    if (!confirm(`¿Eliminar el cupón ${cupon.codigo}?`)) return;
+    this.cuponService.eliminarCupon(cupon.idCupon).subscribe({
+      next: () => {
+        this.mensajeExito = 'Cupón eliminado correctamente.';
+        this.cargarCupones();
+      },
+      error: error => {
+        this.mensajeError = error.error?.mensaje ?? 'No fue posible eliminar el cupón.';
+      }
+    });
   }
 
-  actualizarCupon(
-    idCupon: number,
-    cupon: CuponRequest
-  ): void {
-    this.cuponService
-      .actualizarCupon(
-        idCupon,
-        cupon
-      )
-      .subscribe({
-        next: (respuesta) => {
-          this.guardando = false;
-          this.mostrarFormulario =
-            false;
-
-          this.mensajeExito =
-            'Cupón actualizado correctamente.';
-
-          this.modoEdicion = false;
-          this.idCuponEditando = null;
-
-          this.formulario =
-            this.crearFormularioVacio();
-
-          this.cargarCupones();
-
-          console.log(
-            'Cupón actualizado:',
-            respuesta
-          );
-        },
-        error: (error) => {
-          this.guardando = false;
-
-          this.mensajeError =
-            error.error?.mensaje ??
-            error.error?.title ??
-            'No fue posible actualizar el cupón.';
-
-          console.error(
-            'Error al actualizar cupón:',
-            error
-          );
-        }
-      });
-  }
-
-  eliminarCupon(
-    cupon: Cupon
-  ): void {
-    const confirmar =
-      window.confirm(
-        `¿Deseas eliminar el cupón "${cupon.codigo}"?`
-      );
-
-    if (!confirmar) {
-      return;
+  obtenerDescuentoCupon(cupon: Cupon): string {
+    if (Number(cupon.porcentajeDescuento ?? 0) > 0) {
+      return `${Number(cupon.porcentajeDescuento)}%`;
     }
-
-    this.mensajeError = '';
-    this.mensajeExito = '';
-
-    this.cuponService
-      .eliminarCupon(
-        cupon.idCupon
-      )
-      .subscribe({
-        next: () => {
-          this.mensajeExito =
-            'Cupón eliminado correctamente.';
-
-          this.cargarCupones();
-        },
-        error: (error) => {
-          this.mensajeError =
-            error.error?.mensaje ??
-            error.error?.title ??
-            'No fue posible eliminar el cupón.';
-
-          console.error(
-            'Error al eliminar cupón:',
-            error
-          );
-        }
-      });
+    return `₡${Number(cupon.montoDescuento ?? 0).toLocaleString('es-CR')}`;
   }
 
-  aplicarFiltro(): void {
-    const texto =
-      this.textoBusqueda
-        .trim()
-        .toLowerCase();
-
-    if (!texto) {
-      this.cuponesFiltrados = [
-        ...this.cupones
-      ];
-
-      return;
-    }
-
-    this.cuponesFiltrados =
-      this.cupones.filter(
-        cupon =>
-          cupon.codigo
-            .toLowerCase()
-            .includes(texto) ||
-          (
-            cupon.descripcion ?? ''
-          )
-            .toLowerCase()
-            .includes(texto)
-      );
+  private formatearFechaInput(fecha: string): string {
+    return fecha ? String(fecha).slice(0, 10) : this.obtenerFechaActual();
   }
 
-  obtenerTipoDescuento(
-    cupon: Cupon
-  ): string {
-    if (
-      cupon.porcentajeDescuento !==
-        null &&
-      Number(
-        cupon.porcentajeDescuento
-      ) > 0
-    ) {
-      return `${cupon.porcentajeDescuento}%`;
-    }
 
-    return `₡${Number(
-      cupon.montoDescuento ?? 0
-    ).toLocaleString()}`;
+  contarOfertas(): number {
+    return this.cajas.filter(caja => caja.esOferta).length;
   }
 
-obtenerIconoDescuento(cupon: Cupon): string {
-  if (
-    cupon.porcentajeDescuento !== null &&
-    Number(cupon.porcentajeDescuento) > 0
-  ) {
-    return 'pricetag-outline';
+  contarRecomendadas(): number {
+    return this.cajas.filter(caja => caja.esRecomendada).length;
   }
 
-  return 'cash-outline';
-}
-  obtenerEstadoCupon(
-    cupon: Cupon
-  ): string {
-    if (!cupon.activo) {
-      return 'Inactivo';
-    }
-
-    const hoy =
-      this.obtenerFechaActual();
-
-    if (hoy < cupon.fechaInicio) {
-      return 'Próximo';
-    }
-
-    if (hoy > cupon.fechaFin) {
-      return 'Vencido';
-    }
-
-    return 'Vigente';
-  }
-
-  obtenerClaseEstado(
-    cupon: Cupon
-  ): string {
-    const estado =
-      this.obtenerEstadoCupon(cupon);
-
-    switch (estado) {
-      case 'Vigente':
-        return 'active';
-      case 'Próximo':
-        return 'upcoming';
-      case 'Vencido':
-        return 'expired';
-      default:
-        return 'inactive';
-    }
+  contarDestacadas(): number {
+    return this.cajas.filter(caja => caja.esDestacada).length;
   }
 
   volverAlPanel(): void {

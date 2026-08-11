@@ -10,8 +10,8 @@
   --text: #f5f7fb;
   --muted: #8999ad;
 
-  --purple: #9c5cf4;
-  --purple-light: #bd84ff;
+  --accent-blue: #9c5cf4;
+  --accent-blue-light: #bd84ff;
 
   --blue: #409cf7;
   --green: #3bd38a;
@@ -208,7 +208,7 @@
     rgba(156, 92, 244, 0.5);
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   background:
     rgba(156, 92, 244, 0.08);
@@ -335,7 +335,7 @@
   .summary-icon {
 
     color:
-      var(--purple-light);
+      var(--accent-blue-light);
 
     background:
       rgba(156, 92, 244, 0.11);
@@ -1033,7 +1033,7 @@
   span {
 
     color:
-      var(--purple-light);
+      var(--accent-blue-light);
 
     font-size:
       8px;
@@ -1139,7 +1139,7 @@
   ion-icon {
 
     color:
-      var(--purple-light);
+      var(--accent-blue-light);
   }
 
   input {
@@ -1382,7 +1382,7 @@
     14px;
 
   color:
-    var(--purple-light);
+    var(--accent-blue-light);
 
   background:
     rgba(156, 92, 244, 0.1);
