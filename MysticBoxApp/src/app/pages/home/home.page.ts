@@ -349,17 +349,16 @@ console.log('PRECIO QUE VA AL CARRITO:', producto.precio);
   }
 
   abrirWhatsApp(): void {
-    // Reemplazar por el número real de Mystic Box, incluyendo código de país.
-    const numeroWhatsApp = '506XXXXXXXX';
+  const numero = '50684203056';
+  const mensaje = encodeURIComponent(
+    'Hola, necesito ayuda con Mystic Box.'
+  );
 
-    if (numeroWhatsApp.includes('X')) {
-      alert('Configura el número real de WhatsApp en home.page.ts.');
-      return;
-    }
-
-    const mensaje = encodeURIComponent('Hola, necesito ayuda con Mystic Box.');
-    window.open(`https://wa.me/${numeroWhatsApp}?text=${mensaje}`, '_blank');
-  }
+  window.open(
+    `https://wa.me/${numero}?text=${mensaje}`,
+    '_blank'
+  );
+}
 
   irAlCarrito(): void { this.router.navigate(['/carrito']); }
   irAEntregas(): void { this.router.navigate(['/entregas']); }

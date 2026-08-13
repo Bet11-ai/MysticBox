@@ -2,8 +2,12 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.ionic.starter',
-  appName: 'MysticBoxApp',
-  webDir: 'www'
+  appName: 'Mystic Box',
+  webDir: 'www',
+
+  server: {
+    androidScheme: 'http'
+  }
 };
 
 export default config;

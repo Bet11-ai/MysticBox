@@ -24,12 +24,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("PermitirIonic", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:8100",
-                "https://localhost:8100",
-                "http://localhost:8101",
-                "http://localhost:8102"
-            )
+            .AllowAnyOrigin()
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -84,7 +79,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // =========================
 // CORS
